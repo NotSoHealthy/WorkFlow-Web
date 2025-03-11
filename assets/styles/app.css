@@ -1,3 +1,21 @@
+*{
+    --background-primary: #F1F4F8;
+    --background-secondary: #E1EAF9;
+    --background-tertiary: #FFFFFF;
+    --background-highlight: rgba(57, 210, 192, 0.4);
+    --text-primary: #143C4E;
+    --text-secondary: #57636C;
+    --text-success: #39D2C0;
+    --text-warning: #F9CF58;
+    --text-danger: #FF5963;
+
+    color: var(--text-primary);
+}
+
 body {
-    background-color: skyblue;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--background-primary);
+    height: 100vh;
+    width: 100vw;
 }

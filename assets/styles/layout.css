@@ -1,0 +1,23 @@
+.sidenav{
+    display: flex;
+    flex-direction: column;
+    padding: 1em 2em 1em 2em;
+    row-gap: 1em;
+    width: 200px;
+    height: 100%;
+    background-color: var(--background-secondary);
+}
+
+.nav-disconnect{
+    margin-top: auto;
+    color: var(--text-danger);
+}
+
+.nav-link{
+    border-radius: 10px;
+    padding: .5em 1em .5em .5em;
+}
+
+.nav-link:hover{
+    background-color: #9DE0E1;
+}

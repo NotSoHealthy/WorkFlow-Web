@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
+{% endblock stylesheets %}
+
+{% block body %}
+    <div class="sidenav">
+        <div class="nav-profile">
+            <img class="nav-profile-img" src="" alt="">
+            <h3 class="nav-profile-name">{{ app.user.first_name }} {{ app.user.last_name }}</h3>
+        </div>
+        <hr class="nav-hr">
+        <a class="nav-item nav-link" href="#">Dashboard</a>
+        <a class="nav-item nav-link" href="#">Départements</a>
+        <a class="nav-item nav-link" href="#">Projets</a>
+        <a class="nav-item nav-link" href="#">Employés</a>
+        <a class="nav-item nav-link" href="#">Formations</a>
+        <a class="nav-item nav-link" href="#">Evénements</a>
+        <a class="nav-item nav-link" href="#">Offre d'emplois</a>
+        <a class="nav-item nav-link" href="#">Candidatures</a>
+        <a class="nav-item nav-link" href="#">Congés</a>
+        <a class="nav-item nav-link" href="#">Réclamations</a>
+        <a class="nav-item nav-link nav-disconnect" href="#">Se Déconnecter</a>
+    </div>
+    {% block main %}{% endblock %}
+{% endblock body %}
