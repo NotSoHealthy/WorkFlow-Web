@@ -42,6 +42,13 @@
                 </div>
                 <div class="form-row">
                     <div class="form-column">
+                        {{ form_label(registrationForm.number) }}
+                        {{ form_widget(registrationForm.number) }}
+                        {{ form_errors(registrationForm.number) }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-column">
                         {{ form_label(registrationForm.password.first) }}
                         {{ form_widget(registrationForm.password.first) }}
                         {{ form_errors(registrationForm.password.first) }}
@@ -54,10 +61,13 @@
                 </div>
                 <div class="form-row">
                     <div class="form-column">
-                        <button type="submit" class="btn submit-btn">Register</button>
+                        <button type="submit" class="btn submit-btn">S'inscrire</button>
                     </div>
                 </div>
             </div>
         {{ form_end(registrationForm) }}
+        <div class="login">
+            <p>Vous avez déjà un compte ? <a href="{{ path('app_login') }}">Connectez-vous</a></p>
+        </div>
     </main>
 {% endblock %}

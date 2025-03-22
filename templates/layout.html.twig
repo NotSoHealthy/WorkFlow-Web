@@ -7,8 +7,8 @@
 {% block body %}
     <div class="sidenav">
         <div class="nav-profile">
-            <img class="nav-profile-img" src="" alt="">
-            <h3 class="nav-profile-name">{{ app.user.first_name }} {{ app.user.last_name }}</h3>
+            <img class="nav-profile-img" src="{{ app.user.imageUrl }}" alt="">
+            <h5 class="nav-profile-name">{{ app.user.firstName }} {{ app.user.lastName }}</h5>
         </div>
         <hr class="nav-hr">
         <a class="nav-item nav-link" href="#">Dashboard</a>
@@ -21,7 +21,7 @@
         <a class="nav-item nav-link" href="#">Candidatures</a>
         <a class="nav-item nav-link" href="#">Congés</a>
         <a class="nav-item nav-link" href="#">Réclamations</a>
-        <a class="nav-item nav-link nav-disconnect" href="#">Se Déconnecter</a>
+        <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}">Se Déconnecter</a>
     </div>
     {% block main %}{% endblock %}
 {% endblock body %}
