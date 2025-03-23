@@ -2,7 +2,7 @@
 
 {% block title %}Register{% endblock %}
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('styles/register.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/authentication.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -17,57 +17,55 @@
         </div>
         <h2>Créez votre compte</h2>
         {{ form_start(registrationForm) }}
-            <div class="form-group">
-                <div class="form-errors">
-                    {{ form_errors(registrationForm) }}
+            <div class="form-errors">
+                {{ form_errors(registrationForm) }}
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    {{ form_label(registrationForm.first_name) }}
+                    {{ form_widget(registrationForm.first_name) }}
+                    {{ form_errors(registrationForm.first_name) }}
                 </div>
-                <div class="form-row">
-                    <div class="form-column">
-                        {{ form_label(registrationForm.first_name) }}
-                        {{ form_widget(registrationForm.first_name) }}
-                        {{ form_errors(registrationForm.first_name) }}
-                    </div>
-                    <div class="form-column">
-                        {{ form_label(registrationForm.last_name) }}
-                        {{ form_widget(registrationForm.last_name) }}
-                        {{ form_errors(registrationForm.last_name) }}
-                    </div>
+                <div class="form-column">
+                    {{ form_label(registrationForm.last_name) }}
+                    {{ form_widget(registrationForm.last_name) }}
+                    {{ form_errors(registrationForm.last_name) }}
                 </div>
-                <div class="form-row">
-                    <div class="form-column">
-                        {{ form_label(registrationForm.email) }}
-                        {{ form_widget(registrationForm.email) }}
-                        {{ form_errors(registrationForm.email) }}
-                    </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    {{ form_label(registrationForm.email) }}
+                    {{ form_widget(registrationForm.email) }}
+                    {{ form_errors(registrationForm.email) }}
                 </div>
-                <div class="form-row">
-                    <div class="form-column">
-                        {{ form_label(registrationForm.number) }}
-                        {{ form_widget(registrationForm.number) }}
-                        {{ form_errors(registrationForm.number) }}
-                    </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    {{ form_label(registrationForm.number) }}
+                    {{ form_widget(registrationForm.number) }}
+                    {{ form_errors(registrationForm.number) }}
                 </div>
-                <div class="form-row">
-                    <div class="form-column">
-                        {{ form_label(registrationForm.password.first) }}
-                        {{ form_widget(registrationForm.password.first) }}
-                        {{ form_errors(registrationForm.password.first) }}
-                    </div>
-                    <div class="form-column">
-                        {{ form_label(registrationForm.password.second) }}
-                        {{ form_widget(registrationForm.password.second) }}
-                        {{ form_errors(registrationForm.password.second) }}
-                    </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    {{ form_label(registrationForm.password.first) }}
+                    {{ form_widget(registrationForm.password.first) }}
+                    {{ form_errors(registrationForm.password.first) }}
                 </div>
-                <div class="form-row">
-                    <div class="form-column">
-                        <button type="submit" class="btn submit-btn">S'inscrire</button>
-                    </div>
+                <div class="form-column">
+                    {{ form_label(registrationForm.password.second) }}
+                    {{ form_widget(registrationForm.password.second) }}
+                    {{ form_errors(registrationForm.password.second) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    <button type="submit" class="btn btn-lg submit-btn">S'inscrire</button>
                 </div>
             </div>
         {{ form_end(registrationForm) }}
-        <div class="login">
-            <p>Vous avez déjà un compte ? <a href="{{ path('app_login') }}">Connectez-vous</a></p>
+        <div>
+            <p>Vous avez déjà un compte? <a href="{{ path('app_login') }}">Connectez-vous</a></p>
         </div>
     </main>
 {% endblock %}

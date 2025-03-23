@@ -12,6 +12,10 @@
     color: var(--text-danger);
 }
 
+.nav-disconnect > span{
+    color: var(--text-danger);
+}
+
 .nav-link{
     border-radius: 10px;
     padding: .5em 1em .5em .5em;
@@ -19,6 +23,14 @@
 
 .nav-link:hover{
     background-color: #9DE0E1;
+}
+
+.nav-link > span{
+    transition: all .3s;
+}
+
+.nav-link:hover > span{
+    transform: scale(1.2);
 }
 
 .nav-profile{
@@ -31,4 +43,14 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
+}
+
+.nav-item{
+    display: flex;
+    align-items: center;
+    gap: .5em;
+}
+
+.nav-item.active{
+    background-color: red;
 }
