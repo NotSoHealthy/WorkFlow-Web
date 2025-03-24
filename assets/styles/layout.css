@@ -52,5 +52,5 @@
 }
 
 .nav-item.active{
-    background-color: red;
+    background-color: var(--background-highlight);
 }
