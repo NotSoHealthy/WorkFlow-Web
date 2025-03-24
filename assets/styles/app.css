@@ -89,4 +89,5 @@ button:focus {
 main{
     padding: 1em;
     background-color: var(--background-primary);
+    width: 100%;
 }
