@@ -1,9 +1,93 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Conge index{% endblock %}
 
-{% block body %}
-    <h1>Conge index</h1>
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/conge.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/conge.js') }}"></script>
+{% endblock %}
+
+{% block main %}
+    <main>
+        <button class="request-btn" onclick="request()">Demander un congé</button>
+        <table>
+            <thead>
+                <th>Nom de l'employé</th>
+                <th>Raison</th>
+                <th>Date requete</th>
+                <th>Date debut</th>
+                <th>Date fin</th>
+                <th>Etat</th>
+            </thead>
+            <tbody>
+                <tr id="request-row" style="display: none;">
+                    {# <form action="{{ path('app_conge_index') }}" method="post">
+                        <td>{{app.user.first_name}}</td>
+                        <td><input type="text" id="reason" name="_reason" placeholder="Raison" required></td>
+                        <td><input type="date" id="requestDate" name="_request_date" required></td>
+                        <td><input type="date" id="startDate" name="_start_date" required></td>
+                        <td><input type="date" id="endDate" name="_end_date" required></td>
+                        <td class="d-flex flex-row gap-1">
+                            <button onclick="" class="btn btn-success btn-sm" type="submit">Envoyer</button>
+                            <button onclick="cancelRequest()" class="btn btn-danger btn-sm" type="reset">Annuler</button>
+                        </td>
+                    </form> #}
+
+                {{ form_start(form) }}
+                    <td>{{app.user.first_name}}</td>
+                    <td>
+                        <input type="text" id="reason" name="{{field_name(form.reason)}}" value="{{field_value(form.reason)}}" placeholder="Raison" required>
+                        {{ form_errors(form.reason) }}
+                    </td>
+                    <td>
+                        <input type="date" id="date" name="{{field_name(form.request_date)}}" value="{{field_value(form.request_date)}}" disabled required>
+                        {{ form_errors(form.request_date) }}
+                    </td>
+                    <td>
+                        <input type="date" id="startDate" name="{{field_name(form.start_date)}}" value="{{field_value(form.start_date)}}" required>
+                        {{ form_errors(form.start_date) }}
+                    </td>
+                    <td>
+                        <input type="date" id="endDate" name="{{field_name(form.end_date)}}" value="{{field_value(form.end_date)}}" required>
+                        {{ form_errors(form.end_date) }}
+                    </td>
+                    <td class="d-flex flex-row gap-1">
+                        <button onclick="" class="btn btn-success btn-sm" type="submit">Envoyer</button>
+                        <button onclick="cancelRequest()" class="btn btn-danger btn-sm" type="reset">Annuler</button>
+                    </td>
+                {{ form_end(form) }}
+                </tr>
+                {% for conge in conges %}
+                    <tr>
+                        <td>{{ conge.user.first_name }}</td>
+                        <td>{{ conge.reason }}</td>
+                        <td>{{ conge.requestDate ? conge.requestDate|date('Y-m-d') : '' }}</td>
+                        <td>{{ conge.startDate ? conge.startDate|date('Y-m-d') : '' }}</td>
+                        <td>{{ conge.endDate ? conge.endDate|date('Y-m-d') : '' }}</td>
+                        <td>
+                            <select onchange="selectChange()" autocomplete="off" id="select" class="custom-select {% if conge.status == 'pending' %} select-pending {% elseif conge.status == 'approved' %} select-approved {% else %} select-rejected {% endif %}" data-id="{{ conge.id }}">
+                                <option value="pending" {% if conge.status == 'pending' %} selected="selected" {% endif %}>pending</option>
+                                <option value="approved" {% if conge.status == 'approved' %} selected="selected" {% endif %}>approved</option>
+                                <option value="rejected" {% if conge.status == 'rejected' %} selected="selected" {% endif %}>rejected</option>
+                            </select>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">no records found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+
+    {# <h1>Conge index</h1>
 
     <table class="table">
         <thead>
@@ -39,5 +123,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_conge_new') }}">Create new</a>
+    <a href="{{ path('app_conge_new') }}">Create new</a> #}
 {% endblock %}

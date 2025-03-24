@@ -1,0 +1,41 @@
+th,td{
+    padding: 1em;
+}
+
+tr{
+    background-color: var(--background-tertiary);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+table{
+    border-collapse:separate;
+    border-spacing:0 1em;
+}
+
+.select-pending, select option:nth-child(1){
+    background-color: var(--text-warning);
+}
+
+.select-approved, select option:nth-child(2){
+    background-color: var(--text-success);
+}
+
+.select-rejected, select option:nth-child(3){
+    background-color: var(--text-danger);
+}
+
+select{
+    border: none;
+    border-radius: 5px;
+    padding: .5em;
+}
+
+select option:hover{
+    background-color: black;
+}
+
+.request-btn{
+    width: 200px;
+    background-color: #3742FA;
+}

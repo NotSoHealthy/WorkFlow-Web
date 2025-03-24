@@ -24,11 +24,6 @@ class CongeType extends AbstractType
                 'widget' => 'single_text',
             ])
             ->add('reason')
-            ->add('status')
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
         ;
     }
 

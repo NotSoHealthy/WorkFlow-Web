@@ -14,18 +14,22 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/conge')]
 final class CongeController extends AbstractController
 {
-    #[Route(name: 'app_conge_index', methods: ['GET'])]
-    public function index(CongeRepository $congeRepository): Response
-    {
-        return $this->render('conge/index.html.twig', [
-            'conges' => $congeRepository->findAll(),
-        ]);
-    }
+    // #[Route(name: 'app_conge_index', methods: ['GET'])]
+    // public function index(CongeRepository $congeRepository): Response
+    // {
+    //     return $this->render('conge/index.html.twig', [
+    //         'conges' => $congeRepository->findAll(),
+    //     ]);
+    // }
 
-    #[Route('/new', name: 'app_conge_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route(name: 'app_conge_index', methods: ['GET','POST'])]
+    public function index(CongeRepository $congeRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
+
         $conge = new Conge();
+        $conge->setUser($this->getUser());
+        $conge->setStatus('pending');
+        $conge->setRequest_date(new \DateTime());
         $form = $this->createForm(CongeType::class, $conge);
         $form->handleRequest($request);
 
@@ -33,14 +37,34 @@ final class CongeController extends AbstractController
             $entityManager->persist($conge);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_conge_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_conge_index');
         }
 
-        return $this->render('conge/new.html.twig', [
-            'conge' => $conge,
-            'form' => $form,
+        return $this->render('conge/index.html.twig', [
+            'conges' => $congeRepository->findAll(),
+            'form' => $form->createView(),
         ]);
     }
+
+    // #[Route('/new', name: 'app_conge_new', methods: ['GET', 'POST'])]
+    // public function new(Request $request, EntityManagerInterface $entityManager): Response
+    // {
+    //     $conge = new Conge();
+    //     $form = $this->createForm(CongeType::class, $conge);
+    //     $form->handleRequest($request);
+
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $entityManager->persist($conge);
+    //         $entityManager->flush();
+
+    //         return $this->redirectToRoute('app_conge_index', [], Response::HTTP_SEE_OTHER);
+    //     }
+
+    //     return $this->render('conge/new.html.twig', [
+    //         'conge' => $conge,
+    //         'form' => $form,
+    //     ]);
+    // }
 
     #[Route('/{id}', name: 'app_conge_show', methods: ['GET'])]
     public function show(Conge $conge): Response
