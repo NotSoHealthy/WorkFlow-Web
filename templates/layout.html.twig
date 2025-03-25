@@ -10,7 +10,10 @@
     <div class="sidenav">
         <div class="nav-profile">
             <img class="nav-profile-img" src="{{ app.user.imageUrl }}" alt="">
-            <h5 class="nav-profile-name">{{ app.user.firstName }} {{ app.user.lastName }}</h5>
+            <div class="d-flex flex-column">
+                <h6 class="nav-profile-lastname">{{ app.user.lastName }}</h6>
+                <h6 class="">{{ app.user.firstName }}</h6>
+            </div>
         </div>
         <hr class="nav-hr">
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>

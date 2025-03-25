@@ -1,0 +1,87 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Employés{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/user.css') }}">
+{% endblock %}
+
+{% block main %}
+    <main>
+        {% for flash_error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
+        <table>
+            <thead>
+                <th>Nom de l'employé</th>
+                <th>Email</th>
+                <th>Département</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                {% set verifiedUsers = users|filter(user => user.is_verified == 1) %}
+                {% set nonVerifiedUsers = users|filter(user => user.is_verified == 0) %}
+
+                {% if nonVerifiedUsers is empty == false %}
+                    <tr>
+                        <td colspan="5" class="td-title">Employés en attente de validation</td>
+                    </tr>
+                {% endif %}
+
+                {% for user in nonVerifiedUsers %}
+                    <tr class="user-pending"><form action="{{ path('app_user_accept', { id: user.id }) }}" method="post">
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <select name="department" id="department" required autocomplete="off">
+                                <option value="" disabled selected>Département</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.Name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select name="role" id="role" required autocomplete="off">
+                                <option value="" disabled selected>Role</option>
+                                <option value="">Employé</option>
+                                <option value="ROLE_RESPONSABLE">Responsable</option>
+                            </select>
+                        </td>
+                        <td class="d-flex flex-row gap-2">
+                            <button type="submit" class="btn btn-sm btn-success">Accepter</button>
+                            <button class="btn btn-sm btn-danger" onclick=location.href="{{ path('app_user_deny', { id: user.id }) }}">Refuser</button>
+                        </td>
+                    </form></tr>
+                {% endfor %}
+
+                {% if verifiedUsers is empty == false %}
+                    <tr>
+                        <td colspan="5" class="td-title">Employés validés</td>
+                    </tr>
+                {% endif %}
+
+                {% for user in verifiedUsers %}
+                    <tr>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.department.Name }}</td>
+                        <td>
+                            {% if 'ROLE_RESPONSABLE' in user.roles %}
+                                Responsable
+                            {% else %}
+                                Employé
+                            {% endif %}
+                        </td>
+                        <td class="d-flex flex-row gap-2">
+                            {% if user.id != app.user.id %}
+                                <button class="btn btn-sm btn-secondary">Modifier</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+{% endblock %}

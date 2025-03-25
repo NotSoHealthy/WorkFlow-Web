@@ -3,7 +3,9 @@
     flex-direction: column;
     padding: 2em 1em;
     row-gap: 1em;
-    width: 230px;
+    min-width: 230px;
+    width: auto;
+    max-width: 270px;
     background-color: var(--background-secondary);
 }
 
@@ -53,4 +55,8 @@
 
 .nav-item.active{
     background-color: var(--background-highlight);
+}
+
+.nav-profile-lastname{
+    font-weight: bold;
 }

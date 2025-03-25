@@ -14,6 +14,9 @@
 
 {% block main %}
     <main>
+        {% for flash_error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
         <button class="request-btn" onclick="request()">Demander un congé</button>
         <table>
             <thead>
@@ -26,26 +29,15 @@
             </thead>
             <tbody>
                 <tr id="request-row" style="display: none;">
-                    {# <form action="{{ path('app_conge_index') }}" method="post">
-                        <td>{{app.user.first_name}}</td>
-                        <td><input type="text" id="reason" name="_reason" placeholder="Raison" required></td>
-                        <td><input type="date" id="requestDate" name="_request_date" required></td>
-                        <td><input type="date" id="startDate" name="_start_date" required></td>
-                        <td><input type="date" id="endDate" name="_end_date" required></td>
-                        <td class="d-flex flex-row gap-1">
-                            <button onclick="" class="btn btn-success btn-sm" type="submit">Envoyer</button>
-                            <button onclick="cancelRequest()" class="btn btn-danger btn-sm" type="reset">Annuler</button>
-                        </td>
-                    </form> #}
-
                 {{ form_start(form) }}
                     <td>{{app.user.first_name}}</td>
                     <td>
-                        <input type="text" id="reason" name="{{field_name(form.reason)}}" value="{{field_value(form.reason)}}" placeholder="Raison" required>
+                        {# <input type="text" id="reason" name="{{field_name(form.reason)}}" value="{{field_value(form.reason)}}" placeholder="Raison" required> #}
+                        <textarea style="resize: none;" name="{{field_name(form.reason)}}" id="reason" placeholder="Raison" maxlength="50" rows="2" required>{{field_value(form.reason)}}</textarea>
                         {{ form_errors(form.reason) }}
                     </td>
                     <td>
-                        <input type="date" id="date" name="{{field_name(form.request_date)}}" value="{{field_value(form.request_date)}}" disabled required>
+                        <input type="date" id="date" name="{{field_name(form.request_date)}}" value="{{field_value(form.request_date)}}" readonly required>
                         {{ form_errors(form.request_date) }}
                     </td>
                     <td>
@@ -70,58 +62,17 @@
                         <td>{{ conge.startDate ? conge.startDate|date('Y-m-d') : '' }}</td>
                         <td>{{ conge.endDate ? conge.endDate|date('Y-m-d') : '' }}</td>
                         <td>
-                            <select onchange="selectChange()" autocomplete="off" id="select" class="custom-select {% if conge.status == 'pending' %} select-pending {% elseif conge.status == 'approved' %} select-approved {% else %} select-rejected {% endif %}" data-id="{{ conge.id }}">
-                                <option value="pending" {% if conge.status == 'pending' %} selected="selected" {% endif %}>pending</option>
-                                <option value="approved" {% if conge.status == 'approved' %} selected="selected" {% endif %}>approved</option>
-                                <option value="rejected" {% if conge.status == 'rejected' %} selected="selected" {% endif %}>rejected</option>
-                            </select>
+                            <form action="{{ path('update_conge_status', { id: conge.id }) }}" method="post">
+                                <select name="status" onchange="selectChange(); this.form.submit()" autocomplete="off" id="select" class="custom-select {% if conge.status == 'pending' %} select-pending {% elseif conge.status == 'approved' %} select-approved {% else %} select-rejected {% endif %}" data-id="{{ conge.id }}" {% if conge.user.id == app.user.id %} disabled {% endif %}>
+                                    <option value="pending" {% if conge.status == 'pending' %} selected="selected" {% endif %}>Pending</option>
+                                    <option value="approved" {% if conge.status == 'approved' %} selected="selected" {% endif %}>Approved</option>
+                                    <option value="rejected" {% if conge.status == 'rejected' %} selected="selected" {% endif %}>Rejected</option>
+                                </select>
+                            </form>
                         </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7">no records found</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </main>
-
-
-    {# <h1>Conge index</h1>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Request_date</th>
-                <th>Start_date</th>
-                <th>End_date</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for conge in conges %}
-            <tr>
-                <td>{{ conge.id }}</td>
-                <td>{{ conge.requestDate ? conge.requestDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.startDate ? conge.startDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.endDate ? conge.endDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.reason }}</td>
-                <td>{{ conge.status }}</td>
-                <td>
-                    <a href="{{ path('app_conge_show', {'id': conge.id}) }}">show</a>
-                    <a href="{{ path('app_conge_edit', {'id': conge.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_conge_new') }}">Create new</a> #}
 {% endblock %}

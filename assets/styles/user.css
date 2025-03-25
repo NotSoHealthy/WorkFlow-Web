@@ -1,0 +1,30 @@
+th,td{
+    padding: 1em;
+    min-width: 150px;
+    width: 200px;
+}
+
+tr{
+    background-color: var(--background-tertiary);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+table{
+    border-collapse:separate;
+    border-spacing:0 1em;
+}
+
+.user-pending{
+    background-color: var(--text-warning);
+}
+
+.user-verified{
+    background-color: var(--text-success);
+}
+
+.td-title{
+    text-align: center;
+    font-weight: 600;
+    padding: .5em;
+}
