@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Projets{% endblock %}
+
+{% block body %}
+    <h1>Liste des Projets</h1>
+
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('danger') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+
+    <a href="{{ path('project_new') }}" class="btn btn-primary">Ajouter un Projet</a>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Date de Début</th>
+                <th>Date de Fin</th>
+                <th>Budget</th>
+                <th>Manager</th>
+                <th>Département</th>
+                <th>État</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for project in projects %}
+            <tr>
+                <td>{{ project.Name }}</td>
+                <td>{{ project.StartDate|date('Y-m-d') }}</td>
+                <td>{{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</td>
+                <td>{{ project.Budget }}</td>
+                <td>{{ project.manager.email }}</td>
+                <td>{{ project.department ? project.department.Name : 'N/A' }}</td>
+                <td>{{ project.State ?? 'N/A' }}</td>
+                <td>
+                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun projet trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

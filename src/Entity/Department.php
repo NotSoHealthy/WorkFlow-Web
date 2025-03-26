@@ -57,17 +57,17 @@ class Department
     }
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'departments')]
-    #[ORM\JoinColumn(name: 'manager', referencedColumnName: 'id')]
-    private ?User $user = null;
+    #[ORM\JoinColumn(name: 'manager', referencedColumnName: 'id', nullable: false)]
+    private ?User $Manager = null;
 
-    public function getUser(): ?User
+    public function getManager(): ?User
     {
-        return $this->user;
+        return $this->Manager;
     }
 
-    public function setUser(?User $user): self
+    public function setManager(?User $Manager): self
     {
-        $this->user = $user;
+        $this->Manager = $Manager;
         return $this;
     }
 

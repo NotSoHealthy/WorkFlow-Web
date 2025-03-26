@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier un Projet{% endblock %}
+
+{% block body %}
+    <h1>Modifier un Projet</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.Name) }}
+        {{ form_row(form.Description) }}
+        {{ form_row(form.Start_Date) }}
+        {{ form_row(form.End_Date) }}
+        {{ form_row(form.Budget) }}
+        {{ form_row(form.manager) }}
+        {{ form_row(form.department) }}
+        {{ form_row(form.State) }}
+        <button type="submit" class="btn btn-primary">Modifier</button>
+        <a href="{{ path('project_index') }}" class="btn btn-secondary">Retour</a>
+    {{ form_end(form) }}
+{% endblock %}

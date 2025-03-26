@@ -113,15 +113,16 @@ class Project
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
-    private ?int $Manager = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'projects')]
+    #[ORM\JoinColumn(name: 'manager', referencedColumnName: 'id', nullable: false)]
+    private ?User $Manager = null;
 
-    public function getManager(): ?int
+    public function getManager(): ?User
     {
         return $this->Manager;
     }
 
-    public function setManager(int $Manager): self
+    public function setManager(?User $Manager): self
     {
         $this->Manager = $Manager;
         return $this;

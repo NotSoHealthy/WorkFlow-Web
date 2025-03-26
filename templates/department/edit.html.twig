@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier un Département{% endblock %}
+
+{% block body %}
+    <h1>Modifier un Département</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.Name) }}
+        {{ form_row(form.Year_Budget) }}
+        {{ form_row(form.manager) }}
+        <button type="submit" class="btn btn-primary">Modifier</button>
+        <a href="{{ path('department_index') }}" class="btn btn-secondary">Retour</a>
+    {{ form_end(form) }}
+{% endblock %}

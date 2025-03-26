@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Départements{% endblock %}
+
+{% block body %}
+    <h1>Liste des Départements</h1>
+
+    <a href="{{ path('department_new') }}" class="btn btn-primary">Ajouter un Département</a>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Budget Annuel</th>
+                <th>Manager</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for department in departments %}
+            <tr>
+                <td>{{ department.Name }}</td>
+                <td>{{ department.YearBudget }}</td>
+                <td>{{ department.manager.email }}</td>
+                <td>
+                    <a href="{{ path('department_edit', {'id': department.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{{ path('department_delete', {'id': department.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce département ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ department.id) }}">
+                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun département trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
