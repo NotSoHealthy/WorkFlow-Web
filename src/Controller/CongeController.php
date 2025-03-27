@@ -71,7 +71,7 @@ final class CongeController extends AbstractController
     #[Route('/{id}', name: 'app_conge_delete', methods: ['POST'])]
     public function delete(Request $request, Conge $conge, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$conge->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $conge->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($conge);
             $entityManager->flush();
         }
