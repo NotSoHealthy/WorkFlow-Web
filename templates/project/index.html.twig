@@ -1,55 +1,178 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Projets{% endblock %}
+{% block title %}Bibliothèque de Projets{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+<style>
+    body {
+        background-color: #f1f5f9;
+        font-family: 'Inter', sans-serif;
+    }
+    h1 {
+        text-align: center;
+        margin: 2rem 0;
+        font-size: 2.5rem;
+        color: #1e293b;
+    }
+    .add-button {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .add-button a {
+        background-color: #10b981;
+        color: white;
+        font-weight: bold;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+    .add-button a:hover {
+        background-color: #059669;
+    }
+    .shelf {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        padding: 2rem;
+    }
+    .open-book {
+        width: 500px;
+        height: 270px;
+        background: linear-gradient(to right, #fefce8 49.5%, #f9fafb 50.5%);
+        border-radius: 12px;
+        display: flex;
+        overflow: hidden;
+        border: 1px solid #d1d5db;
+        position: relative;
+        transition: transform 0.6s ease, box-shadow 0.6s ease;
+        transform-style: preserve-3d;
+        box-shadow: 10px 15px 20px rgba(0,0,0,0.1);
+    }
+    .open-book:hover {
+        transform: rotateY(5deg) rotateX(3deg);
+        box-shadow: 20px 25px 40px rgba(0,0,0,0.2);
+    }
+    .open-book::before {
+        content: '';
+        position: absolute;
+        left: 49.8%;
+        width: 1px;
+        height: 100%;
+        background: #d1d5db;
+        z-index: 1;
+    }
+    .left-page, .right-page {
+        width: 50%;
+        padding: 1.5rem 1rem;
+        position: relative;
+        z-index: 2;
+    }
+    .left-page {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform: rotateY(-1deg);
+    }
+    .left-page h3 {
+        font-size: 1.3rem;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    .state-badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 8px;
+        font-weight: bold;
+        color: white;
+    }
+    .en-cours { background-color: #3b82f6; }
+    .termine { background-color: #10b981; }
+    .annule { background-color: #ef4444; }
+
+    .right-page {
+        font-size: 0.9rem;
+        color: #334155;
+        line-height: 1.6;
+        transform: rotateY(1deg);
+    }
+    .right-page div {
+        margin-bottom: 0.4rem;
+    }
+    .right-page i {
+        margin-right: 0.4rem;
+        color: #64748b;
+    }
+    .book-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+    .book-actions a,
+    .book-actions form button {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-edit { background-color: #f59e0b; }
+    .btn-edit:hover { background-color: #d97706; }
+    .btn-delete { background-color: #ef4444; }
+    .btn-delete:hover { background-color: #dc2626; }
+</style>
+{% endblock %}
 
 {% block body %}
-    <h1>Liste des Projets</h1>
+<h1>Bibliothèque de Projets 📚</h1>
+<div class="add-button">
+    <a href="{{ path('project_new') }}">
+        <i class="fas fa-plus-circle"></i> Ajouter un Projet
+    </a>
+</div>
+<div class="shelf">
+    {% for project in projects %}
+        {% set stateClass = 'en-cours' %}
+        {% if project.State|lower == 'terminé' %}
+            {% set stateClass = 'termine' %}
+        {% elseif project.State|lower == 'annulé' %}
+            {% set stateClass = 'annule' %}
+        {% endif %}
 
-    {% for message in app.flashes('warning') %}
-        <div class="alert alert-warning">{{ message }}</div>
-    {% endfor %}
-    {% for message in app.flashes('danger') %}
-        <div class="alert alert-danger">{{ message }}</div>
-    {% endfor %}
-
-    <a href="{{ path('project_new') }}" class="btn btn-primary">Ajouter un Projet</a>
-
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Date de Début</th>
-                <th>Date de Fin</th>
-                <th>Budget</th>
-                <th>Manager</th>
-                <th>Département</th>
-                <th>État</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for project in projects %}
-            <tr>
-                <td>{{ project.Name }}</td>
-                <td>{{ project.StartDate|date('Y-m-d') }}</td>
-                <td>{{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</td>
-                <td>{{ project.Budget }}</td>
-                <td>{{ project.manager.email }}</td>
-                <td>{{ project.department ? project.department.Name : 'N/A' }}</td>
-                <td>{{ project.State ?? 'N/A' }}</td>
-                <td>
-                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+        <div class="open-book">
+            <div class="left-page">
+                <h3>{{ project.Name }}</h3>
+                <div class="state-badge {{ stateClass }}">{{ project.State }}</div>
+            </div>
+            <div class="right-page">
+                <div><i class="fas fa-calendar-alt"></i> Début: {{ project.StartDate|date('Y-m-d') }}</div>
+                <div><i class="fas fa-calendar-check"></i> Fin: {{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</div>
+                <div><i class="fas fa-wallet"></i> Budget: {{ project.Budget }} €</div>
+                <div><i class="fas fa-user-tie"></i> Manager: {{ project.manager.first_name }}</div>
+                <div><i class="fas fa-building"></i> Département: {{ project.department ? project.department.Name : 'N/A' }}</div>
+                <div class="book-actions">
+                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn-edit">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                        <button class="btn-delete">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
                     </form>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="8">Aucun projet trouvé</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center">Aucun projet trouvé.</div>
+    {% endfor %}
+</div>
 {% endblock %}

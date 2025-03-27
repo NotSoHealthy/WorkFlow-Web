@@ -33,6 +33,8 @@ final class DepartmentController extends AbstractController
             $entityManager->persist($department);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Département créé avec succès !');
+
             return $this->redirectToRoute('department_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -50,6 +52,9 @@ final class DepartmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
+            $this->addFlash('success', 'Département modifié avec succès !');
+
             return $this->redirectToRoute('department_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -65,6 +70,8 @@ final class DepartmentController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$department->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($department);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Département supprimé avec succès !');
         }
 
         return $this->redirectToRoute('department_index', [], Response::HTTP_SEE_OTHER);
