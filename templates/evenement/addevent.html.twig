@@ -1,0 +1,12 @@
+{% extends 'layout.html.twig' %}
+
+{% block main %}
+<main>
+<h1 align="center">Ajouter un Evenement</h1>
+&nbsp
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn">{{ button_label|default('Ajouter') }}</button>
+{{ form_end(form) }}
+</main>
+{% endblock %}
