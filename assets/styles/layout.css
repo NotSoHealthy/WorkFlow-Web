@@ -39,6 +39,7 @@
     display: flex;
     align-items: center;
     gap: 1em;
+    cursor: pointer;
 }
 
 .nav-profile img{

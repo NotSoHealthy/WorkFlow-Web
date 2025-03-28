@@ -8,7 +8,7 @@
 
 {% block body %}
     <div class="sidenav">
-        <div class="nav-profile">
+        <div class="nav-profile" onclick=location.href='{{path('app_user_edit_profile')}}'>
             <img class="nav-profile-img" src="{{ app.user.imageUrl }}" alt="">
             <div class="d-flex flex-column">
                 <h6 class="nav-profile-lastname">{{ app.user.lastName }}</h6>
@@ -16,13 +16,13 @@
             </div>
         </div>
         <hr class="nav-hr">
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_dashboard' %}active{% endif %}" href="{{path('app_dashboard')}}"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
             <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">apartment</span>Départements</a>
         {% endif %}
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">groups</span>Projets</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">person</span>Employés</a>
+            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_user_list' %}active{% endif %}" href="{{path('app_user_list')}}"><span class="material-symbols-outlined">person</span>Employés</a>
         {% endif %}
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">quiz</span>Formations</a>
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">calendar_month</span>Evénements</a>

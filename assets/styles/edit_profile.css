@@ -1,0 +1,31 @@
+.header{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.header img{
+    aspect-ratio: 1/1;
+    width: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.form-row{
+    display: flex;
+    gap: 1em;
+}
+
+.form-column{
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: max-content;
+}

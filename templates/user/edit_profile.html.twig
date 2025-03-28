@@ -1,0 +1,60 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/edit_profile.css') }}">
+{% endblock %}
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('scripts/edit_profile.js') }}"></script>
+    {% endblock %}
+{% block main %}
+    <main>
+        <form action="{{ path('app_user_edit_profile') }}" onsubmit="uploadImage(event)" method="post" enctype="multipart/form-data" id="edit-profile-form">
+            <div class="header">
+                <h5>Edit Profile</h5>
+                <label for="image">
+                    <input type="file" onchange="previewImage(event)" name="image" id="image" accept="image/*" style="display:none;"/>
+                    <img src="{{ app.user.image_url }}" id="preview">
+                </label>
+            </div>
+            <input type="hidden" name="image_url" id="image-url" value="{{ app.user.image_url }}">
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="nom">Nom</label>
+                    <input type="text" name="nom" placeholder="Nom" required value="{{ app.user.last_name }}">
+                </div>
+                <div class="form-column">
+                    <label for="prenom">Prenom</label>
+                    <input type="text" name="prenom" placeholder="Prenom" required value="{{ app.user.first_name }}">
+                </div>
+            </div>
+                <div class="form-row">
+                    <div class="form-column">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" placeholder="Email" required value="{{ app.user.email }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-column">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" name="password" placeholder="Password">
+                    </div>
+                    <div class="form-column">
+                        <label for="confirmation">Confirmation du mot de passe</label>
+                        <input type="password" name="confirmation" placeholder="Confirmation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-column">
+                        <button type="reset" class="btn btn-danger btn-lg">Annuler</button>
+                    </div>
+                    <div class="form-column">
+                        <button type="submit" class="btn btn-success btn-lg">Confirmer</button>
+                    </div>
+                </div>
+        </form>
+    </main>
+{% endblock %}
