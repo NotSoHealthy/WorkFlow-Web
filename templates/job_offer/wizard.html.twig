@@ -134,10 +134,12 @@
             outline: none;
         }
 
+        /* Error message styling */
         .error-message {
             color: red;
             font-size: 0.85rem;
             margin-top: 4px;
+            min-height: 18px;
         }
 
         .btn-container {
@@ -210,11 +212,13 @@
                     {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.title, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(form.title) }}
+                    <div class="error-message" id="client-error-title"></div>
                 </div>
                 <div class="form-group">
                     {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.description, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(form.description) }}
+                    <div class="error-message" id="client-error-description"></div>
                 </div>
                 <div class="btn-container">
                     <button type="button" class="btn btn-next" id="btn-next-1">Suivant</button>
@@ -227,11 +231,13 @@
                     {{ form_label(form.publicationDate, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.publicationDate, {'attr': {'class': 'form-input', 'placeholder': 'YYYY-MM-DD'}}) }}
                     {{ form_errors(form.publicationDate) }}
+                    <div class="error-message" id="client-error-publicationDate"></div>
                 </div>
                 <div class="form-group">
                     {{ form_label(form.expirationDate, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.expirationDate, {'attr': {'class': 'form-input', 'placeholder': 'YYYY-MM-DD'}}) }}
                     {{ form_errors(form.expirationDate) }}
+                    <div class="error-message" id="client-error-expirationDate"></div>
                 </div>
                 <div class="btn-container">
                     <button type="button" class="btn btn-prev" id="btn-prev-2">Précédent</button>
@@ -245,11 +251,13 @@
                     {{ form_label(form.contractType, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.contractType, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(form.contractType) }}
+                    <div class="error-message" id="client-error-contractType"></div>
                 </div>
                 <div class="form-group">
                     {{ form_label(form.salary, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.salary, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(form.salary) }}
+                    <div class="error-message" id="client-error-salary"></div>
                 </div>
                 <div class="btn-container">
                     <button type="button" class="btn btn-prev" id="btn-prev-3">Précédent</button>
@@ -290,19 +298,71 @@
                 });
             }
 
+            function validateStep1() {
+                let isValid = true;
+                const titleInput = document.querySelector('input[name="job_offer[title]"]');
+                const descriptionInput = document.querySelector('textarea[name="job_offer[description]"]');
+                const titleError = document.getElementById('client-error-title');
+                const descriptionError = document.getElementById('client-error-description');
+                
+                titleError.textContent = '';
+                descriptionError.textContent = '';
+
+                if (titleInput.value.trim().length < 5) {
+                    titleError.textContent = "Le titre doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                if (descriptionInput.value.trim().length < 5) {
+                    descriptionError.textContent = "La description doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            function validateStep2() {
+                let isValid = true;
+                const pubInput = document.querySelector('input[name="job_offer[publicationDate]"]');
+                const expInput = document.querySelector('input[name="job_offer[expirationDate]"]');
+                const pubError = document.getElementById('client-error-publicationDate');
+                const expError = document.getElementById('client-error-expirationDate');
+                
+                pubError.textContent = '';
+                expError.textContent = '';
+
+                if (!pubInput.value.trim()) {
+                    pubError.textContent = "La date de publication est requise.";
+                    isValid = false;
+                }
+                if (!expInput.value.trim()) {
+                    expError.textContent = "La date d'expiration est requise.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            function validateStep3() {
+                let isValid = true;
+                const contractInput = document.querySelector('input[name="job_offer[contractType]"]');
+                const salaryInput = document.querySelector('input[name="job_offer[salary]"]');
+                const contractError = document.getElementById('client-error-contractType');
+                const salaryError = document.getElementById('client-error-salary');
+                
+                contractError.textContent = '';
+                salaryError.textContent = '';
+
+                if (contractInput.value.trim().length < 5) {
+                    contractError.textContent = "Le type de contrat doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                if (isNaN(salaryInput.value) || Number(salaryInput.value) <= 0) {
+                    salaryError.textContent = "Le salaire doit être un nombre supérieur à 0.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
             document.getElementById('btn-next-1').addEventListener('click', function() {
-                let title = document.querySelector('input[name="job_offer[title]"]').value;
-                let description = document.querySelector('textarea[name="job_offer[description]"]').value;
-                let errors = [];
-                if (title.trim().length < 5) {
-                    errors.push("Le titre doit contenir au moins 5 caractères.");
-                }
-                if (description.trim().length < 5) {
-                    errors.push("La description doit contenir au moins 5 caractères.");
-                }
-                if (errors.length > 0) {
-                    alert(errors.join("\n"));
-                } else {
+                if (validateStep1()) {
                     currentStep = 2;
                     showStep(currentStep);
                 }
@@ -314,8 +374,10 @@
             });
 
             document.getElementById('btn-next-2').addEventListener('click', function() {
-                currentStep = 3;
-                showStep(currentStep);
+                if (validateStep2()) {
+                    currentStep = 3;
+                    showStep(currentStep);
+                }
             });
 
             document.getElementById('btn-prev-3').addEventListener('click', function() {
@@ -325,20 +387,9 @@
 
             document.getElementById('job-offer-wizard-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                let salary = document.querySelector('input[name="job_offer[salary]"]').value;
-                let contractType = document.querySelector('input[name="job_offer[contractType]"]').value;
-                let errors = [];
-                if (isNaN(salary) || Number(salary) <= 0) {
-                    errors.push("Le salaire doit être un nombre supérieur à 0.");
-                }
-                if (contractType.trim().length < 5) {
-                    errors.push("Le type de contrat doit contenir au moins 5 caractères.");
-                }
-                if (errors.length > 0) {
-                    alert(errors.join("\n"));
+                if (!validateStep3()) {
                     return;
                 }
-
                 const form = e.target;
                 const formData = new FormData(form);
                 const editId = form.getAttribute('data-edit-id');

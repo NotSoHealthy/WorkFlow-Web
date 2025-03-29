@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Offers - Workflow</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        footer {
+            background: #343a40;
+        }
+        .btn-apply {
+            background-color: #6610f2;
+            color: white;
+            font-weight: 700;
+            padding: 10px 20px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-apply:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" data-aos="fade-down">
+        <a class="navbar-brand" href="{{ path('main_page_index') }}">Workflow</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('main_page_index') }}#home">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('main_page_index') }}#about">À propos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('main_page_index') }}#features">Fonctionnalités</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('main_page_index') }}#screenshots">Captures d'écran</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_login') }}">Sign In</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section id="job-offers" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Offres d'emploi disponibles</h2>
+            <div class="row">
+                {% for jobOffer in jobOffers %}
+                    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ jobOffer.title }}</h5>
+                                <p class="card-text">{{ jobOffer.description }}</p>
+                                <ul class="list-unstyled text-muted">
+                                    <li><strong>Date de publication :</strong> {{ jobOffer.publicationDate|date('Y-m-d') }}</li>
+                                    <li><strong>Date d'expiration :</strong> {{ jobOffer.expirationDate ? jobOffer.expirationDate|date('Y-m-d') : 'N/A' }}</li>
+                                    <li><strong>Type de contrat :</strong> {{ jobOffer.contractType }}</li>
+                                    <li><strong>Salaire :</strong> {{ jobOffer.salary }}</li>
+                                </ul>
+                                <a href="{{ path('app_show_jobs_apply', {'id': jobOffer.id}) }}" class="btn btn-apply">Postuler</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <p class="text-center text-muted">Aucune offre d'emploi disponible pour le moment.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-white text-center py-3" data-aos="fade-up">
+        <p>© 2023 Workflow. Tous droits réservés.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html>

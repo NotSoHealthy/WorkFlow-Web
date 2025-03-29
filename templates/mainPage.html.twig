@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow - Gestion RH Moderne</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+        .hero {
+            background: linear-gradient(to right, #007bff, #6610f2);
+            padding: 120px 0;
+            color: white;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        footer {
+            background: #343a40;
+        }
+        .btn-signin {
+            background-color: #ffffff;
+            color: #6610f2;
+            font-weight: 700;
+            padding: 12px 30px;
+            border: 2px solid #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn-signin:hover {
+            background-color: #6610f2;
+            color: #ffffff;
+            border-color: #6610f2;
+        }
+        .btn-joboffer {
+            background-color: transparent;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 12px 30px;
+            border: 2px solid #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn-joboffer:hover {
+            background-color: #007bff;
+            color: #ffffff;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" data-aos="fade-down">
+        <a class="navbar-brand" href="{{ path('main_page_index') }}">Workflow</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#home" data-aos="fade-right" data-aos-delay="100">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about" data-aos="fade-right" data-aos-delay="200">À propos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#features" data-aos="fade-right" data-aos-delay="300">Fonctionnalités</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#screenshots" data-aos="fade-right" data-aos-delay="400">Captures d'écran</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#signup" data-aos="fade-right" data-aos-delay="500">Inscription</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero text-center">
+        <div class="container">
+            <h1 class="display-4" data-aos="fade-up">Workflow</h1>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Simplifiez la gestion de vos ressources humaines</p>
+            <p data-aos="fade-up" data-aos-delay="200">Une solution moderne et intuitive pour les professionnels des RH</p>
+            <div class="mt-5">
+                <a href="{{ path('app_login') }}" class="btn btn-signin mr-3" data-aos="fade-up" data-aos-delay="300">Sign In</a>
+                <a href="{{ path('job_offers_public') }}" class="btn btn-joboffer" data-aos="fade-up" data-aos-delay="400">Job Offers</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4" data-aos="fade-up">Qu'est-ce que Workflow ?</h2>
+            <p data-aos="fade-up" data-aos-delay="100">Workflow est une application web conçue pour aider les départements des ressources humaines à gérer efficacement leurs processus. De la gestion des employés à la planification des congés, en passant par le suivi des performances, Workflow offre une plateforme centralisée pour répondre à tous vos besoins RH avec simplicité et élégance.</p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center mb-4" data-aos="fade-up">Fonctionnalités clés</h2>
+            <div class="row">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Gestion des employés</h5>
+                            <p class="card-text">Créez et mettez à jour les profils des employés facilement.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Suivi des congés</h5>
+                            <p class="card-text">Planifiez et approuvez les demandes de congé en quelques clics.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Évaluation des performances</h5>
+                            <p class="card-text">Évaluez et suivez les performances de vos employés.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section id="screenshots" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4" data-aos="fade-up">Captures d'écran</h2>
+            <div id="carouselExample" class="carousel slide" data-ride="carousel" data-aos="fade-up" data-aos-delay="100">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://placehold.co/800x400" class="d-block w-100" alt="Screenshot 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://placehold.co/800x400" class="d-block w-100" alt="Screenshot 2">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://placehold.co/800x400" class="d-block w-100" alt="Screenshot 3">
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev" data-aos="fade-left" data-aos-delay="200">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Précédent</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next" data-aos="fade-right" data-aos-delay="200">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Suivant</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-white text-center py-3" data-aos="fade-up">
+        <p>© 2023 Workflow. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true // Fixed to trigger animations only once
+        });
+    </script>
+</body>
+</html>

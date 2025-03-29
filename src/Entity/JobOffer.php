@@ -18,6 +18,36 @@ class JobOffer
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $Title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $Description = null;
+
+    #[ORM\Column(type: 'date', nullable: false)]
+    private ?\DateTimeInterface $Publication_Date = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $Expiration_Date = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $Contract_Type = null;
+
+    #[ORM\Column(type: 'decimal', nullable: true)]
+    private ?float $Salary = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'jobOffers')]
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+    private ?User $user = null;
+
+    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'jobOffer')]
+    private Collection $applications;
+
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -28,9 +58,6 @@ class JobOffer
         $this->id = $id;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $Title = null;
 
     public function getTitle(): ?string
     {
@@ -43,9 +70,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $Description = null;
-
     public function getDescription(): ?string
     {
         return $this->Description;
@@ -56,9 +80,6 @@ class JobOffer
         $this->Description = $Description;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: false)]
-    private ?\DateTimeInterface $Publication_Date = null;
 
     public function getPublication_Date(): ?\DateTimeInterface
     {
@@ -71,9 +92,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $Expiration_Date = null;
-
     public function getExpiration_Date(): ?\DateTimeInterface
     {
         return $this->Expiration_Date;
@@ -84,9 +102,6 @@ class JobOffer
         $this->Expiration_Date = $Expiration_Date;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $Contract_Type = null;
 
     public function getContract_Type(): ?string
     {
@@ -99,9 +114,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: true)]
-    private ?float $Salary = null;
-
     public function getSalary(): ?float
     {
         return $this->Salary;
@@ -113,10 +125,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'jobOffers')]
-    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
-    private ?User $user = null;
-
     public function getUser(): ?User
     {
         return $this->user;
@@ -126,14 +134,6 @@ class JobOffer
     {
         $this->user = $user;
         return $this;
-    }
-
-    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'jobOffer')]
-    private Collection $applications;
-
-    public function __construct()
-    {
-        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -169,7 +169,6 @@ class JobOffer
     public function setPublicationDate(\DateTimeInterface $Publication_Date): static
     {
         $this->Publication_Date = $Publication_Date;
-
         return $this;
     }
 
@@ -181,7 +180,6 @@ class JobOffer
     public function setExpirationDate(?\DateTimeInterface $Expiration_Date): static
     {
         $this->Expiration_Date = $Expiration_Date;
-
         return $this;
     }
 
@@ -193,7 +191,16 @@ class JobOffer
     public function setContractType(?string $Contract_Type): static
     {
         $this->Contract_Type = $Contract_Type;
-
         return $this;
+    }
+
+    /**
+     * Convert the JobOffer object to a string representation.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->Title;
     }
 }

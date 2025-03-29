@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply for a Job</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+    }
+    .container-fluid {
+      min-height: 100vh;
+      padding: 0;
+    }
+    .form-section {
+      padding: 40px;
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin: 20px;
+    }
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      background-color: #e9ecef;
+    }
+    .progress-bar {
+      background-color: #007bff;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+      padding: 10px 20px;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-secondary {
+      margin-right: 10px;
+    }
+    .image-section {
+      background: url('https://placehold.co/600x800') no-repeat center center;
+      background-size: cover;
+      border-radius: 0 15px 15px 0;
+    }
+    .form-control {
+      border-radius: 5px;
+    }
+    h2 {
+      font-weight: 700;
+      color: #222;
+    }
+    /* Step containers */
+    #step1.d-none, #step2.d-none {
+      display: none !important;
+    }
+    #step1.d-block, #step2.d-block {
+      display: block !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Left Column -->
+      <div class="col-md-6">
+        <div class="form-section" data-aos="fade-right">
+          <h2 class="text-center mb-4">Job Application</h2>
+          {% if jobOfferId is defined %}
+            <h3>Applying for Job ID: {{ jobOfferId }}</h3>
+          {% endif %}
+
+          <!-- Progress Bar -->
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+
+          {{ form_start(form, {'attr': {'id': 'applicationForm'}}) }}
+
+          <!-- STEP 1 -->
+          <div id="step1" class="d-block"><!-- Default visible -->
+            <div class="form-group">
+              {{ form_label(form.firstName) }}
+              {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.firstName) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.lastName) }}
+              {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.lastName) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.mail) }}
+              {{ form_widget(form.mail, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.mail) }}
+            </div>
+            <button type="button" class="btn btn-primary btn-next" onclick="nextTab()">Next</button>
+          </div>
+
+          <!-- STEP 2 -->
+          <div id="step2" class="d-none"><!-- Hidden by default -->
+            <div class="form-group">
+              {{ form_label(form.jobOffer) }}
+              {{ form_widget(form.jobOffer, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.jobOffer) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.CV) }}
+              {{ form_widget(form.CV, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.CV) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.Cover_Letter) }}
+              {{ form_widget(form.Cover_Letter, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.Cover_Letter) }}
+            </div>
+            <button type="button" class="btn btn-secondary btn-prev" onclick="prevTab()">Previous</button>
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+          </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+
+      <!-- Right Column (Image) -->
+      <div class="col-md-6 image-section" data-aos="fade-left"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+
+    function nextTab() {
+      // Hide step1
+      document.getElementById('step1').classList.remove('d-block');
+      document.getElementById('step1').classList.add('d-none');
+
+      // Show step2
+      document.getElementById('step2').classList.remove('d-none');
+      document.getElementById('step2').classList.add('d-block');
+
+      // Update progress bar
+      const progressBar = document.querySelector('.progress-bar');
+      progressBar.style.width = '100%';
+      progressBar.setAttribute('aria-valuenow', '100');
+    }
+
+    function prevTab() {
+      // Hide step2
+      document.getElementById('step2').classList.remove('d-block');
+      document.getElementById('step2').classList.add('d-none');
+
+      // Show step1
+      document.getElementById('step1').classList.remove('d-none');
+      document.getElementById('step1').classList.add('d-block');
+
+      // Update progress bar
+      const progressBar = document.querySelector('.progress-bar');
+      progressBar.style.width = '50%';
+      progressBar.setAttribute('aria-valuenow', '50');
+    }
+  </script>
+</body>
+</html>

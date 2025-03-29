@@ -16,6 +16,7 @@ class JobOfferController extends AbstractController
     #[Route('/joboffer', name: 'job_offer_index')]
     public function index(EntityManagerInterface $em): Response
     {
+        // Fetch all job offers from the database.
         $jobOffers = $em->getRepository(JobOffer::class)->findAll();
         return $this->render('job_offer/index.html.twig', [
             'jobOffers' => $jobOffers,

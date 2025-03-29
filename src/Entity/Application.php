@@ -6,7 +6,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ApplicationRepository;
 
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
@@ -18,20 +17,47 @@ class Application
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: JobOffer::class, inversedBy: 'applications')]
+    #[ORM\JoinColumn(name: 'job', referencedColumnName: 'id')]
+    private ?JobOffer $jobOffer = null;
+
+    #[ORM\Column(type: 'text', nullable: false)]
+    private ?string $cv = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $coverLetter = null;
+
+    #[ORM\Column(type: 'date', nullable: false)]
+    private ?\DateTimeInterface $submissionDate = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $status = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'applications')]
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+    private ?User $user = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $lastName = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $mail = null;
+
+    #[ORM\OneToMany(targetEntity: Interview::class, mappedBy: 'application')]
+    private Collection $interviews;
+
+    public function __construct()
+    {
+        $this->interviews = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    #[ORM\ManyToOne(targetEntity: JobOffer::class, inversedBy: 'applications')]
-    #[ORM\JoinColumn(name: 'job', referencedColumnName: 'id')]
-    private ?JobOffer $jobOffer = null;
 
     public function getJobOffer(): ?JobOffer
     {
@@ -44,50 +70,38 @@ class Application
         return $this;
     }
 
-    #[ORM\Column(type: 'text', nullable: false)]
-    private ?string $CV = null;
-
-    public function getCV(): ?string
+    public function getCv(): ?string
     {
-        return $this->CV;
+        return $this->cv;
     }
 
-    public function setCV(string $CV): self
+    public function setCv(string $cv): self
     {
-        $this->CV = $CV;
+        $this->cv = $cv;
         return $this;
     }
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $Cover_Letter = null;
-
-    public function getCover_Letter(): ?string
+    public function getCoverLetter(): ?string
     {
-        return $this->Cover_Letter;
+        return $this->coverLetter;
     }
 
-    public function setCover_Letter(?string $Cover_Letter): self
+    public function setCoverLetter(?string $coverLetter): self
     {
-        $this->Cover_Letter = $Cover_Letter;
+        $this->coverLetter = $coverLetter;
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: false)]
-    private ?\DateTimeInterface $Submission_Date = null;
-
-    public function getSubmission_Date(): ?\DateTimeInterface
+    public function getSubmissionDate(): ?\DateTimeInterface
     {
-        return $this->Submission_Date;
+        return $this->submissionDate;
     }
 
-    public function setSubmission_Date(\DateTimeInterface $Submission_Date): self
+    public function setSubmissionDate(\DateTimeInterface $submissionDate): self
     {
-        $this->Submission_Date = $Submission_Date;
+        $this->submissionDate = $submissionDate;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $status = null;
 
     public function getStatus(): ?string
     {
@@ -100,10 +114,6 @@ class Application
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'applications')]
-    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
-    private ?User $user = null;
-
     public function getUser(): ?User
     {
         return $this->user;
@@ -115,36 +125,27 @@ class Application
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $First_Name = null;
-
-    public function getFirst_Name(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->First_Name;
+        return $this->firstName;
     }
 
-    public function setFirst_Name(?string $First_Name): self
+    public function setFirstName(?string $firstName): self
     {
-        $this->First_Name = $First_Name;
+        $this->firstName = $firstName;
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $Last_Name = null;
-
-    public function getLast_Name(): ?string
+    public function getLastName(): ?string
     {
-        return $this->Last_Name;
+        return $this->lastName;
     }
 
-    public function setLast_Name(?string $Last_Name): self
+    public function setLastName(?string $lastName): self
     {
-        $this->Last_Name = $Last_Name;
+        $this->lastName = $lastName;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $mail = null;
 
     public function getMail(): ?string
     {
@@ -157,84 +158,30 @@ class Application
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: Interview::class, mappedBy: 'application')]
-    private Collection $interviews;
-
-    public function __construct()
-    {
-        $this->interviews = new ArrayCollection();
-    }
-
     /**
      * @return Collection<int, Interview>
      */
     public function getInterviews(): Collection
     {
-        if (!$this->interviews instanceof Collection) {
-            $this->interviews = new ArrayCollection();
-        }
         return $this->interviews;
     }
 
     public function addInterview(Interview $interview): self
     {
-        if (!$this->getInterviews()->contains($interview)) {
-            $this->getInterviews()->add($interview);
+        if (!$this->interviews->contains($interview)) {
+            $this->interviews->add($interview);
+            $interview->setApplication($this);
         }
         return $this;
     }
 
     public function removeInterview(Interview $interview): self
     {
-        $this->getInterviews()->removeElement($interview);
-        return $this;
-    }
-
-    public function getCoverLetter(): ?string
-    {
-        return $this->Cover_Letter;
-    }
-
-    public function setCoverLetter(?string $Cover_Letter): static
-    {
-        $this->Cover_Letter = $Cover_Letter;
-
-        return $this;
-    }
-
-    public function getSubmissionDate(): ?\DateTimeInterface
-    {
-        return $this->Submission_Date;
-    }
-
-    public function setSubmissionDate(\DateTimeInterface $Submission_Date): static
-    {
-        $this->Submission_Date = $Submission_Date;
-
-        return $this;
-    }
-
-    public function getFirstName(): ?string
-    {
-        return $this->First_Name;
-    }
-
-    public function setFirstName(?string $First_Name): static
-    {
-        $this->First_Name = $First_Name;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->Last_Name;
-    }
-
-    public function setLastName(?string $Last_Name): static
-    {
-        $this->Last_Name = $Last_Name;
-
+        if ($this->interviews->removeElement($interview)) {
+            if ($interview->getApplication() === $this) {
+                $interview->setApplication(null);
+            }
+        }
         return $this;
     }
 }
