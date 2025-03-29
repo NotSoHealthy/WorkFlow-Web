@@ -1,0 +1,168 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Candidatures pour {{ jobOffer.Title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .application-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .application-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            /* Default border-left for "open" status */
+            border-left: 5px solid #4caf50;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            transition: border-color 0.5s ease;
+        }
+
+        .application-card.in-progress {
+            border-left-color: #ff9800;
+        }
+
+        .application-card.closed {
+            border-left-color: #f44336;
+        }
+
+        .application-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+
+        .application-card p {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .status-select {
+            margin-top: 10px;
+            padding: 5px;
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <div class="container">
+        <h2>Candidatures pour "{{ jobOffer.Title }}"</h2>
+        <div class="application-list">
+            {% if applications|length > 0 %}
+                {% for application in applications %}
+                    {# Set a CSS class on the card based on its status #}
+                    {% set cardClass = application.status == 'open' ? '' : (application.status == 'in progress' ? 'in-progress' : (application.status == 'closed' ? 'closed' : '')) %}
+                    <div class="application-card {{ cardClass }}" id="application-{{ application.id }}">
+                        <h3>{{ application.firstName }} {{ application.lastName }}</h3>
+                        <p><strong>Email:</strong> {{ application.mail }}</p>
+                        <p>
+                            <strong>CV:</strong> 
+                            <a href="{{ application.cv }}" target="_blank">Voir CV</a>
+                        </p>
+                        <p>
+                            <strong>Lettre de motivation:</strong> 
+                            {% if application.coverLetter %}
+                                <a href="{{ application.coverLetter }}" target="_blank">Voir</a>
+                            {% else %}
+                                Non fournie
+                            {% endif %}
+                        </p>
+                        <p><strong>Date de soumission:</strong> {{ application.submissionDate|date('Y-m-d') }}</p>
+                        <p>
+                            <strong>Statut actuel:</strong>
+                            <span id="status-display-{{ application.id }}">
+                                {% if application.status == 'open' %}
+                                    Ouvert
+                                {% elseif application.status == 'in progress' %}
+                                    En cours
+                                {% elseif application.status == 'closed' %}
+                                    Fermé
+                                {% else %}
+                                    {{ application.status }}
+                                {% endif %}
+                            </span>
+                        </p>
+                        <select class="status-select" onchange="updateStatus({{ application.id }}, this.value)">
+                            <option value="open" {% if application.status == 'open' %}selected{% endif %}>Ouvert</option>
+                            <option value="in progress" {% if application.status == 'in progress' %}selected{% endif %}>En cours</option>
+                            <option value="closed" {% if application.status == 'closed' %}selected{% endif %}>Fermé</option>
+                        </select>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center">Aucune candidature pour cette offre pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function updateStatus(applicationId, newStatus) {
+            fetch('{{ path("app_application_update_status", {"id": "APPLICATION_ID"}) }}'.replace("APPLICATION_ID", applicationId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let display = document.getElementById('status-display-' + applicationId);
+                    if(newStatus === 'open') {
+                        display.textContent = "Ouvert";
+                    } else if(newStatus === 'in progress') {
+                        display.textContent = "En cours";
+                    } else if(newStatus === 'closed') {
+                        display.textContent = "Fermé";
+                    } else {
+                        display.textContent = newStatus;
+                    }
+                    // Update the border color with animation:
+                    let card = document.getElementById('application-' + applicationId);
+                    card.classList.remove('in-progress', 'closed');
+                    if(newStatus === 'in progress'){
+                        card.classList.add('in-progress');
+                    } else if(newStatus === 'closed'){
+                        card.classList.add('closed');
+                    }
+                } else {
+                    alert(data.message || "Erreur lors de la mise à jour du statut");
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Erreur lors de la mise à jour du statut");
+            });
+        }
+    </script>
+{% endblock %}

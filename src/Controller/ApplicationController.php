@@ -8,6 +8,7 @@ use App\Form\ApplicationType;
 use App\Repository\ApplicationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,21 +37,20 @@ final class ApplicationController extends AbstractController
         $application = new Application();
         $application->setJobOffer($jobOffer);
 
-        // Pre-set default values (status and submission date)
+        // Pre-set default values
         $application->setStatus('open');
         $application->setSubmissionDate(new \DateTime());
 
-        // Create the form. Ensure ApplicationType does NOT include fields for user, status, or submissionDate.
+        // Create the form (make sure ApplicationType does NOT include user, status, or submissionDate)
         $form = $this->createForm(ApplicationType::class, $application);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Re-set defaults in case form handling altered them
+            // Set defaults
             $application->setSubmissionDate(new \DateTime());
             $application->setStatus('open');
 
-            // Instead of setting the currently logged in user, assign the user who created the job offer.
-            // This assumes the JobOffer entity has a "user" property for its creator.
+            // Set the user to the creator of the job offer
             $application->setUser($jobOffer->getUser());
 
             // Process CV file upload if provided
@@ -69,7 +69,6 @@ final class ApplicationController extends AbstractController
                 $application->setCoverLetter('/uploads/applications/' . $coverLetterFileName);
             }
 
-            // Persist and flush the application to the database
             $entityManager->persist($application);
             $entityManager->flush();
 
@@ -81,6 +80,42 @@ final class ApplicationController extends AbstractController
             'form' => $form->createView(),
             'jobOfferId' => $id,
         ]);
+    }
+
+    #[Route('/list/{id}', name: 'app_application_list', methods: ['GET'])]
+    public function listByJobOffer(int $id, EntityManagerInterface $entityManager): Response
+    {
+        $jobOffer = $entityManager->getRepository(JobOffer::class)->find($id);
+        if (!$jobOffer) {
+            throw $this->createNotFoundException("Offre d'emploi non trouvée");
+        }
+        $applications = $entityManager->getRepository(Application::class)->findBy(['jobOffer' => $jobOffer]);
+
+        return $this->render('application/list_by_job_offer.html.twig', [
+            'jobOffer' => $jobOffer,
+            'applications' => $applications,
+        ]);
+    }
+
+    #[Route('/update-status/{id}', name: 'app_application_update_status', methods: ['POST'])]
+    public function updateStatus(int $id, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $application = $entityManager->getRepository(Application::class)->find($id);
+        if (!$application) {
+            return new JsonResponse(['success' => false, 'message' => 'Candidature non trouvée'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $newStatus = $data['status'] ?? null;
+
+        if (!in_array($newStatus, ['open', 'in progress', 'closed'])) {
+            return new JsonResponse(['success' => false, 'message' => 'Statut invalide'], 400);
+        }
+
+        $application->setStatus($newStatus);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Statut mis à jour avec succès']);
     }
 
     #[Route('/{id}', name: 'app_application_show', methods: ['GET'])]
@@ -98,7 +133,6 @@ final class ApplicationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // If needed, update submissionDate or status here.
             $entityManager->flush();
             return $this->redirectToRoute('app_application_index', [], Response::HTTP_SEE_OTHER);
         }
