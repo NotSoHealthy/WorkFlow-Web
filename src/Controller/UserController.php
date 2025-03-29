@@ -6,7 +6,9 @@ use App\Entity\User;
 use App\Repository\DepartmentRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -87,5 +89,25 @@ final class UserController extends AbstractController
             
         }
         return $this->render('user/edit_profile.html.twig');
+
+
+        $secret = $container->get("scheb_two_factor.security.google_authenticator")->generateSecret();
+    }
+
+    #[Route('/enable-2fa', name: 'enable_2fa', methods: ['POST'])]
+    public function enable2FA(EntityManagerInterface $entityManager, GoogleAuthenticatorInterface $googleAuthenticator): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user->isGoogleAuthenticatorEnabled()) {
+            $secret = $googleAuthenticator->generateSecret();
+            $user->setGoogleAuthenticatorSecret($secret);
+            // $entityManager->flush();
+
+            $qrCodeUrl = $googleAuthenticator->getQRContent($user);
+            dump($qrCodeUrl);
+            return new JsonResponse(['qrCodeUrl' => $qrCodeUrl]);
+        }
+        return new JsonResponse(['error' => '2FA already enabled'], Response::HTTP_BAD_REQUEST);
     }
 }

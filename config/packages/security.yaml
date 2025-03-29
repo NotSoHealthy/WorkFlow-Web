@@ -38,6 +38,8 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS  }
         - { path: ^/register, roles: PUBLIC_ACCESS  }
+        - { path: ^/logout, roles: PUBLIC_ACCESS  }
+        - { path: ^/2fa, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/, roles: ROLE_USER }
 
         # - { path: ^/login, roles: IS_AUTHENTICATED_FULLY, requires_channel: https }

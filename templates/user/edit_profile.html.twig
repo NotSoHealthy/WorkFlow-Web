@@ -56,5 +56,14 @@
                     </div>
                 </div>
         </form>
+            <div class="auth-container">
+                <h5>Authentification à deux factuers</h5>
+                <div class="d-flex flex-row">
+                    <p>L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à votre compteen exigeant plus qu'un simple mot de passe pour vous connecter.</p>
+                    <button id="auth-btn" data-url="{{ path('enable_2fa') }}" onclick="showQrCode()">Activez</button>
+                </div>
+                <img src="" alt="" id="qrcode" style="display: none;">
+                </div>
+            </div>
     </main>
 {% endblock %}

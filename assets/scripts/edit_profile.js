@@ -64,3 +64,32 @@ async function uploadImage(event) {
         console.error("Error reading file:", error);
     };
 }
+
+function showQrCode(){
+    const button = document.getElementById("auth-btn");
+    const qrCodeImage = document.getElementById("qrcode");
+    
+    fetch(button.dataset.url, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.text()) // Change from .json() to .text()
+    .then(text => {
+        console.log("Raw Response:", text); // Debugging
+        return JSON.parse(text); // Manually parse JSON
+    })
+    .then(data => {
+        if (data.qrCodeUrl) {
+            let  qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qrCodeUrl)}`;
+            qrCodeImage.src = qrCodeUrl;
+            qrCodeImage.style.display = "block";
+        } else {
+            alert("Erreur lors de l'activation du 2FA.");
+        }
+    })
+    .catch(error => console.error("Erreur:", error));
+    
+}

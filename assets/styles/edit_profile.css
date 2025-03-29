@@ -1,3 +1,9 @@
+main{
+    display: flex;
+    gap: 2em;
+    flex-direction: column;
+}
+
 .header{
     display: flex;
     align-items: center;
@@ -23,9 +29,22 @@
     gap: .5em;
 }
 
-form{
+form, .auth-container{
     display: flex;
     flex-direction: column;
     gap: 1em;
     width: max-content;
+}
+
+.auth-container p{
+    max-width: 500px
+}
+
+.auth-container button{
+    height: 50px;
+}
+
+.auth-container img{
+    aspect-ratio: 1/1;
+    width: 150px;
 }

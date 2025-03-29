@@ -9,12 +9,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Repository\UserRepository;
+use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
 
 #[ORM\Table(name: 'user')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -108,6 +109,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
+
+    #[ORM\Column(type: 'string', nullable: true)]
+   private ?string $googleAuthenticatorSecret;
+
+   public function isGoogleAuthenticatorEnabled(): bool
+   {
+       return null !== $this->googleAuthenticatorSecret;
+   }
+
+   public function getGoogleAuthenticatorUsername(): string
+   {
+       return $this->email;
+   }
+
+   public function getGoogleAuthenticatorSecret(): ?string
+   {
+       return $this->googleAuthenticatorSecret;
+   }
+
+   public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): void
+   {
+       $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
+   }
 
     #[ORM\Column(type: 'string', nullable: false)]
     private ?string $first_name = null;
