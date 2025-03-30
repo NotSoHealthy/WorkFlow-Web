@@ -16,28 +16,27 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    //    /**
-    //     * @return Event[] Returns an array of Event objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Event
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function increaseNumberOfPlaces(int $eventId, int $increment): int
+    {
+        return $this->createQueryBuilder('e')
+            ->update()
+            ->set('e.NumberOfPlaces', 'e.NumberOfPlaces + :increment')
+            ->where('e.id = :id')
+            ->setParameter('increment', $increment)
+            ->setParameter('id', $eventId)
+            ->getQuery()
+            ->execute();
+    }
+    public function decreaseNumberOfPlaces(int $eventId, int $decrement): int
+    {
+        $event = $this->find($eventId);
+        if (!$event) {
+            throw new \InvalidArgumentException("Event not found for id {$eventId}");
+        }
+        $current = $event->getNumberOfPlaces();
+        $newNumber = max(0, $current - $decrement);
+        $event->setNumberOfPlaces($newNumber);
+        $this->getEntityManager()->flush();
+        return 1;
+    }
 }

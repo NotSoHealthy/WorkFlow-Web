@@ -1,0 +1,31 @@
+{% extends 'layout.html.twig' %}
+{% block main %}
+<main>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<h1 align="center">Reservation pour {{ event.Title }}</h1>
+&nbsp
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    &nbsp
+    <button type="submit" class="btn btn-primary"><i class="fas fa-ticket-alt"></i>&nbspReserver</button>
+
+{{ form_end(form) }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let typeField = document.querySelector('.type-selector');
+    let placesField = document.querySelector('.places-input');
+    let priceField = document.querySelector('.price-input');
+
+    function updatePrice() {
+        let typePrice = parseFloat(typeField.value) || 0;
+        let places = parseInt(placesField.value) || 1;
+        priceField.value = typePrice * places;
+    }
+
+    typeField.addEventListener('change', updatePrice);
+    placesField.addEventListener('input', updatePrice);
+});
+</script>
+</main>
+{% endblock %}

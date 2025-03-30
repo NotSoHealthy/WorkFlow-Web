@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 use App\Repository\ReservationRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: 'reservation')]
@@ -43,6 +44,11 @@ class Reservation
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'choisir un type')]
+    #[Assert\NotEqualTo(
+        value: "Selectionner un type",
+        message: "choisir un type valide",
+    )]
     private ?string $Type = null;
 
     public function getType(): ?string
@@ -56,7 +62,13 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(name: "NombreDePlaces",type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: 'nombre de places ne doit pas être vide')]
+    #[Assert\Regex(
+        pattern: "/^[0-9]+$/",
+        message: "le nombre de places doit etres chiffres seulement"
+    )]
+    #[Assert\Positive(message: 'le nombre de places doit etres positif')]
     private ?int $NombreDePlaces = null;
 
     public function getNombreDePlaces(): ?int

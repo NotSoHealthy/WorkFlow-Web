@@ -1,13 +1,13 @@
 {% extends 'layout.html.twig' %}
 
 {% block main %}
-<main>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<h1 align="center">Ajouter un Evenement</h1>
+<main>
+<h1 align="center">Modifier un Evenement</h1>
 &nbsp
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn"><i class="fa-solid fa-square-plus"></i>&nbsp{{ button_label|default('Ajouter') }}</button>
+    <button class="btn"><i class="fa-solid fa-pen">&nbsp</i>{{ button_label|default('Modifier') }}</button>
 {{ form_end(form) }}
 </main>
 {% endblock %}
