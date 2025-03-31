@@ -39,4 +39,12 @@ class EventRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
         return 1;
     }
+    public function findByTitle(string $title): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.Title LIKE :title')
+            ->setParameter('title', '%' . $title . '%')
+            ->getQuery()
+            ->getResult();
+    }
 }

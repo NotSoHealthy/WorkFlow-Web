@@ -19,7 +19,7 @@ final class ReservationController extends AbstractController
     public function reservations(ReservationRepository $reservationRepository): Response
     {
         return $this->render('reservation/index.html.twig', [
-            'reservations' => $reservationRepository->findAll(),
+            'reservations' => $reservationRepository->findByUser($this->getUser()),
         ]);
     }
     #[Route('/reserver/{id}', name: 'app_add_reservation')]

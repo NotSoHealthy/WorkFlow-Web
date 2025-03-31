@@ -3,11 +3,11 @@
 {% block main %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <main>
-<h1 align="center">Modifier un Evenement</h1>
+<h1 align="center">Modifier {{event.Title}}</h1>
 &nbsp
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn"><i class="fa-solid fa-pen">&nbsp</i>{{ button_label|default('Modifier') }}</button>
+    <button class="btn" type="submit"><i class="fa-solid fa-pen">&nbsp</i>{{ button_label|default('Modifier') }}</button>
 {{ form_end(form) }}
 </main>
 {% endblock %}

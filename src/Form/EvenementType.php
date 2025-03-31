@@ -18,9 +18,11 @@ class EvenementType extends AbstractType
         $builder
         ->add('Title', TextType::class, [
             'label' => 'Titre',
+            'empty_data' => '',
             'required' => false
         ])
         ->add('Description', TextType::class, [
+            'empty_data' => '',
             'required' => false,
         ])
         ->add('DateAndTime', null, [
@@ -34,6 +36,7 @@ class EvenementType extends AbstractType
         ])
         ->add('Location', null, [
             'label' => 'Adresse',
+            'empty_data' => '',
             'required' => false
         ])
         ->add('Type', ChoiceType::class, [
@@ -49,9 +52,11 @@ class EvenementType extends AbstractType
         ])
         ->add('NumberOfPlaces', null, [
             'label' => 'Nombre de place',
+            'empty_data' => 0,
             'required' => false
         ])
         ->add('isOnline', null, [
+            'empty_data' => '',
             'label' => 'En Ligne'
         ]);
     }

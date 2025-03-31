@@ -114,7 +114,7 @@
             transform: scale(1.05);
         }
         .btn-edit {
-            background: #39ff14;
+            background:rgb(37, 202, 8);
             color: #000;
             position: relative;
             bottom: 2.5rem;
@@ -127,7 +127,7 @@
             position: relative;
             bottom: 2.1rem;
             color: rgb(0, 0, 0);
-            background:rgb(255, 0, 0);
+            background:rgb(196, 4, 4);
         }
         .btn-delete:hover {
             background:rgb(255, 0, 0);
@@ -151,6 +151,18 @@
             transition: transform 0.3s ease-in-out;
         }
         .btn-add-project:hover {
+            background: rgb(53, 105, 248);
+            border: 2px solid black;
+            transform: scale(1.05);
+        }
+        .btn-goto-reservation {
+            background: rgb(98, 138, 248);
+            color: #000;
+            border: 2px solid black;
+            margin-left: 45rem;
+            transition: transform 0.3s ease-in-out;
+        }
+        .btn-goto-reservation:hover {
             background: rgb(53, 105, 248);
             border: 2px solid black;
             transform: scale(1.05);
@@ -209,166 +221,76 @@
 <main>
     <div class="container mt-5">
         <h1 class="mb-4 text-center">Evenements</h1>
-
-        {# Display Flash Messages #}
-        {% for message in app.flashes('warning') %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-        {% for message in app.flashes('danger') %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-
-        <div class="text-end mb-4">
+        <div class="mb-4">
             <a href="{{ path('app_addevent') }}" class="btn btn-add-project">
                 <i class="fas fa-plus-circle me-2"></i>Ajouter un Evenement
             </a>
+            <a href="{{ path('app_showreservation') }}" class="btn btn-goto-reservation">
+                <i class="fa-solid fa-couch"></i>&nbspMes Reservations
+            </a>
         </div>
+        <div class="mb-4">
+            <form method="GET" action="{{ path('app_search_events') }}" class="d-flex">
+                <input type="text" name="q" placeholder="Rechercher un évènement..." value="{{ app.request.query.get('q') }}" class="form-control" style="max-width: 400px;">
+                <button type="submit" class="btn btn-primary ms-2" style="max-width: 200px;"><i class="fa fa-search"></i> Rechercher</button>
+            </form>
+        </div>
+        {% if app.request.query.get('q') %}
+            <div class="alert alert-info text-center" style="display: flex; align-items: center; justify-content: center;">
+            <a href="{{ path('app_showevent') }}" style="text-decoration:none;">
+                <i class="fa-solid fa-square-xmark" style="font-size:36px"></i>
+            </a>
+            &nbsp
+                Résultats de la recherche pour : <strong>{{ app.request.query.get('q') }}</strong>
+            </div>
+        {% endif %}
+        &nbsp
+        &nbsp
         {% if events|length > 0 %}
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for event in events %}
+                {% for event in events %}
                     <div class="col">
                         <div class="project" data-bs-toggle="modal" data-bs-target="#projectModal{{ event.id }}">
                             <div class="project-header">
                                 <h3 align="center">{{ event.Title }}</h3>
                             </div>
                             <div class="project-body">
-                            <table>
-                                <tr class="project-info">
-                                <td>
-                                    <i class="fas fa-calendar-alt"></i>
-                                </td>
-                                <td>
-                                    <strong>Date:</strong> &nbsp&nbsp {{ event.DateAndTime|date('Y-m-d h:m') }}
-                                </td>
-                                </tr>
-                                <tr class="project-info">
-                                <td>
-                                    <i class="fa-solid fa-map-location-dot"></i>
-                                </td>
-                                <td>
-                                    <strong>Adresse:</strong> &nbsp&nbsp {{ event.Location }}
-                                </td>
-                                </tr>
-                                <tr class="project-info">
-                                <td>
-                                    <i class="fa-solid fa-list"></i>
-                                </td>
-                                <td>
-                                    <strong>Type:</strong> &nbsp&nbsp {{ event.Type }}
-                                </td>
-                                </tr>
-                            </table>
+                                <table>
+                                    <tr class="project-info">
+                                        <td><i class="fas fa-calendar-alt"></i></td>
+                                        <td><strong>Date:</strong> &nbsp&nbsp {{ event.DateAndTime|date('Y-m-d h:m') }}</td>
+                                    </tr>
+                                    <tr class="project-info">
+                                        <td><i class="fa-solid fa-map-location-dot"></i></td>
+                                        <td><strong>Adresse:</strong> &nbsp&nbsp {{ event.Location }}</td>
+                                    </tr>
+                                    <tr class="project-info">
+                                        <td><i class="fa-solid fa-list"></i></td>
+                                        <td><strong>Type:</strong> &nbsp&nbsp {{ event.Type }}</td>
+                                    </tr>
+                                </table>
                             </div>
-                            </div>
-                            <div class="project-footer">
-                                    <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
-                                        <button class="btn btn-edit">
-                                            <i class="fa-solid fa-pen"></i> modifier
-                                        </button>
-                                    </form>
-                                    <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
-                                        <button class="btn btn-delete">
-                                            <i class="fas fa-trash-alt"></i> Supprimer
-                                        </button>
-                                    </form>
-                                <!-- {#</div>#}-->
                         </div>
-
-                        {# Modal for Project Details #}
-                        <div class="modal fade" id="projectModal{{ event.id }}" tabindex="-1" aria-labelledby="projectModalLabel{{ event.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="projectModalLabel{{ event.id }}" align="center">{{ event.Title }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                    <table>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </td>
-                                        <td>
-                                            <strong>Date:</strong> &nbsp&nbsp {{ event.DateAndTime|date('Y-m-d h:m') }}
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fa-solid fa-map-location-dot"></i>
-                                        </td>
-                                        <td>
-                                            <strong>Adresse:</strong> &nbsp&nbsp {{ event.Location }}
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fa-solid fa-list"></i>
-                                        </td>
-                                        <td>
-                                            <strong>Type:</strong> &nbsp&nbsp {{ event.Type }}
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fa-solid fa-couch"></i>
-                                        </td>
-                                        <td>
-                                            <strong>Nombre de Place:</strong> &nbsp&nbsp {{ event.NumberOfPlaces }}
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fa-brands fa-google"></i>
-                                        </td>
-                                        <td>
-                                            <strong>En Ligne:</strong> &nbsp&nbsp {{ event.isOnline ? 'Oui' : 'Non' }}
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td>
-                                            <i class="fa-solid fa-info" style="margin-left:8px;"></i>
-                                        </td>
-                                        <td>
-                                            <strong>Description:</strong>
-                                        </td>
-                                        </tr>
-                                        <tr class="project-info">
-                                        <td></td>
-                                        <td>
-                                            {{ event.Description }}
-                                        </td>
-                                        </tr>
-                                    </table>
-                                    <form method="post" action="{{ path('app_add_reservation', {'id': event.id}) }}" style="display:inline; align:center;margin-bottom: 10rem;">
-                                                <button class="btn-reserve">
-                                                    <i class="fas fa-ticket-alt"></i> Réserver
-                                                </button>
-                                            </form>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="project-footer">
+                            <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
+                                <button class="btn btn-edit">
+                                    <i class="fa-solid fa-pen"></i> Modifier
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
+                                <button class="btn btn-delete">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </form>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="alert alert-info text-center">
-                Aucun Evenement trouvé
+                Aucun événement trouvé
             </div>
         {% endif %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </main>
+</main>
 {% endblock %}
