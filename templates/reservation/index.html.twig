@@ -5,107 +5,122 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-.reservation-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px;
-    font-family: "Helvetica", Arial, sans-serif;
-    background-color: #f8f9fa;
-}
+        .reservation-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            font-family: "Helvetica", Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
 
-.reservation-table thead {
-    background:rgb(125, 158, 250);
-    color: white;
-    text-align: left;
-    
-}
+        .reservation-table thead {
+            background: rgb(125, 158, 250);
+            color: white;
+            text-align: left;
+        }
 
-.reservation-table th, .reservation-table td {
-    padding: 12px 15px;
-}
+        /* Header cells: only round the top left and top right corners */
+        .reservation-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+        .reservation-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
 
-.reservation-table tbody tr {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.2s ease-in-out;
-}
+        .reservation-table th, .reservation-table td {
+            padding: 12px 15px;
+        }
 
-.reservation-table tbody tr:hover {
-    transform: scale(1.02);
-}
+        /* Remove border-radius from the row so that we can apply it per cell */
+        .reservation-table tbody tr {
+            background: white;
+            /* border-radius: 10px;  -- removed */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out;
+        }
 
-/* Make the delete button cell blend in */
-.reservation-table td.action-cell {
-    border-left: none; /* Remove left border if any */
-    padding-left: 0;
-    text-align: right;
-    white-space: nowrap;
-}
+        .reservation-table tbody tr:hover {
+            transform: scale(1.02);
+        }
 
-/* Delete button styling */
-.btn-delete {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: background 0.3s ease;
-}
+        /* For each body row, round the first and last cells (full vertical rounding) */
+        .reservation-table tbody tr td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .reservation-table tbody tr td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
 
-.btn-delete:hover {
-    background: #d9534f;
-}
-.reservation-table tbody tr:first-child td:first-child {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
+        /* Make the delete button cell blend in */
+        .reservation-table td.action-cell {
+            border-left: none;
+            padding-left: 0;
+            text-align: right;
+            white-space: nowrap;
+        }
 
+        /* Delete button styling */
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
 
+        .btn-delete:hover {
+            background: #d9534f;
+        }
+        .reservation-table tbody tr:first-child td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .reservation-table tbody tr:first-child td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
     </style>
 {% endblock %}
 
 {% block main %}
 <main>
-<h1 style="text-align: center; color:rgb(88, 172, 255); margin-top: 20px;">Reservations</h1>
-<table class="reservation-table">
-    <thead>
-        <tr>
-            <th>Type</th>
-            <th>Price</th>
-            <th>Number of Places</th>
-            <th>Event Name</th>
-            <th>Event Date</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reservation in reservations %}
+    <h1 style="text-align: center; color: rgb(88,172,255); margin-top: 20px;">Reservations</h1>
+    <table class="reservation-table">
+        <thead>
             <tr>
-                <td>{{ reservation.Type }}</td>
-                <td>{{ reservation.Price }}</td>
-                <td>{{ reservation.NombreDePlaces }}</td>
-                <td>{{ reservation.event.Title }}</td>
-                <td>{{ reservation.event.DateAndTime|date('Y-m-d H:i') }}</td>
-                <td class="action-cell">
-                    <form method="post" action="{{ path('app_delete_reservation', {'id': reservation.id}) }}">
-                        <button class="btn-delete">Delete</button>
-                    </form>
-                </td>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Number of Places</th>
+                <th>Event Name</th>
+                <th>Event Date</th>
+                <th></th>
             </tr>
-        {% else %}
-            <tr>
-                <td colspan="6" style="text-align: center;">Aucun reservation.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
-
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+                <tr>
+                    <td>{{ reservation.Type }}</td>
+                    <td>{{ reservation.Price }}</td>
+                    <td>{{ reservation.NombreDePlaces }}</td>
+                    <td>{{ reservation.event.Title }}</td>
+                    <td>{{ reservation.event.DateAndTime|date('Y-m-d H:i') }}</td>
+                    <td class="action-cell">
+                        <form method="post" action="{{ path('app_delete_reservation', {'id': reservation.id}) }}">
+                            <button class="btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">Aucun reservation.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </main>
 {% endblock %}

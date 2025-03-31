@@ -63,16 +63,18 @@ final class EvenementController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/searchevent', name: 'app_search_events')]
+    #[Route('/searchevent', name: 'app_event_list')]
     public function search(Request $request, EventRepository $eventRepository)
     {
-        $query = $request->query->get('q', '');
+        $query = $request->query->get('q');
+        $sortByDate = $request->query->get('sort_by_date');
+        $eventType = $request->query->get('event_type', '');
 
-        $events = $eventRepository->findByTitle($query);
+        $events = $eventRepository->findBySearchQuery($query, $sortByDate, $eventType);
 
         return $this->render('evenement/index.html.twig', [
             'events' => $events,
-            'query' => $query
+            'query' => $query,
         ]);
     }
 }

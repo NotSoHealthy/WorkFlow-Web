@@ -47,4 +47,24 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function findBySearchQuery(?string $query, ?string $sortByDate, ?string $eventType)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        if ($query) {
+            $qb->andWhere('e.Title LIKE :query')
+               ->setParameter('query', '%' . $query . '%');
+        }
+
+        if ($eventType) {
+            $qb->andWhere('e.Type = :eventType')
+               ->setParameter('eventType', $eventType);
+        }
+
+        if ($sortByDate) {
+            $qb->orderBy('e.DateAndTime', 'ASC');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
