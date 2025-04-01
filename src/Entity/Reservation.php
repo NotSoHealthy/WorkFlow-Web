@@ -112,7 +112,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: "qr_url",type: 'string', nullable: true)]
     private ?string $qr_url = null;
 
     public function getQr_url(): ?string

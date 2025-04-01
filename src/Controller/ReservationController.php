@@ -34,6 +34,7 @@ final class ReservationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             //dump($request->request->all());exit;
             $typePrice = (float) $request->request->all('reservation')['Type'];
+            $qr_url = $request->request->all('reservation')['qr_url'];
             $places = $reservation->getNombreDePlaces();
             if($typePrice == 40){
                 $type = 'Accès-Normal';
@@ -43,6 +44,7 @@ final class ReservationController extends AbstractController
                 $type = 'VIP';
             }
             $reservation->setType($type);
+            $reservation->setQrUrl($qr_url);	
             $totalPrice = $typePrice * $places;
             $reservation->setPrice($totalPrice);
             $entityManager->persist($reservation);

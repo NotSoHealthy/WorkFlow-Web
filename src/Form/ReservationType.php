@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class ReservationType extends AbstractType
 {
@@ -35,6 +36,10 @@ class ReservationType extends AbstractType
                 'disabled' => true, // Prevent manual modification
                 'attr' => ['class' => 'price-input'],
                 'required' => false
+            ])
+            ->add('qr_url', HiddenType::class, [
+                'required' => false,
+                'attr' => ['id' => 'qr_url'],
             ]);
     }
 
