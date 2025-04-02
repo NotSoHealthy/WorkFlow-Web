@@ -1,10 +1,28 @@
 {% extends 'layout.html.twig' %}
 
-{% block title %}Candidatures pour {{ jobOffer.Title }}{% endblock %}
+{% block title %}Candidatures pour {{ jobOffer.title }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <style>
+        :root {
+            --primary-color: #1a73e8; /* Bleu pour les actions */
+            --success-color: #4caf50; /* Vert pour statut ouvert */
+            --warning-color: #ff9800; /* Orange pour en cours */
+            --danger-color: #f44336; /* Rouge pour fermé */
+            --background-color: #f5f7fa; /* Fond gris clair */
+            --card-bg: #ffffff; /* Fond blanc des cartes */
+            --text-color: #333; /* Texte sombre */
+            --border-color: #e0e0e0; /* Bordures subtiles */
+            --font-family: 'Inter', sans-serif; /* Police moderne */
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -16,7 +34,38 @@
             font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 40px;
-            color: #333;
+            color: var(--text-color);
+        }
+
+        .filter-sort-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-sort-container input,
+        .filter-sort-container select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-sort-container input:focus,
+        .filter-sort-container select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .filter-sort-container input {
+            width: 70%;
+        }
+
+        .filter-sort-container select {
+            width: 25%;
         }
 
         .application-list {
@@ -26,28 +75,32 @@
         }
 
         .application-card {
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            /* Default border-left for "open" status */
-            border-left: 5px solid #4caf50;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--success-color); /* Par défaut pour "ouvert" */
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             padding: 20px;
-            transition: border-color 0.5s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .application-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
         }
 
         .application-card.in-progress {
-            border-left-color: #ff9800;
+            border-left-color: var(--warning-color);
         }
 
         .application-card.closed {
-            border-left-color: #f44336;
+            border-left-color: var(--danger-color);
         }
 
         .application-card h3 {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #4caf50;
+            color: var(--primary-color);
             margin-bottom: 15px;
         }
 
@@ -65,36 +118,46 @@
             border-radius: 4px;
             width: 100%;
         }
+
+        .text-center {
+            text-align: center;
+        }
     </style>
 {% endblock %}
 
 {% block main %}
 <main>
     <div class="container">
-        <h2>Candidatures pour "{{ jobOffer.Title }}"</h2>
+        <h2>Candidatures pour "{{ jobOffer.title }}"</h2>
+        <div class="filter-sort-container">
+            <input type="text" id="search-input" placeholder="Rechercher par nom du candidat">
+            <select id="sort-select">
+                <option value="newest">Plus récentes d'abord</option>
+                <option value="oldest">Plus anciennes d'abord</option>
+            </select>
+        </div>
         <div class="application-list">
             {% if applications|length > 0 %}
                 {% for application in applications %}
-                    {# Set a CSS class on the card based on its status #}
                     {% set cardClass = application.status == 'open' ? '' : (application.status == 'in progress' ? 'in-progress' : (application.status == 'closed' ? 'closed' : '')) %}
-                    <div class="application-card {{ cardClass }}" id="application-{{ application.id }}">
+                    <div class="application-card {{ cardClass }}" id="application-{{ application.id }}" data-submission-date="{{ application.submissionDate|date('Y-m-d') }}">
                         <h3>{{ application.firstName }} {{ application.lastName }}</h3>
-                        <p><strong>Email:</strong> {{ application.mail }}</p>
+                        <p><strong>Email :</strong> {{ application.mail }}</p>
                         <p>
-                            <strong>CV:</strong> 
+                            <strong>CV :</strong> 
                             <a href="{{ application.cv }}" target="_blank">Voir CV</a>
                         </p>
                         <p>
-                            <strong>Lettre de motivation:</strong> 
+                            <strong>Lettre de motivation :</strong> 
                             {% if application.coverLetter %}
                                 <a href="{{ application.coverLetter }}" target="_blank">Voir</a>
                             {% else %}
                                 Non fournie
                             {% endif %}
                         </p>
-                        <p><strong>Date de soumission:</strong> {{ application.submissionDate|date('Y-m-d') }}</p>
+                        <p><strong>Date de soumission :</strong> {{ application.submissionDate|date('Y-m-d') }}</p>
                         <p>
-                            <strong>Statut actuel:</strong>
+                            <strong>Statut actuel :</strong>
                             <span id="status-display-{{ application.id }}">
                                 {% if application.status == 'open' %}
                                     Ouvert
@@ -138,21 +201,21 @@
             .then(data => {
                 if (data.success) {
                     let display = document.getElementById('status-display-' + applicationId);
-                    if(newStatus === 'open') {
+                    if (newStatus === 'open') {
                         display.textContent = "Ouvert";
-                    } else if(newStatus === 'in progress') {
+                    } else if (newStatus === 'in progress') {
                         display.textContent = "En cours";
-                    } else if(newStatus === 'closed') {
+                    } else if (newStatus === 'closed') {
                         display.textContent = "Fermé";
                     } else {
                         display.textContent = newStatus;
                     }
-                    // Update the border color with animation:
+                    // Mise à jour de la couleur de la bordure
                     let card = document.getElementById('application-' + applicationId);
                     card.classList.remove('in-progress', 'closed');
-                    if(newStatus === 'in progress'){
+                    if (newStatus === 'in progress') {
                         card.classList.add('in-progress');
-                    } else if(newStatus === 'closed'){
+                    } else if (newStatus === 'closed') {
                         card.classList.add('closed');
                     }
                 } else {
@@ -164,5 +227,38 @@
                 alert("Erreur lors de la mise à jour du statut");
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const sortSelect = document.getElementById('sort-select');
+            const cards = document.querySelectorAll('.application-card');
+            const container = document.querySelector('.application-list');
+
+            // Filtrage par nom du candidat
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase();
+                cards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    card.style.display = name.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
+
+            // Tri par date de soumission
+            sortSelect.addEventListener('change', function() {
+                const sortBy = this.value;
+                const cardsArray = Array.from(cards);
+                cardsArray.sort((a, b) => {
+                    const dateA = new Date(a.dataset.submissionDate);
+                    const dateB = new Date(b.dataset.submissionDate);
+                    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+                });
+                container.innerHTML = '';
+                cardsArray.forEach(card => container.appendChild(card));
+            });
+
+            // Tri par défaut : plus récentes d'abord
+            sortSelect.value = 'newest';
+            sortSelect.dispatchEvent(new Event('change'));
+        });
     </script>
 {% endblock %}
