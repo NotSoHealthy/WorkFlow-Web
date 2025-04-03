@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interview Index{% endblock %}
+
+{% block body %}
+    <h1>Interview Index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Interview Date</th>
+                <th>Location</th>
+                <th>Feedback</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for interview in interviews %}
+            <tr>
+                <td>{{ interview.id }}</td>
+                <td>{{ interview.InterviewDate ? interview.InterviewDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ interview.Location }}</td>
+                <td>{{ interview.Feedback }}</td>
+                <td>{{ interview.Status }}</td>
+                <td>
+                    <a href="{{ path('app_interview_show', {'id': interview.id}) }}">show</a>
+                    <a href="{{ path('app_interview_edit', {'id': interview.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <button class="interview-btn" data-application-id="1">Schedule Interview</button>
+
+    <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="interviewModalLabel">Schedule Interview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form will be loaded here via AJAX -->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('interviewModal');
+            const modalBody = modal.querySelector('.modal-body');
+            const buttons = document.querySelectorAll('.interview-btn');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.dataset.applicationId;
+                    fetch(`/interview/new/${applicationId}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Failed to load form');
+                            return response.text();
+                        })
+                        .then(html => {
+                            modalBody.innerHTML = html;
+                            $(modal).modal('show');
+                            const form = modalBody.querySelector('form');
+                            console.log('Form action:', form.action); // Debug the action URL
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                const formData = new FormData(form);
+                                fetch(form.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Failed to submit form');
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        $(modal).modal('hide');
+                                        alert('Interview scheduled and email sent!');
+                                        location.reload();
+                                    } else {
+                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred while scheduling the interview.');
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading form:', error);
+                            alert('Failed to load the interview form.');
+                        });
+                });
+            });
+        });
+    </script>
+{% endblock %}

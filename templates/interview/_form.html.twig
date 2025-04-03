@@ -1,0 +1,64 @@
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-size: 1rem;
+        width: 100%;
+    }
+    .form-control:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+        outline: none;
+    }
+    .btn-primary {
+        background-color: #1a73e8;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #1565c0;
+    }
+    label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .error {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+</style>
+
+{{ form_start(form, {'attr': {'class': 'interview-form'}}) }}
+    <div class="form-group">
+        {{ form_label(form.Interview_Date) }}
+        {{ form_widget(form.Interview_Date, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.Interview_Date) }}
+    </div>
+    <div class="form-group">
+        {{ form_label(form.Location) }}
+        {{ form_widget(form.Location, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.Location) }}
+    </div>
+    <div class="form-group">
+        {{ form_label(form.Feedback) }}
+        {{ form_widget(form.Feedback, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.Feedback) }}
+    </div>
+    <div class="form-group">
+        {{ form_label(form.Status) }}
+        {{ form_widget(form.Status, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.Status) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Schedule Interview</button>
+{{ form_end(form) }}
