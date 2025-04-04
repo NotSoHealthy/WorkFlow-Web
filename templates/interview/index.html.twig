@@ -3,10 +3,37 @@
 {% block title %}Interview Index{% endblock %}
 
 {% block body %}
+    <style>
+        .modal .close {
+            font-size: 1.5rem;
+            color: #000;
+            opacity: 0.5;
+            width: auto;
+            padding: 0;
+            margin: 0;
+        }
+        .modal .close:hover {
+            opacity: 0.8;
+            color: #000;
+        }
+        .interview-btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .interview-btn:hover {
+            background-color: #1565c0;
+        }
+    </style>
+
     <h1>Interview Index</h1>
 
-    <table class="table">
-        <thead>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
             <tr>
                 <th>Id</th>
                 <th>Interview Date</th>
@@ -20,18 +47,18 @@
         {% for interview in interviews %}
             <tr>
                 <td>{{ interview.id }}</td>
-                <td>{{ interview.InterviewDate ? interview.InterviewDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ interview.Location }}</td>
-                <td>{{ interview.Feedback }}</td>
-                <td>{{ interview.Status }}</td>
+                <td>{{ interview.interviewDate ? interview.interviewDate|date('Y-m-d H:i') : '' }}</td>
+                <td>{{ interview.location }}</td>
+                <td>{{ interview.feedback }}</td>
+                <td>{{ interview.status }}</td>
                 <td>
-                    <a href="{{ path('app_interview_show', {'id': interview.id}) }}">show</a>
-                    <a href="{{ path('app_interview_edit', {'id': interview.id}) }}">edit</a>
+                    <a href="{{ path('app_interview_show', {'id': interview.id}) }}" class="btn btn-sm btn-info">Show</a>
+                    <a href="{{ path('app_interview_edit', {'id': interview.id}) }}" class="btn btn-sm btn-primary">Edit</a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="6">No records found</td>
+                <td colspan="6" class="text-center">No records found</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -40,12 +67,12 @@
     <button class="interview-btn" data-application-id="1">Schedule Interview</button>
 
     <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="interviewModalLabel">Schedule Interview</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -58,8 +85,8 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('interviewModal');
@@ -74,48 +101,47 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) throw new Error('Failed to load form');
-                            return response.text();
-                        })
-                        .then(html => {
-                            modalBody.innerHTML = html;
-                            $(modal).modal('show');
-                            const form = modalBody.querySelector('form');
-                            console.log('Form action:', form.action); // Debug the action URL
-                            form.addEventListener('submit', function(e) {
-                                e.preventDefault();
-                                const formData = new FormData(form);
-                                fetch(form.action, {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                .then(response => {
-                                    if (!response.ok) throw new Error('Failed to submit form');
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        $(modal).modal('hide');
-                                        alert('Interview scheduled and email sent!');
-                                        location.reload();
-                                    } else {
-                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    alert('An error occurred while scheduling the interview.');
-                                });
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load form');
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        $(modal).modal('show');
+                        const form = modalBody.querySelector('form');
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Failed to submit form');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    $(modal).modal('hide');
+                                    alert('Interview scheduled and email sent!');
+                                    location.reload();
+                                } else {
+                                    alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while scheduling the interview.');
                             });
-                        })
-                        .catch(error => {
-                            console.error('Error loading form:', error);
-                            alert('Failed to load the interview form.');
                         });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the interview form.');
+                    });
                 });
             });
         });

@@ -3,21 +3,35 @@
 namespace App\Controller;
 
 use App\Entity\Interview;
+use App\Entity\Application;
 use App\Form\InterviewType;
 use App\Repository\InterviewRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\SvgWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use App\Entity\Application;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Mime\Part\File as MimeFile; // Correct import
+use Symfony\Component\Filesystem\Filesystem;
 
 #[Route('/interview')]
 final class InterviewController extends AbstractController
 {
+    private LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     #[Route(name: 'app_interview_index', methods: ['GET'])]
     public function index(InterviewRepository $interviewRepository): Response
     {
@@ -27,27 +41,36 @@ final class InterviewController extends AbstractController
     }
 
     #[Route('/new/{applicationId}', name: 'app_interview_new', methods: ['GET', 'POST'], defaults: ['applicationId' => null])]
-    public function new(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer, ?int $applicationId = null): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
+        ?int $applicationId = null
+    ): Response {
         $interview = new Interview();
 
-        // Set the application if an applicationId is provided
+        $this->logger->info('Processing request for /interview/new/{applicationId}', [
+            'method' => $request->getMethod(),
+            'applicationId' => $applicationId,
+            'isAjax' => $request->isXmlHttpRequest(),
+        ]);
+
         if ($applicationId) {
             $application = $entityManager->getRepository(Application::class)->find($applicationId);
             if (!$application) {
-                throw $this->createNotFoundException('Application not found');
+                $this->logger->warning('Application not found for ID: ' . $applicationId);
+                return $this->json(['error' => 'Application not found'], Response::HTTP_NOT_FOUND);
             }
             $interview->setApplication($application);
         }
 
-        // Set the user to the currently logged-in user
         $user = $this->getUser();
         if (!$user) {
-            throw $this->createAccessDeniedException('You must be logged in to schedule an interview.');
+            $this->logger->error('No logged-in user found');
+            return $this->json(['error' => 'You must be logged in'], Response::HTTP_FORBIDDEN);
         }
         $interview->setUser($user);
 
-        // Create the form with an explicit action
         $form = $this->createForm(InterviewType::class, $interview, [
             'action' => $this->generateUrl('app_interview_new', ['applicationId' => $applicationId], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
@@ -58,15 +81,70 @@ final class InterviewController extends AbstractController
                 $entityManager->persist($interview);
                 $entityManager->flush();
 
-                // Send email to the candidate if application exists
+                // Generate QR code and save it in the public/images directory
+                $qrCodeTempFile = null;
+                try {
+                    // Ensure the public/images directory exists
+                    $filesystem = new Filesystem();
+                    $publicDir = $this->getParameter('kernel.project_dir') . '/public/images';
+                    if (!$filesystem->exists($publicDir)) {
+                        $filesystem->mkdir($publicDir);
+                    }
+
+                    // Create a unique filename for the QR code
+                    $qrCodeFileName = 'qr_' . uniqid() . '.svg';
+                    $qrCodePath = $publicDir . '/' . $qrCodeFileName;
+
+                    // Create the message with interview date, location, and a small message
+                    $interviewDate = $interview->getInterviewDate()->format('Y-m-d H:i');
+                    $interviewLocation = $interview->getLocation();
+                    $message = "Date: {$interviewDate}\nLocation: {$interviewLocation}\nMessage: Interview Scheduled";
+
+                    // Generate QR code as SVG
+                    $result = Builder::create()
+                        ->writer(new SvgWriter()) // SvgWriter instance
+                        ->data($message)
+                        ->encoding(new Encoding('UTF-8'))
+                        ->build();
+
+                    // Save the SVG content to the file directly in the public/images folder
+                    file_put_contents($qrCodePath, $result->getString());
+
+                    // No need for temporary file deletion since the file is directly saved in the public folder
+                    $qrCodeTempFile = $qrCodePath;
+                } catch (\Exception $e) {
+                    $this->logger->error('QR code generation failed: ' . $e->getMessage());
+                    $this->addFlash('warning', 'Interview created, but QR code could not be generated.');
+                }
+
+                // Send email with QR code attachment
                 $application = $interview->getApplication();
                 if ($application && $application->getMail()) {
-                    $email = (new Email())
-                        ->from('aminekerfai222@gmail.com')
+                    $emailBody = $this->renderView('emails/interview_scheduled.html.twig', [
+                        'interview' => $interview,
+                        'application' => $application,
+                    ]);
+
+                    $email = (new TemplatedEmail())
+                        ->from('your-email@example.com') // Update with your sender address
                         ->to($application->getMail())
                         ->subject('Interview Scheduled')
-                        ->html('<p>Dear ' . $application->getFirstName() . ',<br>Your interview is scheduled on ' . $interview->getInterviewDate()->format('Y-m-d H:i') . ' at ' . $interview->getLocation() . '.</p><p>Best regards,<br>Your Team</p>');
+                        ->html($emailBody);
+
+                    // Attach QR code if available
+                    if ($qrCodeTempFile && file_exists($qrCodeTempFile)) {
+                        // Attach the SVG file with correct MIME type
+                        $attachment = new MimeFile($qrCodeTempFile);
+
+                        // Attach the file to the email (no need for setFilename or setContentType)
+                        $email->attach($attachment);
+                    }
+
+                    // Send the email
                     $mailer->send($email);
+                    $this->addFlash('success', 'Interview created and email sent successfully.');
+
+                    // No need to delete QR code since it's now stored permanently in the public/images folder
                 } else {
                     $this->addFlash('warning', 'Interview saved, but email could not be sent due to missing application or email.');
                 }
@@ -74,7 +152,8 @@ final class InterviewController extends AbstractController
                 if ($request->isXmlHttpRequest()) {
                     return $this->json(['success' => true]);
                 }
-                return $this->redirectToRoute('app_interview_index', [], Response::HTTP_SEE_OTHER);
+
+                return $this->redirectToRoute('app_interview_index');
             } elseif ($request->isXmlHttpRequest()) {
                 $errors = [];
                 foreach ($form->getErrors(true) as $error) {
@@ -117,7 +196,8 @@ final class InterviewController extends AbstractController
                 if ($request->isXmlHttpRequest()) {
                     return $this->json(['success' => true]);
                 }
-                return $this->redirectToRoute('app_interview_index', [], Response::HTTP_SEE_OTHER);
+
+                return $this->redirectToRoute('app_interview_index');
             } elseif ($request->isXmlHttpRequest()) {
                 $errors = [];
                 foreach ($form->getErrors(true) as $error) {
@@ -136,7 +216,7 @@ final class InterviewController extends AbstractController
     #[Route('/{id}', name: 'app_interview_delete', methods: ['POST'])]
     public function delete(Request $request, Interview $interview, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $interview->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $interview->getId(), $request->request->get('_token'))) {
             $entityManager->remove($interview);
             $entityManager->flush();
             $this->addFlash('success', 'Interview deleted successfully.');
@@ -144,6 +224,6 @@ final class InterviewController extends AbstractController
             $this->addFlash('error', 'Invalid CSRF token. Unable to delete the interview.');
         }
 
-        return $this->redirectToRoute('app_interview_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_interview_index');
     }
 }

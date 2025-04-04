@@ -1,23 +1,24 @@
 <style>
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
     .form-control {
         border-radius: 8px;
-        border: 1px solid #ddd;
-        padding: 10px;
+        border: 1px solid #ced4da;
+        padding: 12px;
         font-size: 1rem;
         width: 100%;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
     .form-control:focus {
         border-color: #1a73e8;
-        box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+        box-shadow: 0 0 8px rgba(26, 115, 232, 0.2);
         outline: none;
     }
     .btn-primary {
         background-color: #1a73e8;
         border: none;
-        padding: 10px 20px;
+        padding: 12px 25px;
         border-radius: 8px;
         font-weight: 600;
         color: white;
@@ -28,37 +29,45 @@
         background-color: #1565c0;
     }
     label {
-        font-weight: 500;
-        margin-bottom: 5px;
+        font-weight: 600;
+        margin-bottom: 8px;
         display: block;
+        color: #333;
     }
     .error {
-        color: red;
+        color: #dc3545;
         font-size: 0.9rem;
         margin-top: 5px;
+        font-style: italic;
+    }
+    .interview-form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
 </style>
 
 {{ form_start(form, {'attr': {'class': 'interview-form'}}) }}
     <div class="form-group">
-        {{ form_label(form.Interview_Date) }}
-        {{ form_widget(form.Interview_Date, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.Interview_Date) }}
+        {{ form_label(form.interviewDate, 'Interview Date and Time') }}
+        {{ form_widget(form.interviewDate, {'attr': {'class': 'form-control'}}) }}
+        <div class="error">{{ form_errors(form.interviewDate) }}</div>
     </div>
     <div class="form-group">
-        {{ form_label(form.Location) }}
-        {{ form_widget(form.Location, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.Location) }}
+        {{ form_label(form.location, 'Location') }}
+        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+        <div class="error">{{ form_errors(form.location) }}</div>
     </div>
     <div class="form-group">
-        {{ form_label(form.Feedback) }}
-        {{ form_widget(form.Feedback, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.Feedback) }}
+        {{ form_label(form.feedback, 'Feedback') }}
+        {{ form_widget(form.feedback, {'attr': {'class': 'form-control'}}) }}
+        <div class="error">{{ form_errors(form.feedback) }}</div>
     </div>
     <div class="form-group">
-        {{ form_label(form.Status) }}
-        {{ form_widget(form.Status, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.Status) }}
+        {{ form_label(form.status, 'Status') }}
+        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+        <div class="error">{{ form_errors(form.status) }}</div>
     </div>
     <button type="submit" class="btn btn-primary">Schedule Interview</button>
 {{ form_end(form) }}

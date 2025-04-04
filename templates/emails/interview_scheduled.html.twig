@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interview Scheduled</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+        }
+        p {
+            color: #666666;
+            line-height: 1.6;
+        }
+        .details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #999999;
+            margin-top: 20px;
+        }
+        .highlight {
+            color: #1a73e8;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interview Scheduled</h1>
+        <p>Dear {{ application.firstName }},</p>
+        <p>We are pleased to inform you that your interview has been scheduled. Below are the details:</p>
+        <div class="details">
+            <p><span class="highlight">Date:</span> {{ interview.interviewDate|date('Y-m-d H:i') }}</p>
+            <p><span class="highlight">Location:</span> {{ interview.location }}</p>
+            <p><span class="highlight">Interview ID:</span> {{ interview.id }}</p>
+        </div>
+        <p>Please scan the QR code below to access your interview details quickly:</p>
+        <div class="qr-code">
+            <img src="cid:qr_code" alt="Interview QR Code" style="max-width: 200px;" />
+        </div>
+        <p>We look forward to speaking with you. If you have any questions, feel free to reply to this email.</p>
+        <div class="footer">
+            <p>Best regards,<br>Your Team</p>
+        </div>
+    </div>
+</body>
+</html>
