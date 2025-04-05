@@ -102,12 +102,25 @@ final class UserController extends AbstractController
         if (!$user->isGoogleAuthenticatorEnabled()) {
             $secret = $googleAuthenticator->generateSecret();
             $user->setGoogleAuthenticatorSecret($secret);
-            // $entityManager->flush();
+            $entityManager->flush();
 
             $qrCodeUrl = $googleAuthenticator->getQRContent($user);
             dump($qrCodeUrl);
             return new JsonResponse(['qrCodeUrl' => $qrCodeUrl]);
         }
         return new JsonResponse(['error' => '2FA already enabled'], Response::HTTP_BAD_REQUEST);
+    }
+
+    #[Route('/disable-2fa', name: 'disable_2fa', methods: ['POST'])]
+    public function disable2FA(EntityManagerInterface $entityManager): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($user->isGoogleAuthenticatorEnabled()) {
+            $user->setGoogleAuthenticatorSecret(null);
+            $entityManager->flush();
+            return new JsonResponse(['success' => '2FA disabled successfully']);
+        }
+        return new JsonResponse(['error' => '2FA is not enabled'], Response::HTTP_BAD_REQUEST);
     }
 }

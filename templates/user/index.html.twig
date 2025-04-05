@@ -5,6 +5,34 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/user.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#employeesTable').DataTable({
+                "language": {
+                    "search": "Rechercher:",
+                    "lengthMenu": "Afficher _MENU_ entrées",
+                    "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                    "paginate": {
+                        "first": "Premier",
+                        "last": "Dernier",
+                        "next": "Suivant",
+                        "previous": "Précédent"
+                    }
+                },
+                "order": [[0, "asc"]], // Default sorting by "Nom et Email"
+                "columnDefs": [
+                    { "orderable": false, "targets": [3] } // Disable sorting for the "Actions" column
+                ]
+            });
+        });
+    </script>
+    
 {% endblock %}
 
 {% block main %}
@@ -12,13 +40,13 @@
         {% for flash_error in app.flashes('error') %}
             <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
         {% endfor %}
-        <table>
+        <table id="employeesTable" class="display">
             <thead>
-                <th>Nom de l'employé</th>
-                <th>Email</th>
+                <th>Nom et Email</th>
+                {# <th>Email</th> #}
                 <th>Département</th>
                 <th>Role</th>
-                <th>Actions</th>
+                <th></th>
             </thead>
             <tbody>
                 {% set verifiedUsers = users|filter(user => user.is_verified == 1) %}
@@ -32,8 +60,15 @@
 
                 {% for user in nonVerifiedUsers %}
                     <tr class="user-pending"><form action="{{ path('app_user_accept', { id: user.id }) }}" method="post">
-                        <td>{{ user.first_name }}</td>
-                        <td>{{ user.email }}</td>
+                        <td>
+                            <div>
+                                <img src="{{user.imageUrl}}" alt="">
+                                <div>
+                                    <p class="name-text">{{ user.first_name }}</p>
+                                    <p class="email-text">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             <select name="department" id="department" required autocomplete="off">
                                 <option value="" disabled selected>Département</option>
@@ -56,7 +91,7 @@
                     </form></tr>
                 {% endfor %}
 
-                {% if verifiedUsers is empty == false %}
+                {% if nonVerifiedUsers is empty == false %}
                     <tr>
                         <td colspan="5" class="td-title">Employés validés</td>
                     </tr>
@@ -64,8 +99,15 @@
 
                 {% for user in verifiedUsers %}
                     <tr>
-                        <td>{{ user.first_name }}</td>
-                        <td>{{ user.email }}</td>
+                        <td>
+                            <div>
+                                <img src="{{user.imageUrl}}" alt="">
+                                <div>
+                                    <p class="name-text">{{ user.first_name }}</p>
+                                    <a class="email-text" href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                </div>
+                            </div>
+                        </td>
                         <td>{{ user.department.Name }}</td>
                         <td>
                             {% if 'ROLE_RESPONSABLE' in user.roles %}
@@ -74,10 +116,18 @@
                                 Employé
                             {% endif %}
                         </td>
-                        <td class="d-flex flex-row gap-2">
-                            {% if user.id != app.user.id %}
+                        <td>
+                            {# {% if user.id != app.user.id %}
                                 <button class="btn btn-sm btn-secondary">Modifier</button>
-                            {% endif %}
+                            {% endif %} #}
+                            <div class="dropdown">
+                                <a class="material-symbols-outlined" href="#" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ user.id }}">
+                                    <li><a class="dropdown-item" href="#">Modifier</a></li>
+                                    <li><a class="dropdown-item" href="#">Supprimer</a></li>
+                                </ul>
+                            </div>
+                            
                         </td>
                     </tr>
                 {% endfor %}

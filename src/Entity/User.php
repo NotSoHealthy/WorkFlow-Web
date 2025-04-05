@@ -10,11 +10,12 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Repository\UserRepository;
 use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'user')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'email.already_exists')]
+#[UniqueEntity(fields: ['number'], message: 'number.already_exists')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
@@ -22,24 +23,69 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', unique: true, nullable: false)]
+    #[Assert\NotBlank(message: 'L\'adresse email est obligatoire')]
+    #[Assert\Email(message: 'Veuillez entrer une adresse email valide')]
+    private ?string $email = null;
+
+    #[ORM\Column]
+    private array $roles = [];
+
+    #[ORM\Column]
+    private ?string $password = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $googleAuthenticatorSecret = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s\-]+$/',
+        message: 'Le prénom ne peut contenir que des lettres, des espaces et des tirets'
+    )]
+    private ?string $first_name = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s\-]+$/',
+        message: 'Le nom ne peut contenir que des lettres, des espaces et des tirets'
+    )]
+    private ?string $last_name = null;
+
+    #[ORM\Column(type: 'string', unique: true, nullable: false)]
+    #[Assert\NotBlank(message: 'Le numéro de téléphone est obligatoire')]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{8}$/',
+        message: 'Veuillez entrer un numéro de téléphone valide'
+    )]
+    private ?string $number = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'La délégation est obligatoire')]
+    private ?string $gouvernorat = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'L\'adresse est obligatoire')]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 255, options: ["default" => "https://i.ibb.co/S5rbLng/default-profile.jpg"])]
+    private ?string $image_url = "https://i.ibb.co/S5rbLng/default-profile.jpg";
+
+    #[ORM\Column(type: 'boolean', nullable: false, options: ["default" => false])]
+    private ?bool $is_verified = false;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $email = null;
 
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-    */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
@@ -50,17 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->email = $email;
         return $this;
     }
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    private array $roles = [];
 
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -70,9 +106,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -80,15 +113,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this;
     }
 
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
-
-   /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -101,40 +125,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-   private ?string $googleAuthenticatorSecret;
+    public function isGoogleAuthenticatorEnabled(): bool
+    {
+        return null !== $this->googleAuthenticatorSecret;
+    }
 
-   public function isGoogleAuthenticatorEnabled(): bool
-   {
-       return null !== $this->googleAuthenticatorSecret;
-   }
+    public function getGoogleAuthenticatorUsername(): string
+    {
+        return $this->email;
+    }
 
-   public function getGoogleAuthenticatorUsername(): string
-   {
-       return $this->email;
-   }
+    public function getGoogleAuthenticatorSecret(): ?string
+    {
+        return $this->googleAuthenticatorSecret;
+    }
 
-   public function getGoogleAuthenticatorSecret(): ?string
-   {
-       return $this->googleAuthenticatorSecret;
-   }
-
-   public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): void
-   {
-       $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
-   }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $first_name = null;
+    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): void
+    {
+        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
+    }
 
     public function getFirst_name(): ?string
     {
@@ -147,9 +162,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $last_name = null;
-
     public function getLast_name(): ?string
     {
         return $this->last_name;
@@ -160,9 +172,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->last_name = $last_name;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $number = null;
 
     public function getNumber(): ?string
     {
@@ -175,8 +184,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this;
     }
 
-    #[ORM\Column(length: 255, options: ["default" => "https://i.ibb.co/S5rbLng/default-profile.jpg"])]
-    private ?string $image_url = "https://i.ibb.co/S5rbLng/default-profile.jpg";
+    public function getGouvernorat(): ?string
+    {
+        return $this->gouvernorat;
+    }
+
+    public function setGouvernorat(string $gouvernorat): self
+    {
+        $this->gouvernorat = $gouvernorat;
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
 
     public function getImage_url(): ?string
     {
@@ -188,9 +216,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->image_url = $image_url;
         return $this;
     }
-
-    #[ORM\Column(type: 'boolean', nullable: false, options: ["default" => false])]
-    private ?bool $is_verified = false;
 
     public function is_verified(): ?bool
     {
@@ -646,5 +671,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
         return $this;
     }
-
 }

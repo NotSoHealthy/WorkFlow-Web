@@ -6,10 +6,10 @@
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/edit_profile.css') }}">
 {% endblock %}
-    {% block javascripts %}
-        {{ parent() }}
-        <script src="{{ asset('scripts/edit_profile.js') }}"></script>
-    {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/edit_profile.js') }}"></script>
+{% endblock %}
 {% block main %}
     <main>
         <form action="{{ path('app_user_edit_profile') }}" onsubmit="uploadImage(event)" method="post" enctype="multipart/form-data" id="edit-profile-form">
@@ -60,9 +60,9 @@
                 <h5>Authentification à deux factuers</h5>
                 <div class="d-flex flex-row">
                     <p>L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à votre compteen exigeant plus qu'un simple mot de passe pour vous connecter.</p>
-                    <button id="auth-btn" data-url="{{ path('enable_2fa') }}" onclick="showQrCode()">Activez</button>
+                    <button id="auth-btn" data-enableurl="{{ path('enable_2fa') }}" data-disableurl="{{ path('disable_2fa') }}" onclick="enable2fa()">Activer</button>
                 </div>
-                <img src="" alt="" id="qrcode" style="display: none;">
+                <img src="" alt="" id="qrcode" style="display: none;" data-secret="{{ app.user.googleAuthenticatorSecret }}">
                 </div>
             </div>
     </main>

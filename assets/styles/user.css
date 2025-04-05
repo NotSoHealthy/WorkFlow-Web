@@ -1,7 +1,11 @@
 th,td{
     padding: 1em;
-    min-width: 150px;
-    width: 200px;
+    /* min-width: 150px; */
+    /* width: 200px; */
+}
+
+td{
+    align-items: center;
 }
 
 tr{
@@ -13,6 +17,7 @@ tr{
 table{
     border-collapse:separate;
     border-spacing:0 1em;
+    width: 80%;
 }
 
 .user-pending{
@@ -28,3 +33,32 @@ table{
     font-weight: 600;
     padding: .5em;
 }
+
+td > div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+}
+
+td > div > img{
+    aspect-ratio: 1/1;
+    width: 50px;
+    border-radius: 50%;
+}
+
+td > div > div{
+    display: flex;
+    flex-direction: column;
+}
+
+.email-text{
+    color: gray;
+    font-size: small;
+}
+
+.dropdown a{
+    text-decoration: none;
+    color: var(--text-primary);
+}
+

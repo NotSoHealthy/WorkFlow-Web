@@ -6,3 +6,4 @@ scheb_two_factor:
     google:
         enabled: true
         issuer: WorkFlow
+        template: security/2fa.html.twig

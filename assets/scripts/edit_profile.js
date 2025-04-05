@@ -31,6 +31,7 @@ async function uploadImage(event) {
         const formData = new FormData();
         formData.append("image", base64String); // ImgBB requires base64 string
 
+        startLoader()
         try {
             const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
                 method: "POST",
@@ -58,6 +59,9 @@ async function uploadImage(event) {
         } catch (error) {
             console.error("Error uploading image:", error);
         }
+        finally {
+            stopLoader()
+        }
     };
 
     reader.onerror = function (error) {
@@ -65,11 +69,11 @@ async function uploadImage(event) {
     };
 }
 
-function showQrCode(){
+function enable2fa(){
     const button = document.getElementById("auth-btn");
     const qrCodeImage = document.getElementById("qrcode");
-    
-    fetch(button.dataset.url, {
+    startLoader(); // Start the loader
+    fetch(button.dataset.enableurl, {
         method: "POST",
         headers: {
             "X-Requested-With": "XMLHttpRequest",
@@ -86,10 +90,47 @@ function showQrCode(){
             let  qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qrCodeUrl)}`;
             qrCodeImage.src = qrCodeUrl;
             qrCodeImage.style.display = "block";
+            button.innerHTML = "Désactiver";
+            button.setAttribute("onclick", "disable2fa()");
         } else {
             alert("Erreur lors de l'activation du 2FA.");
         }
     })
-    .catch(error => console.error("Erreur:", error));
+    .catch(error => console.error("Erreur:", error))
+    .finally(() => {
+        stopLoader(); // Stop the loader
+        console.log("stopLoader called"); // Debugging
+    });
     
+}
+
+function disable2fa(){
+    const qrCodeImage = document.getElementById("qrcode");
+    const button = document.getElementById("auth-btn");
+
+    qrCodeImage.style.display = "none";
+    qrCodeImage.src = "";
+    button.innerHTML = "Activer";
+    button.setAttribute("onclick", "enable2fa()");
+
+    fetch(button.dataset.disableurl, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json"
+        }
+    })
+    .catch(error => console.error("Erreur:", error));
+}
+
+window.onload = function () {
+    const qrCodeImage = document.getElementById("qrcode");
+    const button = document.getElementById("auth-btn");
+    var secret = qrCodeImage.dataset.secret;
+    if (secret) {
+        qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(secret)}`;
+        qrCodeImage.style.display = "block";
+        button.innerHTML = "Désactiver";
+        button.setAttribute("onclick", "disable2fa()");
+    }
 }

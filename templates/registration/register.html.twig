@@ -49,6 +49,18 @@
             </div>
             <div class="form-row">
                 <div class="form-column">
+                    {{ form_label(registrationForm.gouvernorat) }}
+                    {{ form_widget(registrationForm.gouvernorat) }}
+                    {{ form_errors(registrationForm.gouvernorat) }}
+                </div>
+                <div class="form-column">
+                    {{ form_label(registrationForm.address) }}
+                    {{ form_widget(registrationForm.address) }}
+                    {{ form_errors(registrationForm.address) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
                     {{ form_label(registrationForm.password.first) }}
                     {{ form_widget(registrationForm.password.first) }}
                     {{ form_errors(registrationForm.password.first) }}

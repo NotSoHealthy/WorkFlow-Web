@@ -155,7 +155,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamations')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamationsResponsable')]
     #[ORM\JoinColumn(name: 'responsable', referencedColumnName: 'id')]
     private ?User $responsable = null;
 
