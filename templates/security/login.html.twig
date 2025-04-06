@@ -16,6 +16,7 @@
         {% if error %}
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
+        <div id="recaptcha-error" class="alert alert-danger" style="display: none;"></div>
         {% if app.user %}
             <div class="mb-3">
                 You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
@@ -49,6 +50,11 @@
             #}
             <div class="form-row">
                 <div class="form-column">
+                    <div class="g-recaptcha" data-sitekey="{{ no_captcha_site_key }}"></div>
+                </div>
+            </div>            
+            <div class="form-row">
+                <div class="form-column">
                     <input type="hidden" name="_main" value="/main">
                     <button class="btn btn-lg submit-btn" type="submit">Sign in</button>
                 </div>
@@ -58,4 +64,23 @@
             <p>Pas encore de compte? <a href="{{ path('app_register') }}">S'inscrire maintenant</a></p>
         </div>
     </main>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const errorDiv = document.getElementById('recaptcha-error');
+    
+            form.addEventListener('submit', function (e) {
+                const response = grecaptcha.getResponse();
+                if (response.length === 0) {
+                    e.preventDefault();
+                    errorDiv.textContent = "Veuillez compléter le reCAPTCHA.";
+                    errorDiv.style.display = 'block';
+                } else {
+                    errorDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    
 {% endblock %}
