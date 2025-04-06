@@ -27,33 +27,26 @@ final class ApplicationController extends AbstractController
     #[Route('/new/{id}', name: 'app_application_new', methods: ['GET', 'POST'])]
     public function new(int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Retrieve the JobOffer entity by its ID
         $jobOffer = $entityManager->getRepository(JobOffer::class)->find($id);
         if (!$jobOffer) {
             throw $this->createNotFoundException('Job offer not found');
         }
 
-        // Create a new Application and link it to the JobOffer
         $application = new Application();
         $application->setJobOffer($jobOffer);
 
-        // Pre-set default values
         $application->setStatus('open');
         $application->setSubmissionDate(new \DateTime());
 
-        // Create the form (make sure ApplicationType does NOT include user, status, or submissionDate)
         $form = $this->createForm(ApplicationType::class, $application);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Set defaults
             $application->setSubmissionDate(new \DateTime());
             $application->setStatus('open');
 
-            // Set the user to the creator of the job offer
             $application->setUser($jobOffer->getUser());
 
-            // Process CV file upload if provided
             $cvFile = $form->get('CV')->getData();
             if ($cvFile) {
                 $cvFileName = uniqid() . '.' . $cvFile->guessExtension();
@@ -61,7 +54,6 @@ final class ApplicationController extends AbstractController
                 $application->setCv('/uploads/applications/' . $cvFileName);
             }
 
-            // Process Cover Letter file upload if provided
             $coverLetterFile = $form->get('Cover_Letter')->getData();
             if ($coverLetterFile) {
                 $coverLetterFileName = uniqid() . '.' . $coverLetterFile->guessExtension();
@@ -151,5 +143,39 @@ final class ApplicationController extends AbstractController
             $entityManager->flush();
         }
         return $this->redirectToRoute('app_application_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/stats/{id}', name: 'app_application_stats', methods: ['GET'])]
+    public function stats(int $id, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $jobOffer = $entityManager->getRepository(JobOffer::class)->find($id);
+        if (!$jobOffer) {
+            throw $this->createNotFoundException('Job offer not found');
+        }
+
+        $applications = $entityManager->getRepository(Application::class)->findBy(['jobOffer' => $jobOffer]);
+
+        $stats = [
+            'total' => count($applications),
+            'open' => 0,
+            'inProgress' => 0,
+            'closed' => 0,
+        ];
+
+        foreach ($applications as $application) {
+            switch ($application->getStatus()) {
+                case 'open':
+                    $stats['open']++;
+                    break;
+                case 'in progress':
+                    $stats['inProgress']++;
+                    break;
+                case 'closed':
+                    $stats['closed']++;
+                    break;
+            }
+        }
+
+        return new JsonResponse($stats);
     }
 }

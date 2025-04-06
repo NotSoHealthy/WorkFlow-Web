@@ -7,9 +7,9 @@
     <style>
         :root {
             --primary-color: #1a73e8;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
+            --success-color: #4caf50;  /* Green for Open */
+            --warning-color: #ff9800;  /* Orange for In Progress */
+            --danger-color: #f44336;   /* Red for Closed */
             --background-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-color: #333;
@@ -164,6 +164,81 @@
             height: 200px;
             opacity: 0;
         }
+
+        /* Statistics Button and Modal Styles */
+        .stats-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-color), #0d47a1);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stats-btn:hover {
+            background: linear-gradient(135deg, #1565c0, #0b3d91);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-dialog {
+            max-width: 600px;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        /* Modified Close Button Styles for Left Positioning */
+        .modal-header .close {
+            position: absolute;
+            top: 8.5px;
+            left: 260px;
+            margin: 0;
+            color: white !important;
+            font-size: 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-header .close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 30px;
+            background: var(--card-bg);
+        }
+
+        #stats-chart {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 {% endblock %}
 
@@ -225,13 +300,34 @@
             {% endif %}
         </div>
 
+        <!-- Statistics Button -->
+        <button id="stats-btn" class="stats-btn">Show Statistics</button>
+
+        <!-- Statistics Modal -->
+        <div id="stats-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Application Statistics</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="stats-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Modal -->
         <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="interviewModalLabel">Schedule Interview</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -248,7 +344,10 @@
     {{ parent() }}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let statsChart = null;
+
         function updateStatus(applicationId, newStatus) {
             fetch('{{ path("app_application_update_status", {"id": "APPLICATION_ID"}) }}'.replace("APPLICATION_ID", applicationId), {
                 method: 'POST',
@@ -328,49 +427,140 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) throw new Error('Failed to load form');
-                            return response.text();
-                        })
-                        .then(html => {
-                            modalBody.innerHTML = html;
-                            $(modal).modal('show');
-                            const form = modalBody.querySelector('form');
-                            console.log('Form action:', form.action); // Debug the action URL
-                            form.addEventListener('submit', function(e) {
-                                e.preventDefault();
-                                const formData = new FormData(form);
-                                fetch(form.action, {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                .then(response => {
-                                    if (!response.ok) throw new Error('Failed to submit form');
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        $(modal).modal('hide');
-                                        alert('Interview scheduled and email sent to the candidate.');
-                                        location.reload();
-                                    } else {
-                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    alert('An error occurred while scheduling the interview.');
-                                });
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load form');
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        $(modal).modal('show');
+                        const form = modalBody.querySelector('form');
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Failed to submit form');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    $(modal).modal('hide');
+                                    alert('Interview scheduled and email sent to the candidate.');
+                                    location.reload();
+                                } else {
+                                    alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while scheduling the interview.');
                             });
-                        })
-                        .catch(error => {
-                            console.error('Error loading form:', error);
-                            alert('Failed to load the interview form.');
                         });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the interview form.');
+                    });
                 });
+            });
+
+            // Statistics Button Event Listener with Chart.js
+            document.getElementById('stats-btn').addEventListener('click', function() {
+                fetch('{{ path('app_application_stats', {'id': jobOffer.id}) }}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const ctx = document.getElementById('stats-chart').getContext('2d');
+                    if (statsChart) {
+                        statsChart.destroy();
+                    }
+                    statsChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Open', 'In Progress', 'Closed'],
+                            datasets: [{
+                                data: [data.open, data.inProgress, data.closed],
+                                backgroundColor: [
+                                    '#4caf50',  // Green for Open
+                                    '#ff9800',  // Orange for In Progress
+                                    '#f44336'   // Red for Closed
+                                ],
+                                borderColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        font: {
+                                            size: 14,
+                                            family: 'Inter, sans-serif'
+                                        },
+                                        color: '#333'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Application Status Distribution',
+                                    font: {
+                                        size: 18,
+                                        family: 'Inter, sans-serif',
+                                        weight: 'bold'
+                                    },
+                                    color: '#333'
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleFont: {
+                                        size: 14,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    bodyFont: {
+                                        size: 12,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff'
+                                }
+                            },
+                            animation: {
+                                animateScale: true,
+                                animateRotate: true
+                            }
+                        }
+                    });
+                    $('#stats-modal').modal('show');
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                    alert('Failed to load statistics. Please try again later.');
+                });
+            });
+
+            // Destroy chart when modal is hidden to prevent reopening issues
+            $('#stats-modal').on('hidden.bs.modal', function () {
+                if (statsChart) {
+                    statsChart.destroy();
+                    statsChart = null;
+                }
             });
         });
     </script>
