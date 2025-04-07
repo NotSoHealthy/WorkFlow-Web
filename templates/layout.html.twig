@@ -3,34 +3,49 @@
 {% block stylesheets %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
-{% endblock stylesheets %}
+{% endblock %}
 
 {% block body %}
-    <div class="sidenav">
-        <div class="nav-profile">
-            <img class="nav-profile-img" src="{{ app.user.imageUrl }}" alt="">
-            <h5 class="nav-profile-name">{{ app.user.firstName }} {{ app.user.lastName }}</h5>
+<div class="d-flex" style="min-height: 100vh;">
+
+    <!-- Sidebar -->
+    <div class="sidenav" style="width: 250px; background-color: #f8f9fa; padding: 15px;">
+        <div class="nav-profile text-center mb-3">
+            <img class="nav-profile-img rounded-circle mb-2" src="{{ app.user.imageUrl }}" alt="Profile" width="70" height="70">
+            <h6 class="nav-profile-name mb-1">{{ app.user.firstName }} {{ app.user.lastName }}</h6>
         </div>
         <hr class="nav-hr">
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+
+        <a class="nav-item nav-link d-block mb-2 {% if app.request.attributes.get('_route') == 'dashboard' %}active{% endif %}" href="#">
+            <span class="material-symbols-outlined">dashboard</span> Dashboard
+        </a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="{{ path('department_index') }}"><span class="material-symbols-outlined">apartment</span>Départements</a>
+            <a class="nav-item nav-link d-block mb-2 {% if app.request.attributes.get('_route') starts with 'department' %}active{% endif %}" href="{{ path('department_index') }}">
+                <span class="material-symbols-outlined">apartment</span> Départements
+            </a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="{{ path('project_index') }}"><span class="material-symbols-outlined">groups</span>Projets</a>
+        <a class="nav-item nav-link d-block mb-2 {% if app.request.attributes.get('_route') starts with 'project' %}active{% endif %}" href="{{ path('project_index') }}">
+            <span class="material-symbols-outlined">groups</span> Projets
+        </a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">person</span>Employés</a>
+            <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">person</span> Employés</a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">quiz</span>Formations</a>
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">calendar_month</span>Evénements</a>
+        <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">quiz</span> Formations</a>
+        <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">calendar_month</span> Evénements</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">business_center</span>Offres d'emploi</a>
+            <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">business_center</span> Offres d'emploi</a>
+            <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">group_add</span> Candidatures</a>
         {% endif %}
-        {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">group_add</span>Candidatures</a>
-        {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">beach_access</span>Congés</a>
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">edit</span>Réclamations</a>
-        <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
+        <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">beach_access</span> Congés</a>
+        <a class="nav-item nav-link d-block mb-2" href="#"><span class="material-symbols-outlined">edit</span> Réclamations</a>
+        <a class="nav-item nav-link d-block nav-disconnect mt-4" href="{{ path('app_logout') }}">
+            <span class="material-symbols-outlined">logout</span> Se Déconnecter
+        </a>
     </div>
-    {% block main %}{% endblock %}
-{% endblock body %}
+
+    <!-- Main content with tighter padding -->
+    <div class="flex-grow-1" style="padding: 10px 15px;">
+        {% block main %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

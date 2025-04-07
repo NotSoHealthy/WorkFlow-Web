@@ -14,17 +14,39 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/project')]
 final class ProjectController extends AbstractController
 {
-    #[Route(name: 'project_index', methods: ['GET'])]
-    public function index(ProjectRepository $projectRepository): Response
-    {
-        $projects = $projectRepository->findAll();
-        $this->checkEndDateNotifications($projects);
+    #[Route(name: 'project_index')]
+public function index(ProjectRepository $projectRepository): Response
+{
+    $projects = $projectRepository->findAll();
 
-        return $this->render('project/index.html.twig', [
-            'projects' => $projects,
-        ]);
+    // 💥 If any of these return null, it will break!
+    $total = count($projects);
+    $enCours = 0;
+    $termine = 0;
+    $annule = 0;
+    $budgetTotal = 0;
+
+    foreach ($projects as $project) {
+        $state = strtolower($project->getState() ?? '');
+        
+        if ($state === 'en cours') $enCours++;
+        elseif ($state === 'terminé') $termine++;
+        elseif ($state === 'annulé') $annule++;
+
+        $budgetTotal += $project->getBudget() ?? 0;
     }
 
+    return $this->render('project/index.html.twig', [
+        'projects' => $projects,
+        'stats' => [
+            'total' => $total,
+            'en_cours' => $enCours,
+            'termine' => $termine,
+            'annule' => $annule,
+            'budget_total' => $budgetTotal,
+        ],
+    ]);
+}
     #[Route('/new', name: 'project_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -98,5 +120,47 @@ final class ProjectController extends AbstractController
                 }
             }
         }
+    }
+    #[Route('/search', name: 'project_search', methods: ['GET'])]
+    public function search(Request $request, ProjectRepository $projectRepository): Response
+    {
+        $q = $request->query->get('q', '');
+        $sort = $request->query->get('sort', '');
+    
+        $qb = $projectRepository->createQueryBuilder('p');
+    
+        if ($q) {
+            $qb->andWhere('p.Name LIKE :search')
+               ->setParameter('search', '%' . $q . '%');
+        }
+    
+        switch ($sort) {
+            case 'name_asc':
+                $qb->orderBy('p.Name', 'ASC');
+                break;
+            case 'name_desc':
+                $qb->orderBy('p.Name', 'DESC');
+                break;
+            case 'date_asc':
+                $qb->orderBy('p.Start_Date', 'ASC');
+                break;
+            case 'date_desc':
+                $qb->orderBy('p.Start_Date', 'DESC');
+                break;
+            case 'budget_asc':
+                $qb->orderBy('p.Budget', 'ASC');
+                break;
+            case 'budget_desc':
+                $qb->orderBy('p.Budget', 'DESC');
+                break;
+            default:
+                $qb->orderBy('p.Name', 'ASC');
+        }
+    
+        $projects = $qb->getQuery()->getResult();
+    
+        return $this->render('project/_list.html.twig', [
+            'projects' => $projects,
+        ]);
     }
 }

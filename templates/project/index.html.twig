@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Bibliothèque de Projets{% endblock %}
 
@@ -7,19 +7,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
 <style>
     body {
-        background-color: #f1f5f9;
+        background: linear-gradient(to bottom right, #fdfcfb, #e2d1c3);
         font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
     }
     h1 {
         text-align: center;
-        margin: 2rem 0;
+        margin: 2rem 0 1rem;
         font-size: 2.5rem;
-        color: #1e293b;
+        color: #3f3f3f;
     }
     .add-button {
         display: flex;
         justify-content: center;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
     .add-button a {
         background-color: #10b981;
@@ -33,146 +35,297 @@
     .add-button a:hover {
         background-color: #059669;
     }
-    .shelf {
+    .search-sort-bar {
         display: flex;
+        justify-content: space-between;
+        align-items: center;
         flex-wrap: wrap;
-        justify-content: center;
-        gap: 2rem;
-        padding: 2rem;
+        padding: 0 3rem;
+        margin-bottom: 1rem;
     }
-    .open-book {
-        width: 500px;
-        height: 270px;
-        background: linear-gradient(to right, #fefce8 49.5%, #f9fafb 50.5%);
-        border-radius: 12px;
-        display: flex;
-        overflow: hidden;
-        border: 1px solid #d1d5db;
+    .search-sort-bar input,
+    .search-sort-bar select {
+        margin: 0.5rem;
+    }
+    .shelf {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        padding: 2rem 3rem 4rem;
+        justify-items: center;
+    }
+    .book-card {
         position: relative;
-        transition: transform 0.6s ease, box-shadow 0.6s ease;
-        transform-style: preserve-3d;
-        box-shadow: 10px 15px 20px rgba(0,0,0,0.1);
     }
-    .open-book:hover {
-        transform: rotateY(5deg) rotateX(3deg);
-        box-shadow: 20px 25px 40px rgba(0,0,0,0.2);
+    .book {
+        width: 250px;
+        height: 320px;
+        background-color: #fef9c3;
+        border-radius: 8px;
+        box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+        padding: 1rem 1rem 1.5rem 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
     }
-    .open-book::before {
-        content: '';
-        position: absolute;
-        left: 49.8%;
-        width: 1px;
+    .book:hover {
+        transform: scale(1.03);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .book-content {
         height: 100%;
-        background: #d1d5db;
-        z-index: 1;
-    }
-    .left-page, .right-page {
-        width: 50%;
-        padding: 1.5rem 1rem;
-        position: relative;
-        z-index: 2;
-    }
-    .left-page {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        transform: rotateY(-1deg);
+        justify-content: space-between;
     }
-    .left-page h3 {
-        font-size: 1.3rem;
-        color: #1e293b;
+    .book h3 {
+        font-size: 1.1rem;
+        font-weight: bold;
         margin-bottom: 0.5rem;
-        text-align: center;
+        color: #1e293b;
+    }
+    .book-info {
+        font-size: 0.85rem;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+    .book-info i {
+        margin-right: 0.3rem;
+        color: #94a3b8;
     }
     .state-badge {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.6rem;
-        border-radius: 8px;
-        font-weight: bold;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
         color: white;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        width: fit-content;
     }
     .en-cours { background-color: #3b82f6; }
     .termine { background-color: #10b981; }
     .annule { background-color: #ef4444; }
-
-    .right-page {
-        font-size: 0.9rem;
-        color: #334155;
-        line-height: 1.6;
-        transform: rotateY(1deg);
-    }
-    .right-page div {
-        margin-bottom: 0.4rem;
-    }
-    .right-page i {
-        margin-right: 0.4rem;
-        color: #64748b;
-    }
     .book-actions {
-        margin-top: 1rem;
         display: flex;
-        gap: 0.5rem;
+        justify-content: space-between;
+        margin-top: 0.5rem;
     }
     .book-actions a,
     .book-actions form button {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.6rem;
-        border-radius: 6px;
-        color: white;
-        text-decoration: none;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.5rem;
+        border-radius: 4px;
         border: none;
         cursor: pointer;
+        color: white;
+        text-decoration: none;
     }
     .btn-edit { background-color: #f59e0b; }
     .btn-edit:hover { background-color: #d97706; }
     .btn-delete { background-color: #ef4444; }
     .btn-delete:hover { background-color: #dc2626; }
+
+    .book-description {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f2937;
+        color: #fff;
+        font-size: 0.75rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        max-width: 220px;
+        text-align: left;
+        line-height: 1.2rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex-direction: column;
+    }
+
+    .book-description::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: #1f2937 transparent transparent transparent;
+    }
+
+    .book:hover .book-description {
+        opacity: 1;
+    }
+</style>
+<style>
+.stats-container {
+    animation: fadeInUp 1s ease forwards;
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: scale(0.95);
+}
+.stat-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.stat-card h5 {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+}
+.stat-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Gradients */
+.gradient-blue { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.gradient-green { background: linear-gradient(135deg, #10b981, #34d399); }
+.gradient-red { background: linear-gradient(135deg, #ef4444, #f87171); }
+.gradient-yellow { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.gradient-indigo { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+/* Animation */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 {% endblock %}
 
 {% block body %}
 <h1>Bibliothèque de Projets 📚</h1>
-<div class="add-button">
-    <a href="{{ path('project_new') }}">
-        <i class="fas fa-plus-circle"></i> Ajouter un Projet
-    </a>
+<div class="text-center mb-4">
+    <button id="toggle-stats-btn" class="btn btn-outline-dark fw-bold px-4 py-2 shadow">
+        📊 Voir les Statistiques
+    </button>
 </div>
-<div class="shelf">
-    {% for project in projects %}
-        {% set stateClass = 'en-cours' %}
-        {% if project.State|lower == 'terminé' %}
-            {% set stateClass = 'termine' %}
-        {% elseif project.State|lower == 'annulé' %}
-            {% set stateClass = 'annule' %}
-        {% endif %}
 
-        <div class="open-book">
-            <div class="left-page">
-                <h3>{{ project.Name }}</h3>
-                <div class="state-badge {{ stateClass }}">{{ project.State }}</div>
-            </div>
-            <div class="right-page">
-                <div><i class="fas fa-calendar-alt"></i> Début: {{ project.StartDate|date('Y-m-d') }}</div>
-                <div><i class="fas fa-calendar-check"></i> Fin: {{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</div>
-                <div><i class="fas fa-wallet"></i> Budget: {{ project.Budget }} €</div>
-                <div><i class="fas fa-user-tie"></i> Manager: {{ project.manager.first_name }}</div>
-                <div><i class="fas fa-building"></i> Département: {{ project.department ? project.department.Name : 'N/A' }}</div>
-                <div class="book-actions">
-                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn-edit">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                        <button class="btn-delete">
-                            <i class="fas fa-trash-alt"></i> Supprimer
-                        </button>
-                    </form>
-                </div>
-            </div>
+<div id="project-stats" class="container mb-4 stats-container" style="display: none;">
+    <div class="row justify-content-center text-center g-4">
+        <div class="col-md-2 stat-card gradient-blue">
+            <h5>Total</h5>
+            <p class="counter" data-target="{{ stats.total }}">0</p>
         </div>
-    {% else %}
-        <div class="text-center">Aucun projet trouvé.</div>
-    {% endfor %}
+        <div class="col-md-2 stat-card gradient-indigo">
+            <h5>En cours</h5>
+            <p class="counter" data-target="{{ stats.en_cours }}">0</p>
+        </div>
+        <div class="col-md-2 stat-card gradient-green">
+            <h5>Terminé</h5>
+            <p class="counter" data-target="{{ stats.termine }}">0</p>
+        </div>
+        <div class="col-md-2 stat-card gradient-red">
+            <h5>Annulé</h5>
+            <p class="counter" data-target="{{ stats.annule }}">0</p>
+        </div>
+        <div class="col-md-3 stat-card gradient-yellow">
+            <h5>Budget Total</h5>
+            <p class="counter" data-target="{{ stats.budget_total }}">0</p>
+        </div>
+    </div>
 </div>
+
+<div class="search-sort-bar">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+        <input 
+            type="text" 
+            id="search-project" 
+            placeholder="Rechercher un projet..." 
+            class="form-control" 
+            style="width: 250px;"
+        >
+        <select id="sort-project" class="form-select" style="width: 200px;">
+            <option value="">Trier par...</option>
+            <option value="name_asc">Nom (A-Z)</option>
+            <option value="name_desc">Nom (Z-A)</option>
+            <option value="date_asc">Date de début (ancienne → récente)</option>
+            <option value="date_desc">Date de début (récente → ancienne)</option>
+            <option value="budget_asc">Budget (croissant)</option>
+            <option value="budget_desc">Budget (décroissant)</option>
+        </select>
+    </div>
+</div>
+
+<div id="project-list" class="shelf">
+    {% include 'project/_list.html.twig' with {'projects': projects} %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const search = document.getElementById('search-project');
+        const sort = document.getElementById('sort-project');
+        const container = document.getElementById('project-list');
+
+        function fetchProjects() {
+            const q = search.value;
+            const s = sort.value;
+            fetch(`/project/search?q=${encodeURIComponent(q)}&sort=${s}`)
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                });
+        }
+
+        search.addEventListener('input', fetchProjects);
+        sort.addEventListener('change', fetchProjects);
+    });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.getElementById("toggle-stats-btn");
+    const stats = document.getElementById("project-stats");
+
+    let isShown = false;
+
+    function animateCounters() {
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = +counter.getAttribute('data-target');
+            let count = 0;
+
+            const increment = target / 50; // adjust for speed
+
+            const update = () => {
+                count += increment;
+                if (count < target) {
+                    counter.innerText = Math.floor(count);
+                    requestAnimationFrame(update);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            update();
+        });
+    }
+
+    btn.addEventListener("click", () => {
+        isShown = !isShown;
+        stats.style.display = isShown ? "block" : "none";
+        btn.innerHTML = isShown ? "❌ Cacher les Statistiques" : "📊 Voir les Statistiques";
+        if (isShown) {
+            animateCounters();
+        }
+    });
+});
+</script>
 {% endblock %}

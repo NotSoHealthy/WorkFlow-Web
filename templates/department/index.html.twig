@@ -3,242 +3,232 @@
 {% block title %}Nos Départements{% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        .department-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            background: #ffffff;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        .department-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        .department-header {
-            position: relative;
-            padding: 2rem 1.5rem;
-            color: white;
-            text-align: center;
-            background-size: cover;
-            background-position: center;
-        }
-        .department-header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* Overlay for better text readability */
-        }
-        .department-header-content {
-            position: relative;
-            z-index: 1;
-        }
-        .department-icon {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .department-name {
-            font-size: 1.75rem;
-            font-weight: bold;
-            margin: 0;
-        }
-        /* Department-specific colors */
-        .department-it .department-header {
-            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        }
-        .department-finance .department-header {
-            background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
-        }
-        .department-hr .department-header {
-            background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
-        }
-        .department-marketing .department-header {
-            background: linear-gradient(135deg, #e83e8c 0%, #b82e6f 100%);
-        }
-        .department-rd .department-header {
-            background: linear-gradient(135deg, #6610f2 0%, #4a0ab2 100%);
-        }
-        .department-default .department-header {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        }
-        .department-body {
-            padding: 1.5rem;
-            background: #f8f9fc;
-        }
-        .department-info {
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-        }
-        .department-info i {
-            margin-right: 10px;
-            color: #4e73df;
-            font-size: 1.2rem;
-        }
-        .department-footer {
-            background-color: #e3e7f1;
-            border-top: none;
-            padding: 0.75rem 1.25rem;
-            text-align: right;
-        }
-        .btn-action {
-            margin-left: 5px;
-        }
-        .btn-add-department {
-            background-color: #1cc88a;
-            border-color: #1cc88a;
-            transition: background-color 0.3s ease;
-        }
-        .btn-add-department:hover {
-            background-color: #17a673;
-            border-color: #17a673;
-        }
-        .modal-content {
-            border-radius: 10px;
-        }
-        .modal-header {
-            background: #4e73df;
-            color: white;
-        }
-    </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    .department-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    .department-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .department-header {
+        position: relative;
+        padding: 2rem 1.5rem;
+        color: white;
+        text-align: center;
+        background-size: cover;
+        background-position: center;
+    }
+    .department-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+    }
+    .department-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    .department-icon {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .department-name {
+        font-size: 1.75rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    .department-it .department-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+    .department-finance .department-header {
+        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    }
+    .department-hr .department-header {
+        background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+    }
+    .department-marketing .department-header {
+        background: linear-gradient(135deg, #e83e8c 0%, #b82e6f 100%);
+    }
+    .department-rd .department-header {
+        background: linear-gradient(135deg, #6610f2 0%, #4a0ab2 100%);
+    }
+    .department-default .department-header {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+    .department-body {
+        padding: 1.5rem;
+        background: #f8f9fc;
+    }
+    .department-info {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    .department-info i {
+        margin-right: 10px;
+        color: #4e73df;
+        font-size: 1.2rem;
+    }
+    .department-footer {
+        background-color: #e3e7f1;
+        border-top: none;
+        padding: 0.75rem 1.25rem;
+        text-align: right;
+    }
+    .btn-action {
+        margin-left: 5px;
+    }
+    .btn-add-department {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+        transition: background-color 0.3s ease;
+    }
+    .btn-add-department:hover {
+        background-color: #17a673;
+        border-color: #17a673;
+    }
+    .modal-content {
+        border-radius: 10px;
+    }
+    .modal-header {
+        background: #4e73df;
+        color: white;
+    }
+    .input {
+        color: black;
+        font: 1em/1.5 Hind, sans-serif;
+    }
+</style>
 {% endblock %}
 
-{% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">Nos Départements</h1>
+{% block main %}
+<div class="container" style="margin-top: 10px; margin-left: 0;">
+    <h1 class="mb-3" style="font-size: 2rem;">Nos Départements</h1>
 
-        {# Display Flash Messages #}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-        {% for message in app.flashes('warning') %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
+    <!-- Toggle Button -->
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-primary" id="toggleStats">
+            <i class="fas fa-chart-pie me-1"></i> Voir les Budgets
+        </button>
+    </div>
 
-        <div class="text-end mb-4">
+    <!-- Chart Section -->
+    <div id="statsContainer" style="display: none;">
+        <canvas id="statsChart" height="100"></canvas>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <input 
+                id="search-dept" 
+                type="text" 
+                placeholder="Rechercher un département" 
+                class="form-control" 
+                style="width: 250px;"
+            >
+            <select id="sort-dept" class="form-select" style="width: 200px;">
+                <option value="">Trier par...</option>
+                <option value="name_asc">Nom (A-Z)</option>
+                <option value="name_desc">Nom (Z-A)</option>
+                <option value="budget_asc">Budget (croissant)</option>
+                <option value="budget_desc">Budget (décroissant)</option>
+            </select>
+        </div>
+        <div>
             <a href="{{ path('department_new') }}" class="btn btn-add-department">
                 <i class="fas fa-plus-circle me-2"></i>Ajouter un Département
             </a>
         </div>
-
-        {% if departments|length > 0 %}
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                {% for department in departments %}
-                    {# Determine department type for theming and icon #}
-                    {% set deptClass = 'department-default' %}
-                    {% set deptIcon = 'fas fa-building' %}
-                    {% if department.Name|lower in ['it', 'informatique'] %}
-                        {% set deptClass = 'department-it' %}
-                        {% set deptIcon = 'fas fa-laptop' %}
-                    {% elseif department.Name|lower in ['finance', 'finances'] %}
-                        {% set deptClass = 'department-finance' %}
-                        {% set deptIcon = 'fas fa-wallet' %}
-                    {% elseif department.Name|lower in ['hr', 'ressources humaines', 'rh'] %}
-                        {% set deptClass = 'department-hr' %}
-                        {% set deptIcon = 'fas fa-users' %}
-                    {% elseif department.Name|lower in ['marketing'] %}
-                        {% set deptClass = 'department-marketing' %}
-                        {% set deptIcon = 'fas fa-bullhorn' %}
-                    {% elseif department.Name|lower in ['r&d', 'recherche et développement', 'rd'] %}
-                        {% set deptClass = 'department-rd' %}
-                        {% set deptIcon = 'fas fa-flask' %}
-                    {% endif %}
-
-                    <div class="col">
-                        <div class="card department-card {{ deptClass }}">
-                            <div class="department-header">
-                                <div class="department-header-content">
-                                    <i class="{{ deptIcon }} department-icon"></i>
-                                    <h2 class="department-name">{{ department.Name }}</h2>
-                                </div>
-                            </div>
-                            <div class="department-body">
-                                <div class="department-info">
-                                    <i class="fas fa-user-tie"></i>
-                                    <strong>Manager:</strong> {{ department.manager.first_name }}
-                                </div>
-                                <div class="department-info">
-                                    <i class="fas fa-users"></i>
-                                    <strong>Équipe:</strong> {{ department.users|length }} membres
-                                </div>
-                                <div class="department-info">
-                                    <i class="fas fa-project-diagram"></i>
-                                    <strong>Projets Actifs:</strong> {{ department.projects|length }}
-                                </div>
-                                <div class="department-info">
-                                    <i class="fas fa-wallet"></i>
-                                    <strong>Budget Annuel:</strong> {{ department.YearBudget }} €
-                                </div>
-                            </div>
-                            <div class="department-footer">
-                                <button type="button" class="btn btn-sm btn-info btn-action" data-bs-toggle="modal" data-bs-target="#departmentModal{{ department.id }}">
-                                    <i class="fas fa-eye"></i> En Savoir Plus
-                                </button>
-                                <a href="{{ path('department_edit', {'id': department.id}) }}" class="btn btn-sm btn-warning btn-action">
-                                    <i class="fas fa-edit"></i> Modifier
-                                </a>
-                                <form method="post" action="{{ path('department_delete', {'id': department.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce département ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ department.id) }}">
-                                    <button class="btn btn-sm btn-danger btn-action">
-                                        <i class="fas fa-trash-alt"></i> Supprimer
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        {# Modal for Department Details #}
-                        <div class="modal fade" id="departmentModal{{ department.id }}" tabindex="-1" aria-labelledby="departmentModalLabel{{ department.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="departmentModalLabel{{ department.id }}">{{ department.Name }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p><strong>Manager:</strong> {{ department.manager.first_name }}</p>
-                                        <p><strong>Membres de l'Équipe:</strong></p>
-                                        <ul>
-                                            {% for user in department.users %}
-                                                <li>{{ user.name }} ({{ user.email }})</li>
-                                            {% else %}
-                                                <li>Aucun membre dans cette équipe</li>
-                                            {% endfor %}
-                                        </ul>
-                                        <p><strong>Budget Annuel:</strong> {{ department.YearBudget }} €</p>
-                                        <p><strong>Projets Actifs:</strong></p>
-                                        <ul>
-                                            {% for project in department.projects %}
-                                                <li>{{ project.Name }} (État: {{ project.State ?? 'N/A' }})</li>
-                                            {% else %}
-                                                <li>Aucun projet associé</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-info text-center">
-                Aucun département trouvé. Cliquez sur "Ajouter un Département" pour en créer un !
-            </div>
-        {% endif %}
     </div>
+
+    <div id="department-list">
+        {% include 'department/_list.html.twig' with {'departments': departments} %}
+    </div>
+</div>
+
+<!-- Chart.js + AJAX Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggleStats');
+        const statsContainer = document.getElementById('statsContainer');
+        let chartShown = false;
+
+        toggleBtn.addEventListener('click', () => {
+            statsContainer.style.display = statsContainer.style.display === 'none' ? 'block' : 'none';
+            toggleBtn.innerHTML = statsContainer.style.display === 'none'
+                ? '<i class="fas fa-chart-pie me-1"></i> Voir les Budgets'
+                : '<i class="fas fa-times me-1"></i> Cacher les Budgets';
+
+            if (!chartShown && statsContainer.style.display === 'block') {
+                const ctx = document.getElementById('statsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ chartData.labels|json_encode|raw }},
+                        datasets: [{
+                            label: 'Budget par département (€)',
+                            data: {{ chartData.budgets|json_encode|raw }},
+                            backgroundColor: '#4e73df'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                chartShown = true;
+            }
+        });
+
+        const search = document.getElementById('search-dept');
+        const sort = document.getElementById('sort-dept');
+        const container = document.getElementById('department-list');
+
+        function fetchDepartments() {
+            const q = search.value;
+            const s = sort.value;
+
+            fetch(`/department/search?q=${encodeURIComponent(q)}&sort=${s}`)
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                });
+        }
+
+        search.addEventListener('input', fetchDepartments);
+        sort.addEventListener('change', fetchDepartments);
+    });
+</script>
 {% endblock %}

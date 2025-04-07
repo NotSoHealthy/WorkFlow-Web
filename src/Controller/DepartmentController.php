@@ -10,17 +10,40 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/department')]
 final class DepartmentController extends AbstractController
 {
-    #[Route(name: 'department_index', methods: ['GET'])]
-    public function index(DepartmentRepository $departmentRepository): Response
+    private HttpClientInterface $client;
+
+    public function __construct(HttpClientInterface $client)
     {
-        return $this->render('department/index.html.twig', [
-            'departments' => $departmentRepository->findAll(),
-        ]);
+        $this->client = $client;
     }
+
+    #[Route( name: 'department_index')]
+    public function index(DepartmentRepository $departmentRepo): Response
+    {
+    $departments = $departmentRepo->findAll();
+
+    // Chart data: array of dept names + budgets
+    $deptNames = [];
+    $deptBudgets = [];
+
+    foreach ($departments as $dept) {
+        $deptNames[] = $dept->getName(); // or getNom() if using French field
+        $deptBudgets[] = $dept->getYearBudget();
+    }
+
+    return $this->render('department/index.html.twig', [
+        'departments' => $departments,
+        'chartData' => [
+            'labels' => $deptNames,
+            'budgets' => $deptBudgets
+        ]
+    ]);
+}
 
     #[Route('/new', name: 'department_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -75,5 +98,56 @@ final class DepartmentController extends AbstractController
         }
 
         return $this->redirectToRoute('department_index', [], Response::HTTP_SEE_OTHER);
+    }
+    #[Route('/search', name: 'department_search', methods: ['GET'])]
+    public function search(Request $request, DepartmentRepository $repo): Response
+    {
+        $q = $request->query->get('q');
+        $sort = $request->query->get('sort');
+        $qb = $repo->createQueryBuilder('d');
+        if ($q) {
+            $qb->andWhere('LOWER(d.Name) LIKE :q')
+                ->setParameter('q', '%' . strtolower($q) . '%');
+        }
+        switch ($sort) {
+            case 'name_asc':
+                $qb->orderBy('d.Name', 'ASC');
+                break;
+            case 'name_desc':
+                $qb->orderBy('d.Name', 'DESC');
+                break;
+            case 'budget_asc':
+                $qb->orderBy('d.Year_Budget', 'ASC');
+                break;
+            case 'budget_desc':
+                $qb->orderBy('d.Year_Budget', 'DESC');
+                break;
+        }
+        $departments = $qb->getQuery()->getResult();
+        return $this->render('department/_list.html.twig', [
+            'departments' => $departments,
+        ]);
+    }
+    #[Route('/{id}/ai-suggest', name: 'department_ai_suggest')]
+    public function suggestToolsWithGemini(Department $department): Response
+    {
+        $type = $department->getName() ?? 'technology';
+        $prompt = "Donne-moi une liste de 5 outils modernes utilisés dans un département de $type Réponds en français, en utilisant ce format :
+* **NomDeLoutil:** Courte description de son utilité. Ajoute un émoji pertinent pour chaque outil.";
+        $apiKey = $this->getParameter('gemini_api_key');
+        $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
+            'json' => [
+                'contents' => [[
+                    'parts' => [[ 'text' => $prompt ]]
+                ]]
+            ],
+        ]);
+        $data = $response->toArray(false);
+        $suggestion = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'No suggestion received from Gemini.';
+        $lines = preg_split('/\r\n|\r|\n/', $suggestion);
+        return $this->render('department/ai_suggest.html.twig', [
+            'department' => $department,
+            'tools' => $lines,
+        ]);
     }
 }

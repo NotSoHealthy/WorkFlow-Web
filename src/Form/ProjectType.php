@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class ProjectType extends AbstractType
 {
@@ -42,7 +43,7 @@ class ProjectType extends AbstractType
             ])
             ->add('manager', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'email',
+                'choice_label' => 'first_name',
                 'placeholder' => 'Sélectionnez un Manager',
             ])
             ->add('department', EntityType::class, [
@@ -50,10 +51,15 @@ class ProjectType extends AbstractType
                 'choice_label' => 'Name',
                 'placeholder' => 'Sélectionnez un Département',
             ])
-            ->add('State', TextType::class, [
-                'label' => 'État',
-                'attr' => ['placeholder' => 'Entrez l\'État du Projet'],
-                'required' => false,
+            ->add('State', ChoiceType::class, [
+                'choices'  => [
+                    'En cours' => 'en cours',
+                    'Terminé' => 'terminé',
+                    'Annulé' => 'annulé',
+                ],
+                'placeholder' => 'Sélectionnez un état',
+                'expanded' => false,
+                'multiple' => false,
             ]);
     }
 

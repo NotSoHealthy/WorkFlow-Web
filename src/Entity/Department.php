@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Repository\DepartmentRepository;
 
@@ -27,7 +28,8 @@ class Department
         $this->id = $id;
         return $this;
     }
-
+    #[Assert\NotBlank(message: "Le nom du département est requis.")]
+    #[Assert\Length(min: 2, max: 50, minMessage: "Le nom est trop court.", maxMessage: "Le nom est trop long.")]
     #[ORM\Column(type: 'string', nullable: false)]
     private ?string $Name = null;
 
@@ -41,7 +43,8 @@ class Department
         $this->Name = $Name;
         return $this;
     }
-
+    #[Assert\NotBlank(message: "Le budget annuel est requis.")]
+    #[Assert\Positive(message: "Le budget doit être un nombre positif.")]
     #[ORM\Column(type: 'float', nullable: false)]
     private ?float $Year_Budget = null;
 
@@ -55,7 +58,7 @@ class Department
         $this->Year_Budget = $Year_Budget;
         return $this;
     }
-
+    #[Assert\NotNull(message: "Le manager doit être sélectionné.")]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'departments')]
     #[ORM\JoinColumn(name: 'manager', referencedColumnName: 'id', nullable: false)]
     private ?User $Manager = null;

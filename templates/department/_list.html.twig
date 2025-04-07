@@ -1,0 +1,134 @@
+<style>
+  .btn-ai-suggest {
+    background: linear-gradient(135deg, #6f42c1, #8e44ad);
+    color: white;
+    border: none;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-ai-suggest:hover {
+    background: linear-gradient(135deg, #7e57c2, #9b59b6);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-btn-wrapper {
+    margin-bottom: 12px;
+  }
+</style>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for department in departments %}
+        {% set deptClass = 'department-default' %}
+        {% set deptIcon = 'fas fa-building' %}
+
+        {% if department.Name|lower in ['it', 'informatique'] %}
+            {% set deptClass = 'department-it' %}
+            {% set deptIcon = 'fas fa-laptop' %}
+        {% elseif department.Name|lower in ['finance', 'finances'] %}
+            {% set deptClass = 'department-finance' %}
+            {% set deptIcon = 'fas fa-wallet' %}
+        {% elseif department.Name|lower in ['hr', 'ressources humaines', 'rh'] %}
+            {% set deptClass = 'department-hr' %}
+            {% set deptIcon = 'fas fa-users' %}
+        {% elseif department.Name|lower in ['marketing'] %}
+            {% set deptClass = 'department-marketing' %}
+            {% set deptIcon = 'fas fa-bullhorn' %}
+        {% elseif department.Name|lower in ['r&d', 'recherche et développement', 'rd'] %}
+            {% set deptClass = 'department-rd' %}
+            {% set deptIcon = 'fas fa-flask' %}
+        {% endif %}
+
+        <div class="col">
+        <div class="ai-btn-wrapper">
+            <a href="{{ path('department_ai_suggest', { id: department.id }) }}" class="btn btn-ai-suggest btn-sm">
+                🤖 Suggestions IA
+            </a>
+        </div>
+            <div class="card department-card {{ deptClass }}">
+                <div class="department-header">
+                    <div class="department-header-content">
+                        <i class="{{ deptIcon }} department-icon"></i>
+                        <h2 class="department-name">{{ department.Name }}</h2>
+                    </div>
+                </div>
+                <div class="department-body">
+                    <div class="department-info">
+                        <i class="fas fa-user-tie"></i>
+                        <strong>Manager:</strong> {{ department.manager.first_name }}
+                    </div>
+                    <div class="department-info">
+                        <i class="fas fa-users"></i>
+                        <strong>Équipe:</strong> {{ department.users|length }} membres
+                    </div>
+                    <div class="department-info">
+                        <i class="fas fa-project-diagram"></i>
+                        <strong>Projets Actifs:</strong> {{ department.projects|length }}
+                    </div>
+                    <div class="department-info">
+                        <i class="fas fa-wallet"></i>
+                        <strong>Budget Annuel:</strong> {{ department.YearBudget }} €
+                    </div>
+                </div>
+                <div class="department-footer">
+                    <button type="button" class="btn btn-sm btn-info btn-action" data-bs-toggle="modal" data-bs-target="#departmentModal{{ department.id }}">
+                        <i class="fas fa-eye"></i> En Savoir Plus
+                    </button>
+                    <a href="{{ path('department_edit', {'id': department.id}) }}" class="btn btn-sm btn-warning btn-action">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <form method="post" action="{{ path('department_delete', {'id': department.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce département ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ department.id) }}">
+                        <button class="btn btn-sm btn-danger btn-action">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {# Modal #}
+            <div class="modal fade" id="departmentModal{{ department.id }}" tabindex="-1" aria-labelledby="departmentModalLabel{{ department.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="departmentModalLabel{{ department.id }}">{{ department.Name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Manager:</strong> {{ department.manager.first_name }}</p>
+                            <p><strong>Membres de l'Équipe:</strong></p>
+                            <ul>
+                                {% for user in department.users %}
+                                    <li>{{ user.name }} ({{ user.email }})</li>
+                                {% else %}
+                                    <li>Aucun membre dans cette équipe</li>
+                                {% endfor %}
+                            </ul>
+                            <p><strong>Budget Annuel:</strong> {{ department.YearBudget }} €</p>
+                            <p><strong>Projets Actifs:</strong></p>
+                            <ul>
+                                {% for project in department.projects %}
+                                    <li>{{ project.Name }} (État: {{ project.State ?? 'N/A' }})</li>
+                                {% else %}
+                                    <li>Aucun projet associé</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <div class="alert alert-info text-center">
+            Aucun département trouvé.
+        </div>
+    {% endfor %}
+</div>

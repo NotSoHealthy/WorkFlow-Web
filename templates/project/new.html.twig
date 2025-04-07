@@ -2,7 +2,108 @@
 
 {% block title %}Ajouter un Projet{% endblock %}
 
+{% block stylesheets %}
+<style>
+    body {
+        background: linear-gradient(145deg, #fdf6e3, #fceabb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+        max-width: 720px;
+        margin: 3rem auto;
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+        padding: 3rem 3.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .form-container h1 {
+        text-align: center;
+        font-size: 2.2rem;
+        color: #1e293b;
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+    }
+
+    .form-container .form-row {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-container label {
+        display: block;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0.4rem;
+    }
+
+    .form-container input,
+    .form-container textarea,
+    .form-container select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.85);
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-container input:focus,
+    .form-container textarea:focus,
+    .form-container select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        outline: none;
+    }
+
+    .form-container textarea {
+        resize: vertical;
+    }
+
+    .form-container .form-actions {
+        margin-top: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .form-container button,
+    .form-container a {
+        padding: 0.65rem 1.4rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .form-container .btn-primary {
+        background-color: #10b981;
+        color: #fff;
+    }
+
+    .form-container .btn-primary:hover {
+        background-color: #059669;
+    }
+
+    .form-container .btn-secondary {
+        background-color: #94a3b8;
+        color: white;
+    }
+
+    .form-container .btn-secondary:hover {
+        background-color: #64748b;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
+<div class="form-container">
     <h1>Ajouter un Projet</h1>
 
     {{ form_start(form) }}
@@ -14,7 +115,11 @@
         {{ form_row(form.manager) }}
         {{ form_row(form.department) }}
         {{ form_row(form.State) }}
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-        <a href="{{ path('project_index') }}" class="btn btn-secondary">Retour</a>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Ajouter</button>
+            <a href="{{ path('project_index') }}" class="btn-secondary">Retour</a>
+        </div>
     {{ form_end(form) }}
+</div>
 {% endblock %}

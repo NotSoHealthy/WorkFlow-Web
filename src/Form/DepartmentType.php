@@ -26,7 +26,7 @@ class DepartmentType extends AbstractType
             ])
             ->add('manager', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'email', // Use 'email', not 'Name'
+                'choice_label' => 'first_name', 
                 'placeholder' => 'Sélectionnez un Manager',
                 'required' => true,
             ]);
