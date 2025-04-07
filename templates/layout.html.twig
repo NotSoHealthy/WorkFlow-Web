@@ -12,24 +12,24 @@
             <h5 class="nav-profile-name">{{ app.user.firstName }} {{ app.user.lastName }}</h5>
         </div>
         <hr class="nav-hr">
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_dashboard' %}active{% endif %}" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">apartment</span>Départements</a>
+            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_departments' %}active{% endif %}" href="#"><span class="material-symbols-outlined">apartment</span>Départements</a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">groups</span>Projets</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projects' %}active{% endif %}" href="#"><span class="material-symbols-outlined">groups</span>Projets</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">person</span>Employés</a>
+            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_employees' %}active{% endif %}" href="#"><span class="material-symbols-outlined">person</span>Employés</a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">quiz</span>Formations</a>
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">calendar_month</span>Evénements</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_trainings' %}active{% endif %}" href="#"><span class="material-symbols-outlined">quiz</span>Formations</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_events' %}active{% endif %}" href="#"><span class="material-symbols-outlined">calendar_month</span>Evénements</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">business_center</span>Offres d'emploi</a>
+            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_job_offers' %}active{% endif %}" href="#"><span class="material-symbols-outlined">business_center</span>Offres d'emploi</a>
         {% endif %}
         {% if is_granted('ROLE_RESPONSABLE') %}
-            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">group_add</span>Candidatures</a>
+            <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_applications' %}active{% endif %}" href="#"><span class="material-symbols-outlined">group_add</span>Candidatures</a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">beach_access</span>Congés</a>
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">edit</span>Réclamations</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_leaves' %}active{% endif %}" href="#"><span class="material-symbols-outlined">beach_access</span>Congés</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_reclamation_index' %}active{% endif %}" href="{{ path('app_reclamation_index') }}"><span class="material-symbols-outlined">edit</span>Réclamations</a>
         <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
     </div>
     {% block main %}{% endblock %}

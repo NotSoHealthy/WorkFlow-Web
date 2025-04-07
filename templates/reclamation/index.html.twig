@@ -1,0 +1,274 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #333;
+        }
+
+        main {
+            margin-left: 270px;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 25px;
+        }
+
+        .filter-sort-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        #search-input, #sort-select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .reclamation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .reclamation-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .reclamation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .reclamation-card.open { border-left: 6px solid var(--success-color); }
+        .reclamation-card.in-progress { border-left: 6px solid var(--warning-color); }
+        .reclamation-card.closed { border-left: 6px solid var(--danger-color); }
+
+        .reclamation-card h3 {
+            color: var(--primary-color);
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+
+        .reclamation-card p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 10px;
+            margin-top: 15px;
+            align-items: flex-start; /* Align buttons to the left */
+        }
+
+        /* Custom CTA Button Styles */
+        .cta {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            width: 100%; /* Ensure buttons take full width for consistency */
+            text-align: left; /* Align text to the left */
+        }
+
+        .cta span {
+            padding-bottom: 7px;
+            letter-spacing: 2px;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: inherit;
+            transition: color 0.3s ease;
+            display: inline-block; /* Ensure underline works properly */
+        }
+
+        .hover-underline-animation {
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        .hover-underline-animation:after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: currentColor;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+
+        .cta:hover .hover-underline-animation:after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        .cta:active {
+            transform: scale(0.95);
+        }
+
+        /* Button Variants */
+        .btn-view { color: #17a2b8; }
+        .btn-edit { color: #ffc107; }
+        .btn-delete { color: #dc3545; }
+
+        .cta:hover.btn-view { color: #138496; }
+        .cta:hover.btn-edit { color: #e0a800; }
+        .cta:hover.btn-delete { color: #c82333; }
+
+        .modal-body h3 { color: var(--primary-color); }
+        .modal-body p { margin: 12px 0; }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 14px;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .badge-open { background: var(--success-color); }
+        .badge-in-progress { background: var(--warning-color); }
+        .badge-closed { background: var(--danger-color); }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <main>
+        <div class="container">
+            <h1>Réclamations</h1>
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mb-4">Créer une nouvelle réclamation</a>
+            <div class="filter-sort-container">
+                <input type="text" id="search-input" class="form-control" placeholder="Rechercher par titre ou description">
+                <select id="sort-select" class="form-control">
+                    <option value="newest">Les plus récentes d'abord</option>
+                    <option value="oldest">Les plus anciennes d'abord</option>
+                    <option value="status">Par état</option>
+                </select>
+            </div>
+            <div class="reclamation-grid">
+                {% for reclamation in reclamations %}
+                    {% set cardClass = reclamation.etat == 'open' ? 'open' : (reclamation.etat == 'in progress' ? 'in-progress' : (reclamation.etat == 'closed' ? 'closed' : '')) %}
+                    <div class="reclamation-card {{ cardClass }}"
+                         data-date="{{ reclamation.date|date('Y-m-d') }}"
+                         data-status="{{ reclamation.etat }}"
+                         data-title="{{ reclamation.titre|lower }}"
+                         data-description="{{ reclamation.description|lower }}">
+                        <h3>{{ reclamation.titre }}</h3>
+                        <p><strong>Catégorie :</strong> {{ reclamation.category }}</p>
+                        <p><strong>État :</strong> {{ reclamation.etat }}</p>
+                        <p><strong>Date :</strong> {{ reclamation.date|date('Y-m-d') }}</p>
+                        <p><strong>Messages :</strong> {{ reclamation.messages|length }}</p>
+                        <p><strong>Fichier :</strong> {{ reclamation.attachedfile ? 'Oui' : 'Non' }}</p>
+                        <div class="actions">
+                            <button class="cta btn-view view-btn" data-id="{{ reclamation.id }}">
+                                <span class="hover-underline-animation">Voir</span>
+                            </button>
+                            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="cta btn-edit">
+                                <span class="hover-underline-animation">Modifier</span>
+                            </a>
+                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                <button class="cta btn-delete" type="submit">
+                                    <span class="hover-underline-animation">Supprimer</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>Aucune réclamation trouvée.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="modal fade" id="reclamationModal" tabindex="-1" aria-labelledby="reclamationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reclamationModalLabel">Détails de la réclamation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Details loaded via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const sortSelect = document.getElementById('sort-select');
+            const cardsContainer = document.querySelector('.reclamation-grid');
+            const cards = Array.from(cardsContainer.querySelectorAll('.reclamation-card'));
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                cards.forEach(card => {
+                    const title = card.dataset.title;
+                    const description = card.dataset.description;
+                    card.style.display = (title.includes(searchTerm) || description.includes(searchTerm)) ? 'block' : 'none';
+                });
+            });
+
+            sortSelect.addEventListener('change', function() {
+                const sortBy = this.value;
+                cards.sort((a, b) => {
+                    if (sortBy === 'newest') return new Date(b.dataset.date) - new Date(a.dataset.date);
+                    if (sortBy === 'oldest') return new Date(a.dataset.date) - new Date(b.dataset.date);
+                    if (sortBy === 'status') return a.dataset.status.localeCompare(b.dataset.status);
+                });
+                cardsContainer.innerHTML = '';
+                cards.forEach(card => cardsContainer.appendChild(card));
+            });
+
+            sortSelect.value = 'newest';
+            sortSelect.dispatchEvent(new Event('change'));
+
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    fetch(`/reclamation/${id}/details`)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.querySelector('#reclamationModal .modal-body').innerHTML = html;
+                            new bootstrap.Modal(document.getElementById('reclamationModal')).show();
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+    </script>
+{% endblock %}

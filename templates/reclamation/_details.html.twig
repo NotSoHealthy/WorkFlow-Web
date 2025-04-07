@@ -1,0 +1,21 @@
+<h3>{{ reclamation.titre }}</h3>
+<p><strong>Description :</strong> {{ reclamation.description }}</p>
+<p><strong>Catégorie :</strong> {{ reclamation.category }}</p>
+<p><strong>Type :</strong> {{ reclamation.type }}</p>
+<p><strong>Date :</strong> {{ reclamation.date|date('Y-m-d') }}</p>
+<p><strong>Heure :</strong> {{ reclamation.heure|date('H:i') }}</p>
+<p><strong>État :</strong> <span class="badge badge-{{ reclamation.etat|replace({' ': '-'})|lower }}">{{ reclamation.etat }}</span></p>
+<p><strong>Date de résolution :</strong> {{ reclamation.dateResolution ? reclamation.dateResolution|date('Y-m-d') : 'N/A' }}</p>
+<p><strong>Responsable :</strong> {{ reclamation.responsable ? reclamation.responsable.email : 'N/A' }}</p>
+<p><strong>Utilisateur :</strong> {{ reclamation.user.email }}</p>
+{% if reclamation.attachedfile %}
+    <p><strong>Fichier joint :</strong> <a href="{{ asset('uploads/reclamations/' ~ reclamation.attachedfile) }}" target="_blank">Voir le fichier</a></p>
+{% endif %}
+<h4>Messages</h4>
+<ul>
+    {% for message in reclamation.messages %}
+        <li>{{ message.content }} - {{ message.date|date('Y-m-d H:i') }}</li>
+    {% else %}
+        <li>Aucun message pour l'instant.</li>
+    {% endfor %}
+</ul>
