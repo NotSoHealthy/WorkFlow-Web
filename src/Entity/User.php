@@ -165,8 +165,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
-    private ?bool $is_verified = null;
+    #[ORM\Column(type: 'boolean', nullable: false, options: ["default" => false])]
+    private ?bool $is_verified = false;
 
     public function is_verified(): ?bool
     {
