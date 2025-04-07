@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-
 {% block stylesheets %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
@@ -20,7 +19,7 @@
         {% if is_granted('ROLE_RESPONSABLE') %}
             <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">person</span>Employés</a>
         {% endif %}
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">quiz</span>Formations</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="{{ path('app_formation_list')}}"><span class="material-symbols-outlined">quiz</span>Formations</a>
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">calendar_month</span>Evénements</a>
         {% if is_granted('ROLE_RESPONSABLE') %}
             <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">business_center</span>Offres d'emploi</a>
@@ -32,5 +31,6 @@
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">edit</span>Réclamations</a>
         <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
     </div>
-    {% block main %}{% endblock %}
+    {% block main %}
+    {% endblock %}
 {% endblock body %}
