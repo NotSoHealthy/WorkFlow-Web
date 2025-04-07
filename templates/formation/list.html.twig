@@ -65,6 +65,7 @@
     {% endif %}
     <div class="container mt-4">
         {% for formation in pagination %}
+        {% if is_granted('ROLE_RESPONSABLE') %}
         <a href="{{ path('app_formation_edit', { id: formation.id }) }}" class="card_a">
           <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
             <div class="card-body">
@@ -75,14 +76,35 @@
                 <strong>Participants max :</strong> {{ formation.participantsMax }}
               </p>
             </a>
-      
+            {% endif %}
+            {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
+              <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
+                <div class="card-body">
+                  <h5 class="card-title">{{ formation.title }}</h5>
+                  <p class="card-text">
+                    <strong>Date : </strong> {{ formation.dateBegin|date('Y-m-d') }} → {{ formation.dateEnd|date('Y-m-d') }}<br>
+                    <strong>Description : </strong> {{ formation.description }}<br>
+                    <strong>Participants max :</strong> {{ formation.participantsMax }}
+                  </p>
+            {% endif %}
               <div class="d-flex justify-content-end gap-2">
                 {% if is_granted('ROLE_RESPONSABLE') %}
                   <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn btn-danger btn-sm">🗑 Supprimer</a>
                 {% endif %}
-      
                 {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
+                  {% set alreadyRegistered = false %}
+
+                  {% for inscription in user_inscriptions %}
+                    {% if inscription.formation.id == formation.id %}
+                      {% set alreadyRegistered = true %}
+                    {% endif %}
+                  {% endfor %}
+
+                {% if alreadyRegistered %}
+                  <button class="btn btn-secondary btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
+                {% else %}
                   <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary btn-sm">✅ S'inscrire</a>
+                {% endif %}
                 {% endif %}
               </div>
             </div>

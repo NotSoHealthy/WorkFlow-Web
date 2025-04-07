@@ -10,12 +10,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 #[Route('/formation')]
 final class FormationController extends AbstractController
 {
     #[Route(name: 'app_formation_list')]
-    public function ListFormation(Request $request,PaginatorInterface $paginator,EntityManagerInterface $em): Response
+    public function ListFormation(Request $request,PaginatorInterface $paginator,EntityManagerInterface $em,Security $security): Response
     {
+        $user = $security->getUser();
         $formations = $em->getRepository(Formation::class)->findAll();
         $pagination = $paginator->paginate(
             $formations,
@@ -24,6 +26,7 @@ final class FormationController extends AbstractController
         );
         return $this->render('formation/list.html.twig', [
             'pagination' => $pagination,
+            'user_inscriptions' => $user?->getInscriptions(),
         ]);
     }
 

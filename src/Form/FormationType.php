@@ -43,7 +43,6 @@ class FormationType extends AbstractType
                 'label' => 'Participants Max',
                 'required' => false,
                 'empty_data' => '0',
-                'data' => 0,
             ])
         ;
     }
