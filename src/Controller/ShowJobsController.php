@@ -66,6 +66,7 @@ class ShowJobsController extends AbstractController
         return $this->render('application/indexApplication.html.twig', [
             'form' => $form->createView(),
             'jobOfferId' => $id,
+            'joboffer' => $jobOffer
         ]);
     }
 }

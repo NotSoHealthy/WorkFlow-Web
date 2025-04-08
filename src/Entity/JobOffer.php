@@ -6,8 +6,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\JobOfferRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: JobOfferRepository::class)]
 #[ORM\Table(name: 'job_offer')]
@@ -18,35 +18,53 @@ class JobOffer
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(type: 'string', length: 15, nullable: false)]
+    #[Assert\NotBlank(message: 'The title should not be blank.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'The title cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $Title = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $Description = null;
 
     #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\NotNull(message: 'Publication date must be provided.')]
+    #[Assert\Type("\DateTimeInterface", message: 'Publication date must be a valid date.')]
     private ?\DateTimeInterface $Publication_Date = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\Type("\DateTimeInterface", message: 'Expiration date must be a valid date.')]
     private ?\DateTimeInterface $Expiration_Date = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'Contract type cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $Contract_Type = null;
 
-    #[ORM\Column(type: 'decimal', nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[Assert\Positive(message: 'Salary must be a positive value.')]
     private ?float $Salary = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'jobOffers')]
     #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+
     private ?User $user = null;
 
     #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'jobOffer')]
     private Collection $applications;
 
+
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
     }
+
+    // Getters and setters
 
     public function getId(): ?int
     {
@@ -193,6 +211,8 @@ class JobOffer
         $this->Contract_Type = $Contract_Type;
         return $this;
     }
+
+
 
     /**
      * Convert the JobOffer object to a string representation.

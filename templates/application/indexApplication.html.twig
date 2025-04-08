@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Apply for a Job</title>
+  <title>Postuler pour un emploi</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet"/>
@@ -40,7 +40,7 @@
     }
     .form-steps-container {
       position: relative;
-      min-height: 500px; /* Adjust based on content */
+      min-height: 500px; /* Ajustez selon le contenu */
     }
     .form-step {
       position: absolute;
@@ -132,12 +132,12 @@
     <div class="row">
       <div class="col-md-8 offset-md-2">
         <div class="form-section" data-aos="fade-up">
-          <h2 class="text-center mb-4">Job Application</h2>
+          <h2 class="text-center mb-4">Candidature</h2>
           {% if jobOfferId is defined %}
-            <h3>Applying for Job ID: {{ jobOfferId }}</h3>
+            <h3>Postuler pour l'offre d'emploi : {{ joboffer.title }}</h3>
           {% endif %}
 
-          <!-- Progress Bar -->
+          <!-- Barre de progression -->
           <div class="progress">
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
@@ -145,56 +145,56 @@
           {{ form_start(form, {'attr': {'id': 'applicationForm'}}) }}
 
           <div id="formStepsContainer" class="form-steps-container">
-            <!-- STEP 1 -->
+            <!-- ÉTAPE 1 -->
             <div id="step1" class="form-step visible">
-              <h3>Step 1: Personal Information</h3>
+              <h3>Étape 1 : Informations Personnelles</h3>
               <div class="form-group">
                 <i class="fas fa-user"></i>
-                {{ form_label(form.firstName) }}
+                {{ form_label(form.firstName, 'Prénom') }}
                 {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.firstName) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-user"></i>
-                {{ form_label(form.lastName) }}
+                {{ form_label(form.lastName, 'Nom') }}
                 {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.lastName) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-envelope"></i>
-                {{ form_label(form.mail) }}
+                {{ form_label(form.mail, 'Mail') }}
                 {{ form_widget(form.mail, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.mail) }}
               </div>
               <div class="text-right mt-3">
-                <button type="button" class="btn btn-primary btn-next" onclick="nextTab()">Next</button>
+                <button type="button" class="btn btn-primary btn-next" onclick="nextTab()">Suivant</button>
               </div>
             </div>
 
-            <!-- STEP 2 -->
+            <!-- ÉTAPE 2 -->
             <div id="step2" class="form-step hidden">
-              <h3>Step 2: Application Details</h3>
+              <h3>Étape 2 : Détails de la candidature</h3>
               <div class="form-group">
                 <i class="fas fa-briefcase"></i>
-                {{ form_label(form.jobOffer) }}
+                {{ form_label(form.jobOffer, "Offre d'emploi") }}
                 {{ form_widget(form.jobOffer, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.jobOffer) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-file-alt"></i>
-                {{ form_label(form.CV) }}
+                {{ form_label(form.CV, 'CV') }}
                 {{ form_widget(form.CV, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.CV) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-file-alt"></i>
-                {{ form_label(form.Cover_Letter) }}
+                {{ form_label(form.Cover_Letter, 'Lettre de motivation') }}
                 {{ form_widget(form.Cover_Letter, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.Cover_Letter) }}
               </div>
               <div class="text-right mt-3">
-                <button type="button" class="btn btn-secondary btn-prev" onclick="prevTab()">Previous</button>
-                <button type="submit" class="btn btn-primary">Submit Application</button>
+                <button type="button" class="btn btn-secondary btn-prev" onclick="prevTab()">Précédent</button>
+                <button type="submit" class="btn btn-primary">Envoyer la candidature</button>
               </div>
             </div>
           </div>

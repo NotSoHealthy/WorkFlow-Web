@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\ApplicationRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
 #[ORM\Table(name: 'application')]
@@ -30,24 +31,30 @@ class Application
     #[ORM\Column(type: 'date', nullable: false)]
     private ?\DateTimeInterface $submissionDate = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+
     private ?string $status = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'applications')]
     #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
     private ?User $user = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\NotBlank(message: 'First name cannot be blank.')]
     private ?string $firstName = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\NotBlank(message: 'Last name cannot be blank.')]
     private ?string $lastName = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 180, nullable: true)]
+    #[Assert\NotBlank(message: 'Email cannot be blank.')]
     private ?string $mail = null;
 
     #[ORM\OneToMany(targetEntity: Interview::class, mappedBy: 'application')]
     private Collection $interviews;
+
+
 
     public function __construct()
     {
