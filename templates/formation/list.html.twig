@@ -53,6 +53,16 @@
             font-size: 0.875rem;
             padding: 0.25rem 0.5rem;
         }
+        .supp:hover{
+          background-color:rgb(117, 31, 27);
+          box-shadow: 0 4px 10px rgba(52, 14, 11, 0.4);
+          color: #fff;
+          text-decoration: none;
+          transform: translateY(-1px);
+        }
+        .btn-hover-shadow:hover {
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
     </style>
 {% endblock %}
 {% block title %}Liste des Formations{% endblock %}
@@ -89,7 +99,7 @@
             {% endif %}
               <div class="d-flex justify-content-end gap-2">
                 {% if is_granted('ROLE_RESPONSABLE') %}
-                  <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn btn-danger btn-sm">🗑 Supprimer</a>
+                <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn supp btn-danger btn-sm w-100" style="margin-top:5px;">🗑 Supprimer</a>
                 {% endif %}
                 {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
                   {% set alreadyRegistered = false %}
@@ -101,9 +111,9 @@
                   {% endfor %}
 
                 {% if alreadyRegistered %}
-                  <button class="btn btn-secondary btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
+                  <button class="btn btn-success btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
                 {% else %}
-                  <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary btn-sm">✅ S'inscrire</a>
+                  <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary w-100 btn-hover-shadow" style="margin-top:5px;">✅ S'inscrire</a>
                 {% endif %}
                 {% endif %}
               </div>
