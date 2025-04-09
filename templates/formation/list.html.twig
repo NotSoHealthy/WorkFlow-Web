@@ -73,6 +73,9 @@
     {% if is_granted('ROLE_RESPONSABLE') %}
     <a href="{{ path('app_formation_add') }}" class="custom-btn"> 📥 </a>
     {% endif %}
+    <div class="container mt-4 d-flex justify-content-center">
+      <input type="text" id="searchInput" class="form-control" style="width: 60%;" placeholder="Search formations" value="{{ search }}" aria-label="Search">
+  </div>
     <div class="container mt-4">
         {% for formation in pagination %}
         {% if is_granted('ROLE_RESPONSABLE') %}
@@ -99,7 +102,7 @@
             {% endif %}
               <div class="d-flex justify-content-end gap-2">
                 {% if is_granted('ROLE_RESPONSABLE') %}
-                <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn supp btn-danger btn-sm w-100" style="margin-top:5px;">🗑 Supprimer</a>
+                <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn supp btn-danger w-100" style="margin-top:5px;">🗑 Supprimer</a>
                 {% endif %}
                 {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
                   {% set alreadyRegistered = false %}
@@ -127,4 +130,35 @@
         {{ knp_pagination_render(pagination, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
     </div>
 </main>
+{% block javascripts %}
+    <script>
+      let debounceTimeout;
+      document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        
+        if (searchInput) {
+          const savedCursorPosition = localStorage.getItem('cursorPosition');
+          if (savedCursorPosition) {
+              searchInput.setSelectionRange(savedCursorPosition, savedCursorPosition);
+          }
+
+          searchInput.focus();
+
+          searchInput.addEventListener('input', function () {
+              localStorage.setItem('cursorPosition', searchInput.selectionStart);
+              
+              clearTimeout(debounceTimeout);
+        
+              let searchQuery = this.value;
+        
+              debounceTimeout = setTimeout(function () {
+                window.location.href = "{{ path('app_formation_list') }}?search=" + searchQuery;
+              }, 1000);
+          });
+      }   
+  });
+  
+    </script>
 {% endblock %}
+{% endblock %}
+

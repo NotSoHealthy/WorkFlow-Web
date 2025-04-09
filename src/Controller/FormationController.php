@@ -14,10 +14,16 @@ use Knp\Component\Pager\PaginatorInterface;
 final class FormationController extends AbstractController
 {
     #[Route(name: 'app_formation_list')]
-    public function ListFormation(Request $request,PaginatorInterface $paginator,EntityManagerInterface $em): Response
+    public function ListFormation(Request $request,FormationRepository $formationRepository,PaginatorInterface $paginator,EntityManagerInterface $em): Response
     {
+        //search
+        $search = trim($request->query->get('search', ''));
+
+        $formations = $formationRepository->searchFormations($search);
+
+        //current user
         $user = $this->getUser();
-        $formations = $em->getRepository(Formation::class)->findAll();
+
         $pagination = $paginator->paginate(
             $formations,
             $request->query->getInt('page', 1),
@@ -26,6 +32,7 @@ final class FormationController extends AbstractController
         return $this->render('formation/list.html.twig', [
             'pagination' => $pagination,
             'user_inscriptions' => $user?->getInscriptions(),
+            'search' => $search,
         ]);
     }
 

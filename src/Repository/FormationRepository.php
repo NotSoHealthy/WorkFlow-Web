@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\Formation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-
+use Doctrine\ORM\QueryBuilder;
 /**
  * @extends ServiceEntityRepository<Formation>
  */
@@ -15,7 +15,15 @@ class FormationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Formation::class);
     }
-
+    public function searchFormations(string $search): array
+    {
+        return $this->createQueryBuilder('f')
+            ->where('f.title LIKE :search')
+            ->setParameter('search', '%' . $search . '%')
+            ->orderBy('f.date_begin', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
     //    /**
     //     * @return Formation[] Returns an array of Formation objects
     //     */
