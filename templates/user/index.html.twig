@@ -40,6 +40,7 @@
         {% for flash_error in app.flashes('error') %}
             <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
         {% endfor %}
+        <h2 class="title">Liste des employés</h2>
         <table id="employeesTable" class="display">
             <thead>
                 <th>Nom et Email</th>

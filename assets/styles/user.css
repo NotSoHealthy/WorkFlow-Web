@@ -62,3 +62,7 @@ td > div > div{
     color: var(--text-primary);
 }
 
+.title{
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
