@@ -10,6 +10,7 @@
             background: rgb(241,244,248);
             padding: 2rem;
             min-height: 100vh;
+            position: relative;
         }
         h1 {
             color: rgb(98,138,248);
@@ -232,9 +233,11 @@
     <div class="container mt-5">
         <h1 class="mb-4 text-center">Evenements</h1>
         <div class="mb-4">
+        {% if is_granted('ROLE_RESPONSABLE') %}
             <a href="{{ path('app_addevent') }}" class="btn btn-add-project">
                 <i class="fas fa-plus-circle me-2"></i>Ajouter un Evenement
             </a>
+        {% endif %}
             <a href="{{ path('app_showreservation') }}" class="btn btn-goto-reservation">
                 <i class="fa-solid fa-couch"></i>&nbsp;Mes Reservations
             </a>
@@ -276,6 +279,7 @@
                                         </table>
                                     </div>
                                 </div>
+                                {% if is_granted('ROLE_RESPONSABLE') %}
                                 <div class="project-footer">
                                     <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
                                         <button class="btn btn-edit">
@@ -288,6 +292,7 @@
                                         </button>
                                     </form>
                                 </div>
+                                {% endif %}
                                 <div class="modal fade" id="projectModal{{ event.id }}" tabindex="-1" aria-labelledby="projectModalLabel{{ event.id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
