@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Département{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .department-hero {
+        text-align: center;
+        background: linear-gradient(to right, #4f46e5, #7c3aed);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .department-hero h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: #f9fafb;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        text-align: center;
+    }
+
+    .info-card h4 {
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        color: #4b5563;
+    }
+
+    .info-card p {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #374151;
+    }
+
+    .user-chip {
+        display: inline-block;
+        background-color: #e0f2fe;
+        color: #0369a1;
+        padding: 0.5rem 1rem;
+        margin: 0.3rem;
+        border-radius: 999px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .project-item {
+        padding: 0.75rem 1rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .project-item span {
+        font-weight: 500;
+    }
+
+    .project-item .state {
+        background-color: #fef3c7;
+        color: #b45309;
+        padding: 0.25rem 0.75rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+    }
+
+    .project-card {
+        border: 2px solid #6366f1; /* Indigo-500 */
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        background-color: #f9fafb;
+    }
+
+    .back-btn {
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="department-hero">
+        <h1>🏢 Mon Département : {{ department.Name }}</h1>
+        <p class="lead">Vue personnalisée de votre département</p>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h4>👔 Manager</h4>
+            <p>{{ department.manager.firstName }}</p>
+        </div>
+        <div class="info-card">
+            <h4>💸 Budget Annuel</h4>
+            <p>{{ department.YearBudget }} €</p>
+        </div>
+        <div class="info-card">
+            <h4>👥 Membres</h4>
+            <p>{{ department.users|length }}</p>
+        </div>
+        <div class="info-card">
+            <h4>📁 Projets Actifs</h4>
+            <p>{{ department.projects|length }}</p>
+        </div>
+    </div>
+
+    <h3 class="section-title">👥 Membres de l'Équipe</h3>
+    {% if department.users|length > 0 %}
+        {% for user in department.users %}
+            <span class="user-chip">{{ user.first_name }} {{user.last_name}}  ({{ user.email }})</span>
+        {% endfor %}
+    {% else %}
+        <p>Aucun membre dans cette équipe.</p>
+    {% endif %}
+
+    <h3 class="section-title">📁 Projets en cours</h3>
+    {% if department.projects|length > 0 %}
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% for project in department.projects %}
+                <div class="col">
+                    <div class="card project-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <i class="fas fa-diagram-project me-1"></i> {{ project.Name }}
+                            </h5>
+
+                            <p class="card-text text-muted mb-2">
+                                État :
+                                <span class="badge 
+                                    {% if project.State == 'Terminé' %}
+                                        bg-success
+                                    {% elseif project.State == 'En cours' %}
+                                        bg-warning text-dark
+                                    {% elseif project.State == 'Annulé' %}
+                                        bg-danger
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}
+                                ">
+                                    {{ project.State ?? 'N/A' }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun projet associé.</p>
+    {% endif %}
+
+    <a href="{{ path('department_index') }}" class="btn btn-secondary back-btn">← Retour</a>
+</div>
+{% endblock %}

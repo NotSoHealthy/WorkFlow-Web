@@ -172,6 +172,9 @@
         {% include 'department/_list.html.twig' with {'departments': departments} %}
     </div>
 </div>
+<div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(departments, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
+    </div>
 
 <!-- Chart.js + AJAX Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

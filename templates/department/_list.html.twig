@@ -103,7 +103,7 @@
                             <p><strong>Membres de l'Équipe:</strong></p>
                             <ul>
                                 {% for user in department.users %}
-                                    <li>{{ user.name }} ({{ user.email }})</li>
+                                    <li>{{ user.first_name }} ({{ user.email }})</li>
                                 {% else %}
                                     <li>Aucun membre dans cette équipe</li>
                                 {% endfor %}

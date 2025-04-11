@@ -6,6 +6,7 @@ use App\Entity\Department;
 use App\Form\DepartmentType;
 use App\Repository\DepartmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,21 +24,26 @@ final class DepartmentController extends AbstractController
     }
 
     #[Route( name: 'department_index')]
-    public function index(DepartmentRepository $departmentRepo): Response
+    public function index(DepartmentRepository $departmentRepo,PaginatorInterface $paginator, Request $request): Response
     {
+
     $departments = $departmentRepo->findAll();
 
     // Chart data: array of dept names + budgets
     $deptNames = [];
     $deptBudgets = [];
-
+    $pagination = $paginator->paginate(
+        $departments,
+        $request->query->getInt('page', 1),
+        3
+    );
     foreach ($departments as $dept) {
         $deptNames[] = $dept->getName(); // or getNom() if using French field
         $deptBudgets[] = $dept->getYearBudget();
     }
 
     return $this->render('department/index.html.twig', [
-        'departments' => $departments,
+        'departments' => $pagination,
         'chartData' => [
             'labels' => $deptNames,
             'budgets' => $deptBudgets
@@ -148,6 +154,20 @@ final class DepartmentController extends AbstractController
         return $this->render('department/ai_suggest.html.twig', [
             'department' => $department,
             'tools' => $lines,
+        ]);
+    }
+    #[Route('/my-department', name: 'department_my', methods: ['GET'])]
+    public function myDepartment(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user || !$user->getDepartment()) {
+            $this->addFlash('warning', 'Aucun département associé à votre compte.');
+            return $this->redirectToRoute('department_index');
+        }
+        $department = $user->getDepartment();
+        return $this->render('department/my_department.html.twig', [
+            'department' => $department,
         ]);
     }
 }
