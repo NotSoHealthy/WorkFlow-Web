@@ -50,7 +50,9 @@ final class ReservationController extends AbstractController
             $entityManager->persist($reservation);
             $entityManager->flush();
             $er->decreaseNumberOfPlaces($event->getId(), $reservation->getNombreDePlaces());
-            return $this->redirectToRoute('app_showreservation', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_google_calendar_authorize', [
+                'id' => $reservation->getId()
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('reservation/new.html.twig', [
