@@ -98,65 +98,101 @@ class GoogleCalendarService
         }
     }
 
-    public function addEventToCalendar(Reservation $reservation): bool
-    {
-        // Check if we have a valid access token
-        if (!$this->client->isAccessTokenExpired()) {
-            try {
-                $service = new Calendar($this->client);
-                $event = $reservation->getEvent();
-                
-                // Create Google Calendar event
-                $googleEvent = new GoogleEvent();
-                $googleEvent->setSummary($event->getTitle());
-                $googleEvent->setDescription($event->getDescription() . 
-                    "\n\nReservation Details:" .
-                    "\nType: " . $reservation->getType() .
-                    "\nNumber of Places: " . $reservation->getNombreDePlaces() .
-                    "\nTotal Price: " . $reservation->getPrice() . "TND");
-                
-                // Set location if available
-                if ($event->getLocation()) {
-                    $googleEvent->setLocation($event->getLocation());
-                }
-                
-                // Set start time
-                $startDateTime = new EventDateTime();
-                $startDateTime->setDateTime($event->getDateAndTime()->format('c'));
-                $googleEvent->setStart($startDateTime);
-                
-                // Set end time (3 hours after start time)
-                $endDateTime = new EventDateTime();
-                $endDate = clone $event->getDateAndTime();
-                $endDate->modify('+3 hours');
-                $endDateTime->setDateTime($endDate->format('c'));
-                $googleEvent->setEnd($endDateTime);
-                
-                // Add reminders
-                $reminders = new \Google\Service\Calendar\EventReminders();
-                $reminders->setUseDefault(false);
-
-                $reminder = new \Google\Service\Calendar\EventReminder();
-                $reminder->setMethod('popup');
-                $reminder->setMinutes(60); // 1 hour before
-
-                $reminders->setOverrides([$reminder]);
-                $googleEvent->setReminders($reminders);
-                
-                // Insert event to the user's primary calendar
-                $calendarId = 'primary';
-                $service->events->insert($calendarId, $googleEvent);
-                
-                return true;
-            } catch (\Exception $e) {
-                // Log the error
-                error_log('Failed to add event to Google Calendar: ' . $e->getMessage());
-                return false;
+    public function addEventToCalendar(Reservation $reservation): array
+{
+    // Check if we have a valid access token
+    if (!$this->client->isAccessTokenExpired()) {
+        try {
+            $service = new Calendar($this->client);
+            $event = $reservation->getEvent();
+            
+            // Create Google Calendar event
+            $googleEvent = new GoogleEvent();
+            $googleEvent->setSummary($event->getTitle());
+            $googleEvent->setDescription($event->getDescription() . 
+                "\n\nReservation Details:" .
+                "\nType: " . $reservation->getType() .
+                "\nNumber of Places: " . $reservation->getNombreDePlaces() .
+                "\nTotal Price: " . $reservation->getPrice() . "€");
+            
+            // Set location if available
+            if ($event->getLocation()) {
+                $googleEvent->setLocation($event->getLocation());
             }
+            
+            // Set start time
+            $startDateTime = new EventDateTime();
+            $startDateTime->setDateTime($event->getDateAndTime()->format('c'));
+            $googleEvent->setStart($startDateTime);
+            
+            // Set end time (3 hours after start time)
+            $endDateTime = new EventDateTime();
+            $endDate = clone $event->getDateAndTime();
+            $endDate->modify('+3 hours');
+            $endDateTime->setDateTime($endDate->format('c'));
+            $googleEvent->setEnd($endDateTime);
+            
+            // Add reminders
+            $reminders = new \Google\Service\Calendar\EventReminders();
+            $reminders->setUseDefault(false);
+            
+            $reminder = new \Google\Service\Calendar\EventReminder();
+            $reminder->setMethod('popup');
+            $reminder->setMinutes(60); // 1 hour before
+            
+            $reminders->setOverrides([$reminder]);
+            $googleEvent->setReminders($reminders);
+            
+            // If the event is online, add Google Meet conferencing
+            $meetLink = null;
+            if ($event->isOnline()) {
+                $conferenceData = new \Google\Service\Calendar\ConferenceData();
+                $conferenceRequest = new \Google\Service\Calendar\CreateConferenceRequest();
+                $conferenceRequest->setRequestId(uniqid());
+                $conferenceData->setCreateRequest($conferenceRequest);
+                $googleEvent->setConferenceData($conferenceData);
+                
+                // Insert event to the user's primary calendar with conferencing
+                $calendarId = 'primary';
+                $optParams = ['conferenceDataVersion' => 1];
+                $createdEvent = $service->events->insert($calendarId, $googleEvent, $optParams);
+                
+                // Extract the Meet link if available
+                if ($createdEvent->getConferenceData() && 
+                    $createdEvent->getConferenceData()->getEntryPoints()) {
+                    foreach ($createdEvent->getConferenceData()->getEntryPoints() as $entryPoint) {
+                        if ($entryPoint->getEntryPointType() === 'video') {
+                            $meetLink = $entryPoint->getUri();
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // Insert regular event without conferencing
+                $calendarId = 'primary';
+                $createdEvent = $service->events->insert($calendarId, $googleEvent);
+            }
+            
+            return [
+                'success' => true,
+                'meetLink' => $meetLink,
+                'eventId' => $createdEvent->getId()
+            ];
+        } catch (\Exception $e) {
+            // Log the error
+            error_log('Failed to add event to Google Calendar: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
         }
-        
-        return false;
     }
+    
+    return [
+        'success' => false,
+        'error' => 'Access token expired'
+    ];
+}
 
     public function refreshTokenIfNeeded(): bool
     {

@@ -5,6 +5,9 @@ namespace App\Controller;
 use App\Entity\Reservation;
 use App\Repository\ReservationRepository;
 use App\Service\GoogleCalendarService;
+use App\Service\MeetMailer;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Address;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +16,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GoogleCalendarController extends AbstractController
 {
+    public function __construct(private MeetMailer $meetMailer)
+    {
+    }
     #[Route('/google/calendar/authorize/{id}', name: 'app_google_calendar_authorize')]
     public function authorize(
         Reservation $reservation,
@@ -62,12 +68,25 @@ class GoogleCalendarController extends AbstractController
         }
         
         // Add event to Google Calendar
-        $success = $googleCalendarService->addEventToCalendar($reservation);
+        $result = $googleCalendarService->addEventToCalendar($reservation);
         
-        if ($success) {
+        if ($result['success']) {
             $this->addFlash('success', 'Event has been added to your Google Calendar!');
+            
+            // If this is an online event and we have a Meet link
+            if ($reservation->getEvent()->isOnline() && isset($result['meetLink'])) {
+                $user= $this->getUser();
+                $this->meetMailer->sendMeet($user,(string) $result['meetLink'],$reservation->getEvent()->getTitle(),
+                    (new TemplatedEmail())
+                        ->from(new Address('noreply@demomailtrap.co', 'WorkFlow'))
+                        ->to((string) $user->getEmail())
+                        ->subject($reservation->getEvent()->getTitle())
+                        ->htmlTemplate('reservation/meet_link.html.twig')
+                );
+            }
         } else {
-            $this->addFlash('error', 'Failed to add event to your Google Calendar.');
+            $this->addFlash('error', 'Failed to add event to your Google Calendar: ' . 
+                (isset($result['error']) ? $result['error'] : 'Unknown error'));
         }
         
         return $this->redirectToRoute('app_showreservation');
