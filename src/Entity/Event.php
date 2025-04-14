@@ -144,10 +144,7 @@ class Event
     #[ORM\Column(name: "isOnline",type: 'boolean', nullable: false)]
     private ?bool $isOnline = null;
 
-    public function isIsOnline(): ?bool
-    {
-        return $this->isOnline;
-    }
+ 
 
     public function setIsOnline(bool $isOnline): self
     {
@@ -207,5 +204,6 @@ class Event
     {
         return $this->isOnline;
     }
+    
 
 }

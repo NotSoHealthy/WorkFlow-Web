@@ -9,6 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class EvenementType extends AbstractType
@@ -55,8 +56,8 @@ class EvenementType extends AbstractType
             'empty_data' => 0,
             'required' => false
         ])
-        ->add('isOnline', null, [
-            'empty_data' => '',
+        ->add('isOnline', CheckboxType::class, [
+            'required' => false,
             'label' => 'En Ligne'
         ]);
     }
