@@ -27,12 +27,22 @@
           .custom-btn .material-symbols-outlined {
             font-size: 18px;
           }
+          .sidenav {
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            width: 13rem;
+          }
+          .main-content {
+            margin-left: 13rem;
+           
+        }
     </style>        
 {% endblock %}
 {% block title %}Liste des Inscriptions{% endblock %}
 
 {% block main %}
-<main>
+<main class="main-content">
 <h1>Liste des Inscriptions</h1>
 
 <a href="{{ path('app_formation_list') }}" class="custom-btn"><<</a>

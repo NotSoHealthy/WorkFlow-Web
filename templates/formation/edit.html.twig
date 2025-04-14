@@ -48,12 +48,22 @@
             font-size: 0.95rem;
             padding:5px;
         }
+        .sidenav {
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            width: 13rem;
+          }
+          .main-content {
+            margin-left: 13rem;
+           
+        }
     </style>        
 {% endblock %}
 {% block title %}Modifier Formation{% endblock %}
 
 {% block main %}
-<main>
+<main class="main-content">
     <div class="form-wrapper">
     
     <h1>Modifier</h1>

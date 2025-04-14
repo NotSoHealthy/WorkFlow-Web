@@ -63,11 +63,21 @@
         .btn-hover-shadow:hover {
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
+      .sidenav {
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+        width: 13rem;
+      }
+      .main-content {
+        margin-left: 13rem;
+       
+    }
     </style>
 {% endblock %}
 {% block title %}Liste des Formations{% endblock %}
 {% block main %}
-<main>
+<main class="main-content">
     <h1>Liste des Formations</h1><br>
     <a href="{{ path('app_inscription_list') }}" class="custom-btn">📝</a>
     {% if is_granted('ROLE_RESPONSABLE') %}
