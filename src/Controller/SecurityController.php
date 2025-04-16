@@ -26,6 +26,7 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'no_captcha_site_key' => $_ENV['NOCAPTCHA_SITEKEY'],
         ]);
     }
 

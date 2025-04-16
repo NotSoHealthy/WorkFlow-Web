@@ -1,0 +1,111 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/edit_profile.css') }}">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/edit_profile.js') }}"></script>
+{% endblock %}
+{% block main %}
+    <main>
+        <div class="left">
+            <h3>Modifier votre profil</h3>
+            <div class="container">
+                {{ form_start(form) }}
+                    <div class="form-row header">
+                        <label for="imageInput">
+                            <input type="file" onchange="previewImage(event)" name="imageInput" id="imageInput" accept="image/*" style="display:none;"/>
+                            <img src="{{ app.user.image_url }}" id="preview">
+                        </label>
+                    </div>
+                    <input type="hidden" name="{{field_name(form.image_url)}}" id="image-url" value="{{field_value(form.image_url)}}">
+                    {% for flash_error in app.flashes('edit_profile_error') %}
+                        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                    {% endfor %}
+                    <div class="form-row">
+                        <div class="form-column">
+                            <label for="nom" class="col-form-label">Nom</label>
+                            <input type="text" name="{{field_name(form.last_name)}}" placeholder="Nom" required value="{{ field_value(form.last_name) }}" class="form-control">
+                            {{ form_errors(form.last_name, {'attr': {'class':'alert alert-danger'}}) }}
+                        </div>
+                        <div class="form-column">
+                            <label for="prenom" class="col-form-label">Prenom</label>
+                            <input type="text" name="{{field_name(form.first_name)}}" placeholder="Prenom" required value="{{ field_value(form.first_name) }}" class="form-control">
+                            {{ form_errors(form.first_name) }}
+                        </div>
+                    </div>
+                        <div class="form-row">
+                            <div class="form-column">
+                                <label for="email" class="col-form-label">Email</label>
+                                <input type="email" name="{{field_name(form.email)}}" placeholder="Email" required value="{{field_value(form.email)}}" class="form-control">
+                                {{ form_errors(form.email) }}
+                            </div>
+                            <div class="form-column">
+                                <label for="number" class="col-form-label">Numéro de téléphone</label>
+                                <input type="tel" name="{{field_name(form.number)}}" placeholder="Numéro" required value="{{field_value(form.number)}}" class="form-control">
+                                {{ form_errors(form.number) }}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-column">
+                                <label for="gouvernorat" class="col-form-label">Gouvernorat</label>
+                                <select class="form-select" name="{{field_name(form.gouvernorat)}}" id="gouvernorat" placeholder="Sélectionnez une délégation">
+                                    <option value="" {% if app.user.gouvernorat == null %}selected{% endif %}>Selectionner une délégation</option>
+                                    {% for label, value in field_choices(form.gouvernorat) %}
+                                        <option value="{{ value }}" {% if app.user.gouvernorat == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {{ form_errors(form.gouvernorat) }}
+                            </div>
+                            <div class="form-column">
+                                <label for="address" class="col-form-label">Address</label>
+                                <input type="address" name="{{field_name(form.address)}}" placeholder="Address" value="{{ field_value(form.address) }}" class="form-control">
+                                {{ form_errors(form.address) }}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-column">
+                                <label for="password" class="col-form-label">Mot de passe</label>
+                                <div class="password-container">
+                                    <input type="password" name="{{field_name(form.password.first)}}" placeholder="Password" class="form-control">
+                                    <span class="material-symbols-outlined" onclick="togglePassword(event)">visibility</span>
+                                </div>
+                                {{ form_errors(form.password.first) }}
+                            </div>
+                            <div class="form-column">
+                                <label for="confirmation" class="col-form-label">Confirmation du mot de passe</label>
+                                <div class="password-container">
+                                    <input type="password" name="{{field_name(form.password.second)}}" placeholder="Confirmation" class="form-control">
+                                    <span class="material-symbols-outlined" onclick="togglePassword(event)">visibility</span>
+                                </div>
+                                {{ form_errors(form.password.second) }}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-column">
+                                <button type="reset" class="btn btn-danger btn-lg">Annuler</button>
+                            </div>
+                            <div class="form-column">
+                                <button type="submit" class="btn btn-success btn-lg">Confirmer</button>
+                            </div>
+                        </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+        <div class="right">
+            <h3>Sécurité</h3>
+            <div class="container">
+                <h5>Authentification à deux factuers</h5>
+                <div class="d-flex flex-row gap-2">
+                    <p>L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à votre compteen exigeant plus qu'un simple mot de passe pour vous connecter.</p>
+                    <button id="auth-btn" data-enableurl="{{ path('enable_2fa') }}" data-disableurl="{{ path('disable_2fa') }}" onclick="enable2fa()">Activer</button>
+                </div>
+                <img src="" alt="" id="qrcode" style="display: none;" data-secret="{{ app.user.googleAuthenticatorSecret }}">
+            </div>
+        </div>
+    </main>
+{% endblock %}

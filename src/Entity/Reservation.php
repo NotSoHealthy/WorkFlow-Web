@@ -56,7 +56,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(name:'NombreDePlaces', type: 'integer', nullable: false)]
     private ?int $NombreDePlaces = null;
 
     public function getNombreDePlaces(): ?int
