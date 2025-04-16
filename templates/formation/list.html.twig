@@ -70,24 +70,23 @@
         width: 13rem;
       }
       .main-content {
-        margin-left: 13rem;
+        margin-left: 15rem;
        
     }
     .sorting-container {
         position: fixed;
-        top: 13rem; /* Adjust the top offset */
-        left: 14rem; /* Place the container to the left side */
+        top: 13rem;
+        left: 15rem; 
         display: flex;
-        flex-direction: column; /* Align buttons vertically */
-        gap: 10px; /* Add space between buttons */
+        flex-direction: column;
+        gap: 10px;
         padding: 10px;
        
-        z-index: 1000; /* Ensure it's on top of other content */
+        z-index: 1000;
     }
 
-    /* Style the buttons for better appearance */
     .sorting-container a {
-        width: 100%; /* Ensure buttons stretch to full width */
+        width: 100%;
         text-align: center;
         padding: 10px;
         border-radius: 5px;
@@ -111,6 +110,7 @@
     <div class="container mt-4 d-flex justify-content-center">
       <input type="text" id="searchInput" class="form-control" style="width: 60%;" placeholder="Search formations" value="{{ search }}" aria-label="Search">
   </div>
+  {% if pagination.totalItemCount > 0 %}
     <div class="sorting-container mb-4">
       <form action="{{ path('app_formation_list') }}" method="GET" >
       <select id="sort-select" name="filter_sort" class="form-control" onchange="this.form.submit()">
@@ -120,7 +120,7 @@
       </select>
     </form>
   </div>
-
+  {% endif %}
     <div class="container mt-4" id="formation-container" >  
         {% for formation in pagination %}
         {% if is_granted('ROLE_RESPONSABLE') %}
@@ -169,6 +169,7 @@
           </div>
         {% else %}
           <div class="alert alert-info">No formations found.</div>
+
         {% endfor %}
       </div>      
     <div class="d-flex justify-content-center mt-4">
