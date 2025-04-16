@@ -1,73 +1,133 @@
-<style>
-    .form-group {
-        margin-bottom: 25px;
-    }
-    .form-control {
-        border-radius: 8px;
-        border: 1px solid #ced4da;
-        padding: 12px;
-        font-size: 1rem;
-        width: 100%;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .form-control:focus {
-        border-color: #1a73e8;
-        box-shadow: 0 0 8px rgba(26, 115, 232, 0.2);
-        outline: none;
-    }
-    .btn-primary {
-        background-color: #1a73e8;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 8px;
-        font-weight: 600;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    .btn-primary:hover {
-        background-color: #1565c0;
-    }
-    label {
-        font-weight: 600;
-        margin-bottom: 8px;
-        display: block;
-        color: #333;
-    }
-    .error {
-        color: #dc3545;
-        font-size: 0.9rem;
-        margin-top: 5px;
-        font-style: italic;
-    }
-    .interview-form {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-</style>
+{% extends 'layout.html.twig' %}
 
-{{ form_start(form, {'attr': {'class': 'interview-form'}}) }}
-    <div class="form-group">
-        {{ form_label(form.interviewDate, 'Interview Date and Time') }}
-        {{ form_widget(form.interviewDate, {'attr': {'class': 'form-control'}}) }}
-        <div class="error">{{ form_errors(form.interviewDate) }}</div>
-    </div>
-    <div class="form-group">
-        {{ form_label(form.location, 'Location') }}
-        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
-        <div class="error">{{ form_errors(form.location) }}</div>
-    </div>
-    <div class="form-group">
-        {{ form_label(form.feedback, 'Feedback') }}
-        {{ form_widget(form.feedback, {'attr': {'class': 'form-control'}}) }}
-        <div class="error">{{ form_errors(form.feedback) }}</div>
-    </div>
-    <div class="form-group">
-        {{ form_label(form.status, 'Status') }}
-        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
-        <div class="error">{{ form_errors(form.status) }}</div>
-    </div>
-    <button type="submit" class="btn btn-primary">Schedule Interview</button>
-{{ form_end(form) }}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 12px;
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 8px rgba(26, 115, 232, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background-color: #1a73e8;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #1565c0;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .interview-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {{ form_start(form, {'attr': {'class': 'interview-form', 'novalidate': 'novalidate', 'id': 'interviewForm'}}) }}
+        <div class="form-group">
+            {{ form_label(form.interviewDate, 'Interview Date') }}
+            {{ form_widget(form.interviewDate, {'attr': {'class': 'form-control'}}) }}
+            <div class="error" id="error-interviewDate">{{ form_errors(form.interviewDate) }}</div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.location, 'Localisation') }}
+            {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+            <div class="error" id="error-location">{{ form_errors(form.location) }}</div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.feedback, 'Feedback') }}
+            {{ form_widget(form.feedback, {'attr': {'class': 'form-control'}}) }}
+            <div class="error" id="error-feedback">{{ form_errors(form.feedback) }}</div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.status, 'Status') }}
+            {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+            <div class="error" id="error-status">{{ form_errors(form.status) }}</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Schedule Interview</button>
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('interviewForm');
+
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+
+                // Clear previous errors
+                document.getElementById('error-interviewDate').textContent = '';
+                document.getElementById('error-location').textContent = '';
+                document.getElementById('error-feedback').textContent = '';
+                document.getElementById('error-status').textContent = '';
+
+                // Get input values
+                const interviewDate = form.querySelector('[name="interview[interviewDate]"]').value.trim();
+                const location = form.querySelector('[name="interview[location]"]').value.trim();
+                const feedback = form.querySelector('[name="interview[feedback]"]').value.trim();
+                const status = form.querySelector('[name="interview[status]"]').value.trim();
+
+                // Validate Interview Date (Required)
+                if (interviewDate === '') {
+                    document.getElementById('error-interviewDate').textContent = 'Interview Date and Time is required.';
+                    isValid = false;
+                }
+
+                // Validate Location (Required)
+                if (location === '') {
+                    document.getElementById('error-location').textContent = 'Location is required.';
+                    isValid = false;
+                }
+
+                // Validate Feedback (Optional: if provided, must be at least 5 characters)
+                if (feedback !== '' && feedback.length < 5) {
+                    document.getElementById('error-feedback').textContent = 'Feedback must be at least 5 characters if provided.';
+                    isValid = false;
+                }
+
+                // Validate Status (Required)
+                if (status === '') {
+                    document.getElementById('error-status').textContent = 'Status is required.';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+{% endblock %}

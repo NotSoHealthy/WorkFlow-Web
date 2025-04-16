@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\Part\File as MimeFile; // Correct import
 use Symfony\Component\Filesystem\Filesystem;
 
 #[Route('/interview')]
@@ -84,7 +83,6 @@ final class InterviewController extends AbstractController
                 // Generate QR code and save it in the public/images directory
                 $qrCodeTempFile = null;
                 try {
-                    // Ensure the public/images directory exists
                     $filesystem = new Filesystem();
                     $publicDir = $this->getParameter('kernel.project_dir') . '/public/images';
                     if (!$filesystem->exists($publicDir)) {
@@ -95,26 +93,27 @@ final class InterviewController extends AbstractController
                     $qrCodeFileName = 'qr_' . uniqid() . '.svg';
                     $qrCodePath = $publicDir . '/' . $qrCodeFileName;
 
-                    // Create a message with interview date, location, and a small message
+                    // Build a message that contains the interview date, location, and a custom message
                     $interviewDate = $interview->getInterviewDate()->format('Y-m-d H:i');
                     $interviewLocation = $interview->getLocation();
                     $message = "Date: {$interviewDate}\nLocation: {$interviewLocation}\nMessage: Interview Scheduled";
 
                     // Generate QR code as SVG
                     $result = Builder::create()
-                        ->writer(new SvgWriter()) // SvgWriter instance
+                        ->writer(new SvgWriter())
                         ->data($message)
                         ->encoding(new Encoding('UTF-8'))
                         ->build();
 
+                    // Save the SVG content to the file
                     file_put_contents($qrCodePath, $result->getString());
-
                     $qrCodeTempFile = $qrCodePath;
                 } catch (\Exception $e) {
                     $this->logger->error('QR code generation failed: ' . $e->getMessage());
                     $this->addFlash('warning', 'Interview created, but QR code could not be generated.');
                 }
 
+                // Generate a meeting link via Jitsi Meet (optional)
                 $meetingRoom = 'Interview-' . uniqid();
                 $meetingLink = 'https://meet.jit.si/' . $meetingRoom;
 
@@ -122,7 +121,7 @@ final class InterviewController extends AbstractController
                 $application = $interview->getApplication();
                 if ($application && $application->getMail()) {
                     $emailBody = $this->renderView('emails/interview_scheduled.html.twig', [
-                        'interview' => $interview,
+                        'interview'   => $interview,
                         'application' => $application,
                         'meetingLink' => $meetingLink,
                     ]);
@@ -133,12 +132,11 @@ final class InterviewController extends AbstractController
                         ->subject('Interview Scheduled')
                         ->html($emailBody);
 
+                    // Attach the QR code file if available using embedFromPath
                     if ($qrCodeTempFile && file_exists($qrCodeTempFile)) {
-                        $attachment = new MimeFile($qrCodeTempFile);
-                        $email->attach($attachment);
+                        $email->attachFromPath($qrCodeTempFile);
                     }
 
-                    // Send the email
                     $mailer->send($email);
                     $this->addFlash('success', 'Interview created and email sent successfully.');
                 } else {
@@ -148,14 +146,14 @@ final class InterviewController extends AbstractController
                 if ($request->isXmlHttpRequest()) {
                     return $this->json(['success' => true]);
                 }
-
                 return $this->redirectToRoute('app_interview_index');
-            } elseif ($request->isXmlHttpRequest()) {
-                $errors = [];
-                foreach ($form->getErrors(true) as $error) {
-                    $errors[] = $error->getMessage();
+            } else {
+                if ($request->isXmlHttpRequest()) {
+                    $html = $this->renderView('interview/_form.html.twig', [
+                        'form' => $form->createView(),
+                    ]);
+                    return new Response($html, Response::HTTP_BAD_REQUEST);
                 }
-                return $this->json(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -164,7 +162,6 @@ final class InterviewController extends AbstractController
                 'form' => $form->createView(),
             ]);
         }
-
         return $this->render('interview/new.html.twig', [
             'interview' => $interview,
             'form' => $form->createView(),
@@ -188,18 +185,17 @@ final class InterviewController extends AbstractController
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $entityManager->flush();
-
                 if ($request->isXmlHttpRequest()) {
                     return $this->json(['success' => true]);
                 }
-
                 return $this->redirectToRoute('app_interview_index');
-            } elseif ($request->isXmlHttpRequest()) {
-                $errors = [];
-                foreach ($form->getErrors(true) as $error) {
-                    $errors[] = $error->getMessage();
+            } else {
+                if ($request->isXmlHttpRequest()) {
+                    $html = $this->renderView('interview/_form.html.twig', [
+                        'form' => $form->createView(),
+                    ]);
+                    return new Response($html, Response::HTTP_BAD_REQUEST);
                 }
-                return $this->json(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -219,7 +215,6 @@ final class InterviewController extends AbstractController
         } else {
             $this->addFlash('error', 'Invalid CSRF token. Unable to delete the interview.');
         }
-
         return $this->redirectToRoute('app_interview_index');
     }
 }

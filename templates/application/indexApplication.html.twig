@@ -40,7 +40,7 @@
     }
     .form-steps-container {
       position: relative;
-      min-height: 500px; /* Ajustez selon le contenu */
+      min-height: 500px;
     }
     .form-step {
       position: absolute;
@@ -124,6 +124,15 @@
       font-weight: 700;
       color: #222;
     }
+    .error-message {
+      color: red;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      display: block;
+    }
+    .invalid-field {
+      border-color: red;
+    }
   </style>
 </head>
 
@@ -137,7 +146,7 @@
             <h3>Postuler pour l'offre d'emploi : {{ joboffer.title }}</h3>
           {% endif %}
 
-          <!-- Barre de progression -->
+          <!-- Progress Bar -->
           <div class="progress">
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
@@ -145,56 +154,62 @@
           {{ form_start(form, {'attr': {'id': 'applicationForm'}}) }}
 
           <div id="formStepsContainer" class="form-steps-container">
-            <!-- ÉTAPE 1 -->
+            <!-- Step 1 -->
             <div id="step1" class="form-step visible">
               <h3>Étape 1 : Informations Personnelles</h3>
               <div class="form-group">
                 <i class="fas fa-user"></i>
                 {{ form_label(form.firstName, 'Prénom') }}
                 {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-firstName"></span>
                 {{ form_errors(form.firstName) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-user"></i>
                 {{ form_label(form.lastName, 'Nom') }}
                 {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-lastName"></span>
                 {{ form_errors(form.lastName) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-envelope"></i>
                 {{ form_label(form.mail, 'Mail') }}
                 {{ form_widget(form.mail, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-mail"></span>
                 {{ form_errors(form.mail) }}
               </div>
               <div class="text-right mt-3">
-                <button type="button" class="btn btn-primary btn-next" onclick="nextTab()">Suivant</button>
+                <button type="button" class="btn btn-primary btn-next" id="nextBtn" disabled>Suivant</button>
               </div>
             </div>
 
-            <!-- ÉTAPE 2 -->
+            <!-- Step 2 -->
             <div id="step2" class="form-step hidden">
               <h3>Étape 2 : Détails de la candidature</h3>
               <div class="form-group">
                 <i class="fas fa-briefcase"></i>
                 {{ form_label(form.jobOffer, "Offre d'emploi") }}
                 {{ form_widget(form.jobOffer, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-jobOffer"></span>
                 {{ form_errors(form.jobOffer) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-file-alt"></i>
                 {{ form_label(form.CV, 'CV') }}
                 {{ form_widget(form.CV, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-CV"></span>
                 {{ form_errors(form.CV) }}
               </div>
               <div class="form-group">
                 <i class="fas fa-file-alt"></i>
                 {{ form_label(form.Cover_Letter, 'Lettre de motivation') }}
                 {{ form_widget(form.Cover_Letter, {'attr': {'class': 'form-control'}}) }}
+                <span class="error-message" id="error-Cover_Letter"></span>
                 {{ form_errors(form.Cover_Letter) }}
               </div>
               <div class="text-right mt-3">
                 <button type="button" class="btn btn-secondary btn-prev" onclick="prevTab()">Précédent</button>
-                <button type="submit" class="btn btn-primary">Envoyer la candidature</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Envoyer la candidature</button>
               </div>
             </div>
           </div>
@@ -217,8 +232,111 @@
       const step1 = document.getElementById('step1');
       const container = document.getElementById('formStepsContainer');
       container.style.height = step1.offsetHeight + 'px';
+      validateStep1(); // Initial validation for Step 1
+      validateStep2(); // Initial validation for Step 2
     });
 
+    // Validation Functions
+    function validateText(input, minLength, errorElement) {
+      if (input.value.trim() === '') {
+        errorElement.textContent = 'Ce champ est requis.';
+        input.classList.add('invalid-field');
+        return false;
+      } else if (input.value.trim().length < minLength) {
+        errorElement.textContent = `Ce champ doit contenir au moins ${minLength} caractères.`;
+        input.classList.add('invalid-field');
+        return false;
+      } else {
+        errorElement.textContent = '';
+        input.classList.remove('invalid-field');
+        return true;
+      }
+    }
+
+    function validateEmail(input, errorElement) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (input.value.trim() === '') {
+        errorElement.textContent = 'Ce champ est requis.';
+        input.classList.add('invalid-field');
+        return false;
+      } else if (!emailRegex.test(input.value.trim())) {
+        errorElement.textContent = 'Veuillez entrer une adresse email valide.';
+        input.classList.add('invalid-field');
+        return false;
+      } else {
+        errorElement.textContent = '';
+        input.classList.remove('invalid-field');
+        return true;
+      }
+    }
+
+    function validateSelect(select, errorElement) {
+      if (select.value === '') {
+        errorElement.textContent = 'Veuillez sélectionner une option.';
+        select.classList.add('invalid-field');
+        return false;
+      } else {
+        errorElement.textContent = '';
+        select.classList.remove('invalid-field');
+        return true;
+      }
+    }
+
+    function validateFile(input, errorElement, required = true) {
+      if (required && input.files.length === 0) {
+        errorElement.textContent = 'Ce champ est requis.';
+        input.classList.add('invalid-field');
+        return false;
+      } else {
+        errorElement.textContent = '';
+        input.classList.remove('invalid-field');
+        return true;
+      }
+    }
+
+    // Validate Step 1
+    function validateStep1() {
+      const firstName = document.querySelector('[name="application[firstName]"]');
+      const lastName = document.querySelector('[name="application[lastName]"]');
+      const mail = document.querySelector('[name="application[mail]"]');
+      const errorFirstName = document.getElementById('error-firstName');
+      const errorLastName = document.getElementById('error-lastName');
+      const errorMail = document.getElementById('error-mail');
+      const nextBtn = document.getElementById('nextBtn');
+
+      const isFirstNameValid = validateText(firstName, 2, errorFirstName);
+      const isLastNameValid = validateText(lastName, 2, errorLastName);
+      const isMailValid = validateEmail(mail, errorMail);
+
+      nextBtn.disabled = !(isFirstNameValid && isLastNameValid && isMailValid);
+    }
+
+    // Validate Step 2
+    function validateStep2() {
+      const jobOffer = document.querySelector('[name="application[jobOffer]"]');
+      const CV = document.querySelector('[name="application[CV]"]');
+      const Cover_Letter = document.querySelector('[name="application[Cover_Letter]"]');
+      const errorJobOffer = document.getElementById('error-jobOffer');
+      const errorCV = document.getElementById('error-CV');
+      const errorCover_Letter = document.getElementById('error-Cover_Letter');
+      const submitBtn = document.getElementById('submitBtn');
+
+      const isJobOfferValid = validateSelect(jobOffer, errorJobOffer);
+      const isCVValid = validateFile(CV, errorCV);
+      const isCoverLetterValid = validateFile(Cover_Letter, errorCover_Letter, false); // Optional
+
+      submitBtn.disabled = !(isJobOfferValid && isCVValid);
+    }
+
+    // Real-Time Validation Event Listeners
+    document.querySelector('[name="application[firstName]"]').addEventListener('input', validateStep1);
+    document.querySelector('[name="application[lastName]"]').addEventListener('input', validateStep1);
+    document.querySelector('[name="application[mail]"]').addEventListener('input', validateStep1);
+    document.querySelector('[name="application[jobOffer]"]').addEventListener('change', validateStep2);
+    document.querySelector('[name="application[CV]"]').addEventListener('change', validateStep2);
+    document.querySelector('[name="application[Cover_Letter]"]').addEventListener('change', validateStep2);
+
+    // Navigation Functions
     function nextTab() {
       const step1 = document.getElementById('step1');
       const step2 = document.getElementById('step2');
@@ -246,6 +364,9 @@
       progressBar.style.width = '50%';
       progressBar.setAttribute('aria-valuenow', '50');
     }
+
+    // Attach nextTab to the Next button
+    document.getElementById('nextBtn').addEventListener('click', nextTab);
   </script>
 </body>
 </html>

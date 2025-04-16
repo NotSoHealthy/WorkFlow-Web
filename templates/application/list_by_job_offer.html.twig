@@ -563,5 +563,106 @@
                 }
             });
         });
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('interviewModal');
+            const modalBody = modal.querySelector('.modal-body');
+            const buttons = document.querySelectorAll('.interview-btn');
+        
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.dataset.applicationId;
+                    fetch(`/interview/new/${applicationId}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load form');
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        $(modal).modal('show');
+                        const form = modalBody.querySelector('form');
+        
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+        
+                            // Validation logic
+                            let isValid = true;
+        
+                            // Clear previous error messages
+                            modalBody.querySelectorAll('.error').forEach(el => el.textContent = '');
+        
+                            // Get input values
+                            const interviewDate = form.querySelector('[name="interview[interviewDate]"]');
+                            const location = form.querySelector('[name="interview[location]"]');
+                            const feedback = form.querySelector('[name="interview[feedback]"]');
+                            const status = form.querySelector('[name="interview[status]"]');
+        
+                            // Validate Interview Date (Required)
+                            if (interviewDate.value.trim() === '') {
+                                modalBody.querySelector('#error-interviewDate').textContent = 'Interview Date and Time is required.';
+                                isValid = false;
+                            }
+        
+                            // Validate Location (Required)
+                            // Validate Location (Required and at least 5 characters)
+                            if (location.value.trim() === '') {
+                                modalBody.querySelector('#error-location').textContent = 'Location is required.';
+                                isValid = false;
+                            } else if (location.value.trim().length < 5) {
+                                modalBody.querySelector('#error-location').textContent = 'Location must be at least 5 characters.';
+                                isValid = false;
+                            }
+                            
+        
+                            // Validate Feedback (Optional: at least 5 characters if provided)
+                            if (feedback.value.trim() !== '' && feedback.value.trim().length < 5) {
+                                modalBody.querySelector('#error-feedback').textContent = 'Feedback must be at least 5 characters ';
+                                isValid = false;
+                            }
+        
+                            // Validate Status (Required)
+                            if (status.value.trim() === '') {
+                                modalBody.querySelector('#error-status').textContent = 'Status is required.';
+                                isValid = false;
+                            }
+        
+                            // Proceed with form submission if valid
+                            if (isValid) {
+                                const formData = new FormData(form);
+                                fetch(form.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Failed to submit form');
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        $(modal).modal('hide');
+                                        alert('Interview scheduled and email sent to the candidate.');
+                                        location.reload();
+                                    } else {
+                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                    });
+                });
+            });
+        });
     </script>
 {% endblock %}

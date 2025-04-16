@@ -193,6 +193,8 @@
 <main>
     <div class="wizard-container">
         <h2>Création / Édition Offre d'emploi</h2>
+        {# Global error summary (if any) #}
+        {{ form_errors(form) }}
         <div class="progress-container">
             <div class="progress-step active" data-step="1">1</div>
             <div class="progress-step" data-step="2">2</div>
