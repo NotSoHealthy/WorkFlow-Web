@@ -58,8 +58,8 @@
                 <th></th>
             </thead>
             <tbody>
-                {% set verifiedUsers = users|filter(user => user.is_verified == 1) %}
-                {% set nonVerifiedUsers = users|filter(user => user.is_verified == 0) %}
+                {% set verifiedUsers = users|filter(user => user.status == "approved") %}
+                {% set nonVerifiedUsers = users|filter(user => user.status != "approved") %}
 
                 {# {% if nonVerifiedUsers is empty == false %}
                     <tr>
