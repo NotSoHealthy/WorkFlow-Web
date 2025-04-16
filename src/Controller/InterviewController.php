@@ -95,7 +95,7 @@ final class InterviewController extends AbstractController
                     $qrCodeFileName = 'qr_' . uniqid() . '.svg';
                     $qrCodePath = $publicDir . '/' . $qrCodeFileName;
 
-                    // Create the message with interview date, location, and a small message
+                    // Create a message with interview date, location, and a small message
                     $interviewDate = $interview->getInterviewDate()->format('Y-m-d H:i');
                     $interviewLocation = $interview->getLocation();
                     $message = "Date: {$interviewDate}\nLocation: {$interviewLocation}\nMessage: Interview Scheduled";
@@ -107,44 +107,40 @@ final class InterviewController extends AbstractController
                         ->encoding(new Encoding('UTF-8'))
                         ->build();
 
-                    // Save the SVG content to the file directly in the public/images folder
                     file_put_contents($qrCodePath, $result->getString());
 
-                    // No need for temporary file deletion since the file is directly saved in the public folder
                     $qrCodeTempFile = $qrCodePath;
                 } catch (\Exception $e) {
                     $this->logger->error('QR code generation failed: ' . $e->getMessage());
                     $this->addFlash('warning', 'Interview created, but QR code could not be generated.');
                 }
 
-                // Send email with QR code attachment
+                $meetingRoom = 'Interview-' . uniqid();
+                $meetingLink = 'https://meet.jit.si/' . $meetingRoom;
+
+                // Send email with QR code attachment and meeting link
                 $application = $interview->getApplication();
                 if ($application && $application->getMail()) {
                     $emailBody = $this->renderView('emails/interview_scheduled.html.twig', [
                         'interview' => $interview,
                         'application' => $application,
+                        'meetingLink' => $meetingLink,
                     ]);
 
                     $email = (new TemplatedEmail())
-                        ->from('your-email@example.com') // Update with your sender address
+                        ->from('your-email@example.com')
                         ->to($application->getMail())
                         ->subject('Interview Scheduled')
                         ->html($emailBody);
 
-                    // Attach QR code if available
                     if ($qrCodeTempFile && file_exists($qrCodeTempFile)) {
-                        // Attach the SVG file with correct MIME type
                         $attachment = new MimeFile($qrCodeTempFile);
-
-                        // Attach the file to the email (no need for setFilename or setContentType)
                         $email->attach($attachment);
                     }
 
                     // Send the email
                     $mailer->send($email);
                     $this->addFlash('success', 'Interview created and email sent successfully.');
-
-                    // No need to delete QR code since it's now stored permanently in the public/images folder
                 } else {
                     $this->addFlash('warning', 'Interview saved, but email could not be sent due to missing application or email.');
                 }
