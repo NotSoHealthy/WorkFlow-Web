@@ -14,7 +14,7 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils, AuthorizationCheckerInterface $authChecker): Response
     {
         if ($authChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirectToRoute('app_main'); // Change 'dashboard' to your target route
+            return $this->redirectToRoute('app_dashboard'); // Change 'dashboard' to your target route
         }
 
         // get the login error if there is one

@@ -23,7 +23,7 @@ final class CongeController extends AbstractController
         $conge = new Conge();
         $conge->setUser($this->getUser());
         $conge->setStatus('pending');
-        $conge->setRequestDate(new \DateTime('today'));
+        $conge->setRequestDate(new DateTime('today'));
         $form = $this->createForm(CongeType::class, $conge);
         $form->handleRequest($request);
 

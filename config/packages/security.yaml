@@ -30,7 +30,7 @@ security:
             logout:
                 path: app_logout
                 # where to redirect after logout
-                target: app_login
+                target: main_page_index
             remember_me:
                 secret:   '%kernel.secret%' # required
                 lifetime: 604800 # 1 week in seconds
@@ -44,6 +44,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/home, roles: PUBLIC_ACCESS  }
+        - { path: ^/job-offers, roles: PUBLIC_ACCESS  }
         - { path: ^/login, roles: PUBLIC_ACCESS  }
         - { path: ^/register, roles: PUBLIC_ACCESS  }
         - { path: ^/logout, roles: PUBLIC_ACCESS  }

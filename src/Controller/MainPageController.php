@@ -10,10 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MainPageController extends AbstractController
 {
-    #[Route('/main', name: 'main_page_index')]
+    #[Route('/home', name: 'main_page_index')]
     public function index(): Response
     {
-        return $this->render('mainPage.html.twig');
+        return $this->render('home.html.twig');
     }
 
     #[Route('/job-offers', name: 'job_offers_public')]
