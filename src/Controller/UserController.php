@@ -32,7 +32,7 @@ final class UserController extends AbstractController
     {
         $department = $departmentRepository->findOneById($request->request->get('department'));
         $role = $request->request->get('role');
-        $user->setIs_verified(true);
+        $user->setStatus('approved');
         $user->setDepartment($department);
         if ($role == 'ROLE_RESPONSABLE') {
             $user->setRoles(['ROLE_RESPONSABLE']);

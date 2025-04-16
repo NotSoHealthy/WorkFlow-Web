@@ -19,25 +19,26 @@ table{
     border-spacing:0 1em;
 }
 
-.select-pending, table select option:nth-child(1){
+/* .select-pending{
     background-color: var(--text-warning);
 }
 
-.select-approved, table select option:nth-child(2){
+.select-approved{
     background-color: var(--text-success);
 }
 
-.select-rejected, table select option:nth-child(3){
+.select-rejected{
     background-color: var(--text-danger);
-}
+} */
 
-table select{
+.custom-select{
     border: none;
     border-radius: 5px;
     padding: .5em;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 2px;
 }
 
-table select option:hover{
+.custom-select option:hover{
     background-color: black;
 }
 
@@ -120,4 +121,16 @@ td > div > div{
 .email-text{
     color: gray;
     font-size: small;
+}
+
+.p-approved, form option:nth-child(2){
+    color: var(--bs-success);
+}
+
+.p-rejected, form option:nth-child(3){
+    color: var(--bs-danger);
+}
+
+.p-pending{
+    color: var(--bs-warning);
 }

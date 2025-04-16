@@ -74,6 +74,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ["default" => false])]
     private ?bool $is_verified = false;
+    
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $status = 'pending';
 
     public function getId(): ?int
     {
@@ -225,6 +228,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     public function setIs_verified(bool $is_verified): self
     {
         $this->is_verified = $is_verified;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
         return $this;
     }
 

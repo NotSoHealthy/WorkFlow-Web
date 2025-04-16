@@ -30,7 +30,7 @@
                         <div class="form-column">
                             <label for="nom" class="col-form-label">Nom</label>
                             <input type="text" name="{{field_name(form.last_name)}}" placeholder="Nom" required value="{{ field_value(form.last_name) }}" class="form-control">
-                            {{ form_errors(form.last_name) }}
+                            {{ form_errors(form.last_name, {'attr': {'class':'alert alert-danger'}}) }}
                         </div>
                         <div class="form-column">
                             <label for="prenom" class="col-form-label">Prenom</label>

@@ -14,9 +14,11 @@ function loadHours() {
     var dates = document.querySelectorAll('.time-date');
     var attendances = JSON.parse(document.getElementById('time-container').getAttribute('data-attendances'));
     if (attendances.length == 0) {
-        return;
+        var date = new Date();
     }
+    else{
         var date = new Date(attendances[0].date);
+    }
     
     for (let i = 0; i <7 ; i++) {
         if(date.getDay() == 0 || date.getDay() == 6){
