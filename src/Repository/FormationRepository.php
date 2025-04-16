@@ -24,6 +24,22 @@ class FormationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function sortFormations(string $sortBy): array
+    {
+        $queryBuilder = $this->createQueryBuilder('f');
+
+        if ($sortBy === 'titre') {
+            $queryBuilder->orderBy('f.title', "ASC");
+        } 
+        elseif ($sortBy === 'period') {
+       
+            $queryBuilder->orderBy('f.date_begin', "ASC"); 
+            $queryBuilder->addOrderBy('f.date_end', "ASC"); 
+    
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
     //    /**
     //     * @return Formation[] Returns an array of Formation objects
     //     */

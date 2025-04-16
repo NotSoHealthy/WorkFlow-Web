@@ -73,6 +73,31 @@
         margin-left: 13rem;
        
     }
+    .sorting-container {
+        position: fixed;
+        top: 13rem; /* Adjust the top offset */
+        left: 14rem; /* Place the container to the left side */
+        display: flex;
+        flex-direction: column; /* Align buttons vertically */
+        gap: 10px; /* Add space between buttons */
+        padding: 10px;
+       
+        z-index: 1000; /* Ensure it's on top of other content */
+    }
+
+    /* Style the buttons for better appearance */
+    .sorting-container a {
+        width: 100%; /* Ensure buttons stretch to full width */
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .sorting-container a:hover {
+        background-color: #0f2d3b;
+        color: white;
+    }
+    
     </style>
 {% endblock %}
 {% block title %}Liste des Formations{% endblock %}
@@ -86,7 +111,17 @@
     <div class="container mt-4 d-flex justify-content-center">
       <input type="text" id="searchInput" class="form-control" style="width: 60%;" placeholder="Search formations" value="{{ search }}" aria-label="Search">
   </div>
-    <div class="container mt-4">
+    <div class="sorting-container mb-4">
+      <form action="{{ path('app_formation_list') }}" method="GET" >
+      <select id="sort-select" name="filter_sort" class="form-control" onchange="this.form.submit()">
+        <option disabled selected>choisissez un trie</option>
+        <option value="titre" {{ filter_sort == 'titre' ? 'selected' : '' }}>Par titre</option>
+        <option value="period" {{ filter_sort == 'period' ? 'selected' : '' }}>Par period</option>
+      </select>
+    </form>
+  </div>
+
+    <div class="container mt-4" id="formation-container" >  
         {% for formation in pagination %}
         {% if is_granted('ROLE_RESPONSABLE') %}
         <a href="{{ path('app_formation_edit', { id: formation.id }) }}" class="card_a">
@@ -142,10 +177,11 @@
 </main>
 {% block javascripts %}
     <script>
-      let debounceTimeout;
+      
       document.addEventListener('DOMContentLoaded', function () {
+
         const searchInput = document.getElementById('searchInput');
-        
+
         if (searchInput) {
           const savedCursorPosition = localStorage.getItem('cursorPosition');
           if (savedCursorPosition) {
@@ -156,16 +192,13 @@
 
           searchInput.addEventListener('input', function () {
               localStorage.setItem('cursorPosition', searchInput.selectionStart);
-              
-              clearTimeout(debounceTimeout);
         
               let searchQuery = this.value;
-        
-              debounceTimeout = setTimeout(function () {
-                window.location.href = "{{ path('app_formation_list') }}?search=" + searchQuery;
-              }, 1000);
-          });
-      }   
+              window.location.href = "{{ path('app_formation_list') }}?search=" + searchQuery;
+              
+          }); 
+      }
+         
   });
   
     </script>
