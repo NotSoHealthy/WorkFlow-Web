@@ -59,28 +59,28 @@ class Attendance
     }
 
     #[ORM\Column(type: 'time', nullable: false)]
-    private ?string $entry_time = null;
+    private ?\DateTimeInterface $entry_time = null;
 
-    public function getEntry_time(): ?string
+    public function getEntry_time(): ?\DateTimeInterface
     {
         return $this->entry_time;
     }
 
-    public function setEntry_time(string $entry_time): self
+    public function setEntry_time(\DateTimeInterface $entry_time): self
     {
         $this->entry_time = $entry_time;
         return $this;
     }
 
     #[ORM\Column(type: 'time', nullable: false)]
-    private ?string $exit_time = null;
+    private ?\DateTimeInterface $exit_time = null;
 
-    public function getExit_time(): ?string
+    public function getExit_time(): ?\DateTimeInterface
     {
         return $this->exit_time;
     }
 
-    public function setExit_time(string $exit_time): self
+    public function setExit_time(\DateTimeInterface $exit_time): self
     {
         $this->exit_time = $exit_time;
         return $this;

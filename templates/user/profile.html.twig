@@ -1,0 +1,48 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/profile.css') }}">
+{% endblock %}
+{% block main %}
+    <main>
+        <div class="main-container">
+            <div class="header">
+                <img src="{{ user.image_url }}" alt="">
+                <div class="header-text">
+                    <p class="name-text">{{ user.first_name }} {{ user.last_name }}</p>
+                    <div><p class="email-text">Email: </p><a class="email-text" href="mailto:{{ user.email }}">{{ user.email }}</a></div>
+                    <div><p class="number-text">Numéro:</p><a class="number-text" href="tel:{{ user.number }}">{{ user.number }}</a></div>
+                </div>
+            </div>
+            <form action="{{ path('app_user_profile', {'id': user.id}) }}" method="post" enctype="multipart/form-data" id="profile-form">
+                <div class="body-container">
+                    <div>
+                        <label for="departement">Département</label>
+                        <select name="departement" id="departement" class="form-select" placeholder="Sélectionner un département" required>
+                            <option value="" disabled {% if user.department == null %}selected{% endif %}>Sélectionner un département</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}" {% if user.department == department %}selected{% endif %}>{{ department.name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+                    <div>
+                        <label for="role">Rôle</label>
+                        <select name="role" id="role" class="form-select" required>
+                            <option value="responsable" {% if 'ROLE_RESPONSABLE' in user.roles %}selected{% endif %}>Responsable</option>
+                            <option value="user" {% if 'ROLE_RESPONSABLE' not in user.roles %}selected{% endif %}>Employé</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="button-container">
+                    <button type="reset" class="btn btn-danger btn-lg">Annuler</button>
+                    <button type="submit" class="btn btn-success btn-lg">Confirmer</button>
+                </div>
+            </form>
+        </div>
+    </main>
+{% endblock %}

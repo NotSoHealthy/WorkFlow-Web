@@ -99,15 +99,15 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: true)]
-    private ?float $Salary = null;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?string $Salary = null;
 
-    public function getSalary(): ?float
+    public function getSalary(): ?string
     {
         return $this->Salary;
     }
 
-    public function setSalary(?float $Salary): self
+    public function setSalary(?string $Salary): self
     {
         $this->Salary = $Salary;
         return $this;

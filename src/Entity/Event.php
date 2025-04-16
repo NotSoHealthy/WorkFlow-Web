@@ -57,7 +57,7 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[ORM\Column(name:'DateAndTime', type: 'datetime', nullable: false)]
     private ?\DateTimeInterface $DateAndTime = null;
 
     public function getDateAndTime(): ?\DateTimeInterface
@@ -99,7 +99,7 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(name:'NumberOfPlaces', type: 'integer', nullable: false)]
     private ?int $NumberOfPlaces = null;
 
     public function getNumberOfPlaces(): ?int
@@ -113,7 +113,7 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(name:'IsOnline', type: 'boolean', nullable: false)]
     private ?bool $isOnline = null;
 
     public function isIsOnline(): ?bool
