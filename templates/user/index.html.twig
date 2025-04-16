@@ -1,0 +1,160 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Employés{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/user.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/data_table.css') }}">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{{ asset('scripts/user.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#employeesTable').DataTable({
+                "responsive": "true",
+                "language": {
+                    "emptyTable": "Aucun employé trouvé",
+                    "lengthMenu": "Afficher _MENU_ entrées",
+                    "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                    "infoEmpty":"Affichage de 0 à 0 sur 0 entrées",
+                    "zeroRecords":"Aucun employé trouvé",
+                    "search": "Rechercher:",
+                    "paginate": {
+                        "first": "Premier",
+                        "last": "Dernier",
+                        "next": "Suivant",
+                        "previous": "Précédent"
+                    }
+                },
+                "order": [[0, "asc"]], // Default sorting by "Nom et Email"
+                "columnDefs": [
+                    { "orderable": false, "targets": [3] }, // Disable sorting for the "Actions" column
+                    { "width": '30%', "targets": [0,1,2] },
+                    { "width": '5%', "targets": [3] },
+                ]
+            });
+        });
+    </script>
+    
+{% endblock %}
+
+{% block main %}
+    <main>
+        {% for flash_error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
+        <h2 class="title">Liste des employés</h2>
+        <table id="employeesTable" class="display">
+            <thead>
+                <th>Nom et Email</th>
+                {# <th>Email</th> #}
+                <th>Département</th>
+                <th>Role</th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% set verifiedUsers = users|filter(user => user.status == "approved") %}
+                {% set nonVerifiedUsers = users|filter(user => user.status != "approved") %}
+
+                {# {% if nonVerifiedUsers is empty == false %}
+                    <tr>
+                        <td colspan="4" class="td-title">Employés en attente de validation</td>
+                    </tr>
+                {% endif %} #}
+
+                {% for user in nonVerifiedUsers %}
+                <tr class="user-pending">
+                    <td>
+                        <div>
+                            <img src="{{ user.imageUrl }}" alt="">
+                            <div>
+                                <p class="name-text">{{ user.first_name }}</p>
+                                <p class="email-text">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <select name="department" required autocomplete="off" form="accept-form-{{ user.id }}">
+                            <option value="" disabled selected>Département</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.Name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select name="role" required autocomplete="off" form="accept-form-{{ user.id }}">
+                            <option value="" disabled selected>Role</option>
+                            <option value="">Employé</option>
+                            <option value="ROLE_RESPONSABLE">Responsable</option>
+                        </select>
+                    </td>
+                    <td class="d-flex flex-row gap-2">
+                        <form id="accept-form-{{ user.id }}" action="{{ path('app_user_accept', { id: user.id }) }}" method="post">
+                            <button type="submit" class="btn btn-sm btn-success">Accepter</button>
+                        </form>
+                        <form action="{{ path('app_user_deny', { id: user.id }) }}" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger">Refuser</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {# {% if nonVerifiedUsers is empty == false %}
+                    <tr>
+                        <td colspan="4" class="td-title">Employés validés</td>
+                    </tr>
+                {% endif %} #}
+
+                {% for user in verifiedUsers %}
+                    <tr>
+                        <td>
+                            <div>
+                                <img src="{{user.imageUrl}}" alt="">
+                                <div>
+                                    <p class="name-text">{{ user.first_name }}</p>
+                                    <a class="email-text" href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.department.Name }}</td>
+                        <td>
+                            {% if 'ROLE_RESPONSABLE' in user.roles %}
+                                Responsable
+                            {% else %}
+                                Employé
+                            {% endif %}
+                        </td>
+                        <td>
+                            {# {% if user.id != app.user.id %}
+                                <button class="btn btn-sm btn-secondary">Modifier</button>
+                            {% endif %} #}
+                            <div class="dropdown">
+                                <a class="material-symbols-outlined {% if app.user.id == user.id %} dropdown-disabled{% endif %}" href="javascript:;" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ user.id }}">
+                                    <li><a class="dropdown-item" href="{{ path('app_user_profile', { id: user.id }) }}">Modifier</a></li>
+                                    <li><a class="dropdown-item" href="javascript:;" onclick="openConfirmation(event)" data-link="{{ path('app_user_deny', { id: user.id }) }}">Supprimer</a></li>
+                                </ul>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    <div class="confirmation-container" style="display: none;">
+        <div class="confirmation d-flex flex-column gap-2 align-items-center">
+            <p>Vous êtes sure?</p>
+            <div class="d-flex flex-row gap-2">
+                <a class="btn btn-sm btn-danger" href="javascript:;" onclick="closeConfirmation()">Non</a>
+                <a class="btn btn-sm btn-success" href="javascript:;">Oui</a>
+            </div>
+        </div>
+        <div class="background"></div>
+    </div>
+{% endblock %}

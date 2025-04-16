@@ -1,0 +1,668 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Candidatures pour {{ jobOffer.title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #4caf50;  /* Green for Open */
+            --warning-color: #ff9800;  /* Orange for In Progress */
+            --danger-color: #f44336;   /* Red for Closed */
+            --background-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--text-color);
+        }
+
+        .filter-sort-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-sort-container input,
+        .filter-sort-container select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-sort-container input:focus,
+        .filter-sort-container select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .filter-sort-container input {
+            width: 70%;
+        }
+
+        .filter-sort-container select {
+            width: 25%;
+        }
+
+        .application-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .application-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--success-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .application-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .application-card.in-progress {
+            border-left-color: var(--warning-color);
+        }
+
+        .application-card.closed {
+            border-left-color: var(--danger-color);
+        }
+
+        .application-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .application-card p {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .status-select {
+            margin-top: 10px;
+            padding: 5px;
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .interview-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interview-btn:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .interview-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .interview-btn:active::after {
+            width: 200px;
+            height: 200px;
+            opacity: 0;
+        }
+
+        /* Statistics Button and Modal Styles */
+        .stats-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-color), #0d47a1);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stats-btn:hover {
+            background: linear-gradient(135deg, #1565c0, #0b3d91);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-dialog {
+            max-width: 600px;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        /* Modified Close Button Styles for Left Positioning */
+        .modal-header .close {
+            position: absolute;
+            top: 8.5px;
+            left: 260px;
+            margin: 0;
+            color: white !important;
+            font-size: 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-header .close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 30px;
+            background: var(--card-bg);
+        }
+
+        #stats-chart {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <div class="container">
+        <h2>Candidatures pour "{{ jobOffer.title }}"</h2>
+        <div class="filter-sort-container">
+            <input type="text" id="search-input" placeholder="Rechercher par nom du candidat">
+            <select id="sort-select">
+                <option value="newest">Plus récentes d'abord</option>
+                <option value="oldest">Plus anciennes d'abord</option>
+            </select>
+        </div>
+        <div class="application-list">
+            {% if applications|length > 0 %}
+                {% for application in applications %}
+                    {% set cardClass = application.status == 'open' ? '' : (application.status == 'in progress' ? 'in-progress' : (application.status == 'closed' ? 'closed' : '')) %}
+                    <div class="application-card {{ cardClass }}" id="application-{{ application.id }}" data-submission-date="{{ application.submissionDate|date('Y-m-d') }}">
+                        <h3>{{ application.firstName }} {{ application.lastName }}</h3>
+                        <p><strong>Email :</strong> {{ application.mail }}</p>
+                        <p>
+                            <strong>CV :</strong> 
+                            <a href="{{ application.cv }}" target="_blank">Voir CV</a>
+                        </p>
+                        <p>
+                            <strong>Lettre de motivation :</strong> 
+                            {% if application.coverLetter %}
+                                <a href="{{ application.coverLetter }}" target="_blank">Voir</a>
+                            {% else %}
+                                Non fournie
+                            {% endif %}
+                        </p>
+                        <p><strong>Date de soumission :</strong> {{ application.submissionDate|date('Y-m-d') }}</p>
+                        <p>
+                            <strong>Statut actuel :</strong>
+                            <span id="status-display-{{ application.id }}">
+                                {% if application.status == 'open' %}
+                                    Ouvert
+                                {% elseif application.status == 'in progress' %}
+                                    En cours
+                                {% elseif application.status == 'closed' %}
+                                    Fermé
+                                {% else %}
+                                    {{ application.status }}
+                                {% endif %}
+                            </span>
+                        </p>
+                        <select class="status-select" onchange="updateStatus({{ application.id }}, this.value)">
+                            <option value="open" {% if application.status == 'open' %}selected{% endif %}>Ouvert</option>
+                            <option value="in progress" {% if application.status == 'in progress' %}selected{% endif %}>En cours</option>
+                            <option value="closed" {% if application.status == 'closed' %}selected{% endif %}>Fermé</option>
+                        </select>
+                        <button class="interview-btn" data-application-id="{{ application.id }}">Interview</button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center">Aucune candidature pour cette offre pour le moment.</p>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Button -->
+        <button id="stats-btn" class="stats-btn">Show Statistics</button>
+
+        <!-- Statistics Modal -->
+        <div id="stats-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Application Statistics</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="stats-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Modal -->
+        <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="interviewModalLabel">Schedule Interview</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Form will be loaded here via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let statsChart = null;
+
+        function updateStatus(applicationId, newStatus) {
+            fetch('{{ path("app_application_update_status", {"id": "APPLICATION_ID"}) }}'.replace("APPLICATION_ID", applicationId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let display = document.getElementById('status-display-' + applicationId);
+                    if (newStatus === 'open') {
+                        display.textContent = "Ouvert";
+                    } else if (newStatus === 'in progress') {
+                        display.textContent = "En cours";
+                    } else if (newStatus === 'closed') {
+                        display.textContent = "Fermé";
+                    } else {
+                        display.textContent = newStatus;
+                    }
+                    let card = document.getElementById('application-' + applicationId);
+                    card.classList.remove('in-progress', 'closed');
+                    if (newStatus === 'in progress') {
+                        card.classList.add('in-progress');
+                    } else if (newStatus === 'closed') {
+                        card.classList.add('closed');
+                    }
+                } else {
+                    alert(data.message || "Erreur lors de la mise à jour du statut");
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Erreur lors de la mise à jour du statut");
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const sortSelect = document.getElementById('sort-select');
+            const cards = document.querySelectorAll('.application-card');
+            const container = document.querySelector('.application-list');
+
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase();
+                cards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    card.style.display = name.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
+
+            sortSelect.addEventListener('change', function() {
+                const sortBy = this.value;
+                const cardsArray = Array.from(cards);
+                cardsArray.sort((a, b) => {
+                    const dateA = new Date(a.dataset.submissionDate);
+                    const dateB = new Date(b.dataset.submissionDate);
+                    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+                });
+                container.innerHTML = '';
+                cardsArray.forEach(card => container.appendChild(card));
+            });
+
+            sortSelect.value = 'newest';
+            sortSelect.dispatchEvent(new Event('change'));
+
+            const modal = document.getElementById('interviewModal');
+            const modalBody = modal.querySelector('.modal-body');
+            const buttons = document.querySelectorAll('.interview-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.dataset.applicationId;
+                    fetch(`/interview/new/${applicationId}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load form');
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        $(modal).modal('show');
+                        const form = modalBody.querySelector('form');
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Failed to submit form');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    $(modal).modal('hide');
+                                    alert('Interview scheduled and email sent to the candidate.');
+                                    location.reload();
+                                } else {
+                                    alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while scheduling the interview.');
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the interview form.');
+                    });
+                });
+            });
+
+            // Statistics Button Event Listener with Chart.js
+            document.getElementById('stats-btn').addEventListener('click', function() {
+                fetch('{{ path('app_application_stats', {'id': jobOffer.id}) }}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const ctx = document.getElementById('stats-chart').getContext('2d');
+                    if (statsChart) {
+                        statsChart.destroy();
+                    }
+                    statsChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Open', 'In Progress', 'Closed'],
+                            datasets: [{
+                                data: [data.open, data.inProgress, data.closed],
+                                backgroundColor: [
+                                    '#4caf50',  // Green for Open
+                                    '#ff9800',  // Orange for In Progress
+                                    '#f44336'   // Red for Closed
+                                ],
+                                borderColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        font: {
+                                            size: 14,
+                                            family: 'Inter, sans-serif'
+                                        },
+                                        color: '#333'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Application Status Distribution',
+                                    font: {
+                                        size: 18,
+                                        family: 'Inter, sans-serif',
+                                        weight: 'bold'
+                                    },
+                                    color: '#333'
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleFont: {
+                                        size: 14,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    bodyFont: {
+                                        size: 12,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff'
+                                }
+                            },
+                            animation: {
+                                animateScale: true,
+                                animateRotate: true
+                            }
+                        }
+                    });
+                    $('#stats-modal').modal('show');
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                    alert('Failed to load statistics. Please try again later.');
+                });
+            });
+
+            // Destroy chart when modal is hidden to prevent reopening issues
+            $('#stats-modal').on('hidden.bs.modal', function () {
+                if (statsChart) {
+                    statsChart.destroy();
+                    statsChart = null;
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('interviewModal');
+            const modalBody = modal.querySelector('.modal-body');
+            const buttons = document.querySelectorAll('.interview-btn');
+        
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.dataset.applicationId;
+                    fetch(`/interview/new/${applicationId}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to load form');
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        $(modal).modal('show');
+                        const form = modalBody.querySelector('form');
+        
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+        
+                            // Validation logic
+                            let isValid = true;
+        
+                            // Clear previous error messages
+                            modalBody.querySelectorAll('.error').forEach(el => el.textContent = '');
+        
+                            // Get input values
+                            const interviewDate = form.querySelector('[name="interview[interviewDate]"]');
+                            const location = form.querySelector('[name="interview[location]"]');
+                            const feedback = form.querySelector('[name="interview[feedback]"]');
+                            const status = form.querySelector('[name="interview[status]"]');
+        
+                            // Validate Interview Date (Required)
+                            if (interviewDate.value.trim() === '') {
+                                modalBody.querySelector('#error-interviewDate').textContent = 'Interview Date and Time is required.';
+                                isValid = false;
+                            }
+        
+                            // Validate Location (Required)
+                            // Validate Location (Required and at least 5 characters)
+                            if (location.value.trim() === '') {
+                                modalBody.querySelector('#error-location').textContent = 'Location is required.';
+                                isValid = false;
+                            } else if (location.value.trim().length < 5) {
+                                modalBody.querySelector('#error-location').textContent = 'Location must be at least 5 characters.';
+                                isValid = false;
+                            }
+                            
+        
+                            // Validate Feedback (Optional: at least 5 characters if provided)
+                            if (feedback.value.trim() !== '' && feedback.value.trim().length < 5) {
+                                modalBody.querySelector('#error-feedback').textContent = 'Feedback must be at least 5 characters ';
+                                isValid = false;
+                            }
+        
+                            // Validate Status (Required)
+                            if (status.value.trim() === '') {
+                                modalBody.querySelector('#error-status').textContent = 'Status is required.';
+                                isValid = false;
+                            }
+        
+                            // Proceed with form submission if valid
+                            if (isValid) {
+                                const formData = new FormData(form);
+                                fetch(form.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Failed to submit form');
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        $(modal).modal('hide');
+                                        alert('Interview scheduled and email sent to the candidate.');
+                                        location.reload();
+                                    } else {
+                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

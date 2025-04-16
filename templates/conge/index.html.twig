@@ -1,43 +1,136 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Conge index{% endblock %}
 
-{% block body %}
-    <h1>Conge index</h1>
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/conge.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/data_table.css') }}">
+{% endblock %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Request_date</th>
-                <th>Start_date</th>
-                <th>End_date</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for conge in conges %}
-            <tr>
-                <td>{{ conge.id }}</td>
-                <td>{{ conge.requestDate ? conge.requestDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.startDate ? conge.startDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.endDate ? conge.endDate|date('Y-m-d') : '' }}</td>
-                <td>{{ conge.reason }}</td>
-                <td>{{ conge.status }}</td>
-                <td>
-                    <a href="{{ path('app_conge_show', {'id': conge.id}) }}">show</a>
-                    <a href="{{ path('app_conge_edit', {'id': conge.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/conge.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#congeTable').DataTable({
+                "language": {
+                    "emptyTable": "Aucun congé trouvé",
+                    "search": "Rechercher:",
+                    "lengthMenu": "Afficher _MENU_ entrées",
+                    "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                    "infoEmpty":"Affichage de 0 à 0 sur 0 entrées",
+                    "zeroRecords":"Aucun congé trouvé",
+                    "paginate": {
+                        "first": "Premier",
+                        "last": "Dernier",
+                        "next": "Suivant",
+                        "previous": "Précédent"
+                    }
+                },
+                "order": [[0, "asc"]], // Default sorting by "Nom"
+                "columnDefs": [
+                    { width: '20%', targets: 0 }
+                ]
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    <main>
+        {% for flash_error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
         {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_conge_new') }}">Create new</a>
+        <button class="request-btn" onclick="openRequest()">Demander un congé</button>
+        <h2 class="title">Liste des congés</h2>
+        <table id="congeTable" class="display">
+            <thead>
+                <th>Nom et Email</th>
+                <th>Raison</th>
+                <th>Date requete</th>
+                <th>Date debut</th>
+                <th>Date fin</th>
+                <th>Etat</th>
+            </thead>
+            <tbody>
+                {% for conge in conges %}
+                    <tr>
+                        <td>
+                            <div>
+                                <img src="{{conge.user.imageUrl}}" alt="">
+                                <div>
+                                    <p class="name-text">{{ conge.user.first_name }}</p>
+                                    <a class="email-text" href="mailto:{{ conge.user.email }}">{{ conge.user.email }}</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ conge.reason }}</td>
+                        <td>{{ conge.requestDate ? conge.requestDate|date('Y-m-d') : '' }}</td>
+                        <td>{{ conge.startDate ? conge.startDate|date('Y-m-d') : '' }}</td>
+                        <td>{{ conge.endDate ? conge.endDate|date('Y-m-d') : '' }}</td>
+                        <td>
+                            {% if app.user.id == conge.user.id or conge.start_date > date('now') or conge.status != 'pending'%}
+                                {% if conge.status == 'pending' %}
+                                    <p class="p-pending">En attente</p>
+                                {% elseif conge.status == 'approved' %}
+                                    <p class="p-approved">Apprové</p>
+                                {% elseif conge.status == 'rejected' %}
+                                    <p class="p-rejected">Rejeté</p>
+                                {% else %}
+                                    <p>{{ conge.status }}</p>
+                                {% endif %}
+                            {% else %}
+                            <form action="{{ path('update_conge_status', { id: conge.id }) }}" method="post">
+                                <select name="status" onchange="selectChange(); this.form.submit()" autocomplete="off" id="select" class="custom-select {% if conge.status == 'pending' %} select-pending {% elseif conge.status == 'approved' %} select-approved {% else %} select-rejected {% endif %}" data-id="{{ conge.id }}" {% if conge.user.id == app.user.id %} disabled {% endif %}>
+                                    <option value="pending" {% if conge.status == 'pending' %} selected="selected" {% endif %} disabled>En attente</option>
+                                    <option value="approved" {% if conge.status == 'approved' %} selected="selected" {% endif %}>Apprové</option>
+                                    <option value="rejected" {% if conge.status == 'rejected' %} selected="selected" {% endif %}>Rejeté</option>
+                                </select>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    <div class="request-container">
+        {{ form_start(form) }}
+                {% for flash_error in app.flashes('conge_form_error') %}
+                    <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                {% endfor %}
+            <div class="form-row">
+                <div class="form-column">
+                    {# <input type="text" id="reason" name="{{field_name(form.reason)}}" value="{{field_value(form.reason)}}" placeholder="Raison" required> #}
+                    <label for="reason">Raison</label>
+                    <textarea class="form-control" style="resize: none;" name="{{field_name(form.reason)}}" id="reason" placeholder="Raison" maxlength="50" rows="2" required>{{field_value(form.reason)}}</textarea>
+                    {{ form_errors(form.reason) }}
+                </div>
+            </div>
+            <input type="date" id="date" name="{{field_name(form.request_date)}}" value="{{field_value(form.request_date)}}" readonly required class="form-control" hidden>
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="startDate">Date début</label>
+                    <input type="date" id="startDate" placeholder="Date début" name="{{field_name(form.start_date)}}" value="{{field_value(form.start_date)}}" required class="form-control">
+                    {{ form_errors(form.start_date) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="endDate">Date fin</label>
+                    <input type="date" id="endDate" placeholder="Date fin" name="{{field_name(form.end_date)}}" value="{{field_value(form.end_date)}}" required class="form-control">
+                    {{ form_errors(form.end_date) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-column"><button onclick="cancelRequest()" class="btn btn-danger btn-sm" type="reset">Annuler</button></div>
+                <div class="form-column"><button class="btn btn-success btn-sm" type="submit">Envoyer</button></div>
+            </div>
+        {{ form_end(form) }}
+        <div class="background"></div>
+    </div>
 {% endblock %}
