@@ -6,6 +6,7 @@
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/user.css') }}">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/data_table.css') }}">
 {% endblock %}
 {% block javascripts %}
     {{ parent() }}
@@ -14,6 +15,7 @@
     <script>
         $(document).ready(function() {
             $('#employeesTable').DataTable({
+                "responsive": "true",
                 "language": {
                     "search": "Rechercher:",
                     "lengthMenu": "Afficher _MENU_ entrées",
@@ -27,7 +29,9 @@
                 },
                 "order": [[0, "asc"]], // Default sorting by "Nom et Email"
                 "columnDefs": [
-                    { "orderable": false, "targets": [3] } // Disable sorting for the "Actions" column
+                    { "orderable": false, "targets": [3] }, // Disable sorting for the "Actions" column
+                    { "width": '30%', "targets": [0,1,2] },
+                    { "width": '5%', "targets": [3] },
                 ]
             });
         });
@@ -122,7 +126,7 @@
                                 <button class="btn btn-sm btn-secondary">Modifier</button>
                             {% endif %} #}
                             <div class="dropdown">
-                                <a class="material-symbols-outlined" href="#" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                <a class="material-symbols-outlined {% if app.user.id == user.id %} dropdown-disabled{% endif %}" href="#" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ user.id }}">
                                     <li><a class="dropdown-item" href="#">Modifier</a></li>
                                     <li><a class="dropdown-item" href="#">Supprimer</a></li>

@@ -19,29 +19,105 @@ table{
     border-spacing:0 1em;
 }
 
-.select-pending, select option:nth-child(1){
+.select-pending, table select option:nth-child(1){
     background-color: var(--text-warning);
 }
 
-.select-approved, select option:nth-child(2){
+.select-approved, table select option:nth-child(2){
     background-color: var(--text-success);
 }
 
-.select-rejected, select option:nth-child(3){
+.select-rejected, table select option:nth-child(3){
     background-color: var(--text-danger);
 }
 
-select{
+table select{
     border: none;
     border-radius: 5px;
     padding: .5em;
 }
 
-select option:hover{
+table select option:hover{
     background-color: black;
 }
 
 .request-btn{
     width: 200px;
     background-color: #3742FA;
+}
+
+.request-container{
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.request-container form{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    padding: 2em;
+    background-color: var(--background-tertiary);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    z-index: 20;
+}
+
+.request-container .background{
+    background-color: var(--background-primary);
+    opacity: 0.5;
+    filter: blur(5px);
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.form-row{
+    display: flex;
+    gap: 1em;
+    justify-content: space-evenly;
+}
+
+.form-column{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: .5em;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.title{
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+td > div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+}
+
+td > div > img{
+    aspect-ratio: 1/1;
+    width: 50px;
+    border-radius: 50%;
+}
+
+td > div > div{
+    display: flex;
+    flex-direction: column;
+}
+
+.email-text{
+    color: gray;
+    font-size: small;
 }

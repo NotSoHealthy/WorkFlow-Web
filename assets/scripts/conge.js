@@ -1,3 +1,9 @@
+window.onload = function () {
+    if (document.querySelector('.alert-danger')) {
+        document.querySelector('.request-container').style.display = 'block';
+    }
+}
+
 function selectChange() {
     var select = document.getElementById('select');
     var value = select.value;
@@ -14,12 +20,12 @@ function selectChange() {
     }
 }
 
-function request() {
-    var request = document.getElementById('request-row');
-    request.style.display=='' ? request.style.display='none' : request.style.display='';
+function openRequest() {
+    var container = document.querySelector('.request-container');
+    container.style.display=='block' ? container.style.display='none' : container.style.display='block';
 }
 
 function cancelRequest(){
-    var request = document.getElementById('request-row');
-    request.style.display='none';
+    var container = document.querySelector('.request-container');
+    container.style.display='none';
 }

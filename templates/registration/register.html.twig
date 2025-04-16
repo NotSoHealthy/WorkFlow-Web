@@ -5,13 +5,16 @@
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/authentication.css') }}">
 {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/register.js') }}" defer></script>
+{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-
     <main>
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
         <div class="title">
             <img src="{{ asset('icons/logo.png') }}" alt="" class="logo">
             <h1>WorkFlow</h1>
@@ -62,13 +65,29 @@
             <div class="form-row">
                 <div class="form-column">
                     {{ form_label(registrationForm.password.first) }}
-                    {{ form_widget(registrationForm.password.first) }}
+                    <div class="password-container">
+                        {{ form_widget(registrationForm.password.first) }}
+                        <span class="material-symbols-outlined" onclick="togglePassword(event)">visibility</span>
+                    </div>
                     {{ form_errors(registrationForm.password.first) }}
                 </div>
                 <div class="form-column">
                     {{ form_label(registrationForm.password.second) }}
-                    {{ form_widget(registrationForm.password.second) }}
+                    <div class="password-container">
+                        {{ form_widget(registrationForm.password.second) }}
+                        <span class="material-symbols-outlined" onclick="togglePassword(event)">visibility</span>
+                    </div>
                     {{ form_errors(registrationForm.password.second) }}
+                </div>
+            </div>
+            <div class="form-row" id="passwordLevelRow" style="display: none;">
+                <div class="form-column">
+                    <div class="alert alert-danger" id="passwordAlert" style="display: none;padding: .5rem; margin-bottom: .5rem;" role="alert">Votre mot de passe est compromis</div>
+                    <p id="passwordLevelText"></p>
+                    <div class="password-level-container">
+                        <span class="password-level password-level-weak"></span><span class="password-level password-level-weak"></span><span class="password-level password-level-weak"></span><span class="password-level password-level-medium"></span><span class="password-level password-level-medium"></span>
+                        <span class="password-level password-level-medium"></span><span class="password-level password-level-medium"></span><span class="password-level password-level-strong"></span><span class="password-level password-level-strong"></span><span class="password-level password-level-strong"></span>
+                    </div>
                 </div>
             </div>
             <div class="form-row">

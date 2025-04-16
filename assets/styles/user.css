@@ -57,6 +57,10 @@ td > div > div{
     font-size: small;
 }
 
+.dropdown{
+    justify-content: center;
+}
+
 .dropdown a{
     text-decoration: none;
     color: var(--text-primary);
@@ -65,4 +69,10 @@ td > div > div{
 .title{
     margin-top: .5em;
     margin-bottom: .5em;
+}
+
+.dropdown-disabled{
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
 }

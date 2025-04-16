@@ -33,11 +33,11 @@ final class CongeController extends AbstractController
             $requestDate = $form->get('request_date')->getData();
 
             if ($startDate > $endDate) {
-                $this->addFlash('error', 'La date de début doit être avant la date de fin.');
+                $this->addFlash('conge_form_error', 'La date de début doit être avant la date de fin.');
                 return $this->redirectToRoute('app_conge_index');
             }
             if ($requestDate > $startDate) {
-                $this->addFlash('error', 'La date de demande ne peut pas être avant à la date de début.');
+                $this->addFlash('conge_form_error', 'La date de demande ne peut pas être avant à la date de début.');
                 return $this->redirectToRoute('app_conge_index');
             }
 

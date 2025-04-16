@@ -1,0 +1,59 @@
+.main-container{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-tertiary);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    padding: 1em;
+    gap: 2em;
+}
+
+.header{
+    display: flex;
+    gap: 2em;
+    flex-direction: row;
+}
+
+.header img{
+    aspect-ratio: 1/1;
+    width: 100px;
+    border-radius: 50%;
+}
+
+.header-text > div{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+}
+
+.name-text{
+    font-size: 2em;
+    font-weight: 600;
+}
+
+a.email-text, a.number-text{
+    text-decoration: underline;
+    color: var(--text-primary);
+}
+
+.body-container{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.button-container{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+button{
+    width: 200px;
+}
+
+form{
+    gap: 2em;
+    display: flex;
+    flex-direction: column;
+}

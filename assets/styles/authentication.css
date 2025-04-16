@@ -69,3 +69,40 @@ h1,h2{
 .title > h1{
     font-weight: bold;
 }
+.password-container{
+    position: relative;
+}
+
+.password-container span{
+    position: absolute;
+    right: .5em;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.password-level-container{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.password-level{
+    display: block;
+    flex: 1;
+    height: 5px;
+    border-radius: 5px;
+    background-color: gray;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.password-level-weak{
+    background-color: red;
+}
+.password-level-medium{
+    background-color: orange;
+}
+.password-level-strong{
+    background-color: green;
+}

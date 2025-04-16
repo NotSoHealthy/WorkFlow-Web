@@ -14,12 +14,15 @@ function previewImage(event) {
 }
 
 async function uploadImage(event) {
+    event.preventDefault(); // Prevent the form from submitting immediately
 
-    if (!document.getElementById('image').value === "") {
+    const imageInput = document.getElementById('imageInput');
+    if (imageInput.value === "") {
+        document.getElementById('edit-profile-form').submit(); // Submit the form if no image is selected
         return;
     }
 
-    const file = document.getElementById('image').files[0];
+    const file = imageInput.files[0];
     const apiKey = "73a46ef3fc1b634993a6addc9b377f0e";
 
     // Convert image file to Base64
@@ -31,7 +34,7 @@ async function uploadImage(event) {
         const formData = new FormData();
         formData.append("image", base64String); // ImgBB requires base64 string
 
-        startLoader()
+        startLoader(); // Start the loader
         try {
             const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
                 method: "POST",
@@ -45,27 +48,25 @@ async function uploadImage(event) {
 
                 // Store the image URL in a hidden input field
                 let hiddenInput = document.getElementById('image-url');
-                if (!hiddenInput) {
-                    hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'image_url';
-                    hiddenInput.id = 'image-url';
-                    document.getElementById('edit-profile-form').appendChild(hiddenInput);
-                }
                 hiddenInput.value = result.data.url;
+
+                // Submit the form after the image is uploaded
+                document.getElementById('edit-profile-form').submit();
             } else {
                 console.error("Upload failed:", result);
+                alert("Image upload failed. Please try again.");
             }
         } catch (error) {
             console.error("Error uploading image:", error);
-        }
-        finally {
-            stopLoader()
+            alert("An error occurred during image upload. Please try again.");
+        } finally {
+            stopLoader(); // Stop the loader
         }
     };
 
     reader.onerror = function (error) {
         console.error("Error reading file:", error);
+        alert("An error occurred while reading the file. Please try again.");
     };
 }
 

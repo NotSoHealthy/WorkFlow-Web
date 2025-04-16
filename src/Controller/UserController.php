@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\DepartmentRepository;
 use App\Repository\UserRepository;
+use App\Service\DelegationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,7 +54,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/edit-profile', name: 'app_user_edit_profile')]
-    public function editProfile(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function editProfile(DelegationService $delegationService,Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
         if ($request->isMethod('POST')) {
             /** @var User $user */
@@ -61,22 +62,37 @@ final class UserController extends AbstractController
             $firstName = $request->request->get('prenom');
             $lastName = $request->request->get('nom');
             $email = $request->request->get('email');
+            $number = $request->request->get('number');
+            $gouvernorat = $request->request->get('gouvernorat');
+            $address = $request->request->get('address');
             $password = $request->request->get('password');
             $confirmPassword = $request->request->get('confirmation');
             $imageUrl = $request->request->get('image_url'); // Retrieve the image URL
 
             $emailExist = $userRepository->findOneBy(['email' => $email]);
             if ($emailExist && $user->getEmail() != $email) {
-                $this->addFlash('error', 'Email deja utilisé');
+                $this->addFlash('edit_profile_error', 'Email deja utilisé');
+                return $this->redirectToRoute('app_user_edit_profile');
+            }
+            $numberExist = $userRepository->findOneBy(['number' => $number]);
+            if ($numberExist && $user->getNumber() != $number) {
+                $this->addFlash('edit_profile_error', 'Numéro deja utilisé');
                 return $this->redirectToRoute('app_user_edit_profile');
             }
             if (!empty($password) && $password != $confirmPassword) {
-                $this->addFlash('error', 'Les mots de passe ne correspondent pas');
+                $this->addFlash('edit_profile_error', 'Les mots de passe ne correspondent pas');
                 return $this->redirectToRoute('app_user_edit_profile');
             };
             $user->setFirstName($firstName);
             $user->setLastName($lastName);
             $user->setEmail($email);
+            $user->setNumber($number);
+            if ($gouvernorat != ""){
+                $user->setGouvernorat($gouvernorat);
+            }
+            if ($address != ""){
+                $user->setAddress($address);
+            }
             if (!empty($password)) {
                 $user->setPassword($userPasswordHasher->hashPassword($user, $password));
             }
@@ -88,10 +104,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_user_edit_profile');
             
         }
-        return $this->render('user/edit_profile.html.twig');
-
-
-        $secret = $container->get("scheb_two_factor.security.google_authenticator")->generateSecret();
+        return $this->render('user/edit_profile.html.twig', ["gouvernorats" => $delegationService->getDelegations()]);
     }
 
     #[Route('/enable-2fa', name: 'enable_2fa', methods: ['POST'])]
@@ -122,5 +135,26 @@ final class UserController extends AbstractController
             return new JsonResponse(['success' => '2FA disabled successfully']);
         }
         return new JsonResponse(['error' => '2FA is not enabled'], Response::HTTP_BAD_REQUEST);
+    }
+
+    #[Route('/{id}', name: 'app_user_profile')]
+    public function profile(User $user, EntityManagerInterface $entityManager, DelegationService $delegationService, DepartmentRepository $departmentRepository, Request $request): Response
+    {
+        if ($request->isMethod('POST')) {
+            $department = $request->request->get('departement');
+            $role = $request->request->get('role');
+            $user->setDepartment($departmentRepository->find($department));
+            $user->setRoles([$role === 'responsable' ? 'ROLE_RESPONSABLE' : 'ROLE_USER']);
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_user_profile', ['id' => $user->getId()]);
+        }
+
+        return $this->render('user/profile.html.twig', [
+            "user" => $user,
+            "gouvernorats" => $delegationService->getDelegations(),
+            "departments" => $departmentRepository->findAll(),
+        ]);
     }
 }
