@@ -17,6 +17,9 @@
         <h4 style="font-weight: 700;">Bonjour, {{app.user.first_name}}</h4>
         <div class="task-container">
             <h5 style="font-weight: 500;">Mes Tâches</h5>
+            {% if tasks is empty %}
+                <h6>Vous n'avez aucune tâche</h6>
+            {% endif %}
             {% for task in tasks %}
                 <div class="task-item">
                     <img src="{{task.user.image_url}}" alt="">
@@ -123,6 +126,9 @@
         </div>
         <h4 style="font-weight: 700;">Evénements à venir</h4>
         {# <div class="event-container"> #}
+            {% if events is empty %}
+                <p class="event-title">Aucun évenement à venir</p>
+            {% endif %}
             {% for event in events %}
                 <div class="event-item">
                     <p class="event-date">{{ event.DateAndTime|date("d") }}</p>

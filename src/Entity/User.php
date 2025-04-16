@@ -189,7 +189,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this->gouvernorat;
     }
 
-    public function setGouvernorat(string $gouvernorat): self
+    public function setGouvernorat(?string $gouvernorat): self
     {
         $this->gouvernorat = $gouvernorat;
         return $this;
@@ -200,7 +200,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this->address;
     }
 
-    public function setAddress(string $address): self
+    public function setAddress(?string $address): self
     {
         $this->address = $address;
         return $this;

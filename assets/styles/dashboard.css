@@ -68,7 +68,7 @@ a{
     grid-row: 6 / 1;
     background-color: #007CFF;
     border-radius: 20px;
-    height: 100px;
+    /* height: 100px; */
     width: 20px;
     align-self: end;
     justify-self: center;
