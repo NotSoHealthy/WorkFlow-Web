@@ -33,6 +33,10 @@
         {% endif %}
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_conge_index' %}active{% endif %}" href="{{path('app_conge_index')}}"><span class="material-symbols-outlined">beach_access</span>Congés</a>
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">edit</span>Réclamations</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'job_offer_index' %}active{% endif %}" href="{{ path('job_offer_index') }}">
+            <span class="material-symbols-outlined">business_center</span>Offres d'emploi
+        </a>
+              
         <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
     </div>
     {% block main %}{% endblock %}
