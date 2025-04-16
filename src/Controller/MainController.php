@@ -13,10 +13,4 @@ final class MainController extends AbstractController
     {
         return $this->redirectToRoute('app_dashboard');
     }
-
-    #[Route('/test', name: 'app_test')]
-    public function test(): Response
-    {
-        return $this->render('main/test.html.twig');
-    }
 }

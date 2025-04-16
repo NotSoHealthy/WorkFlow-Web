@@ -12,6 +12,7 @@
     {{ parent() }}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{{ asset('scripts/user.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('#employeesTable').DataTable({
@@ -126,10 +127,10 @@
                                 <button class="btn btn-sm btn-secondary">Modifier</button>
                             {% endif %} #}
                             <div class="dropdown">
-                                <a class="material-symbols-outlined {% if app.user.id == user.id %} dropdown-disabled{% endif %}" href="#" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                <a class="material-symbols-outlined {% if app.user.id == user.id %} dropdown-disabled{% endif %}" href="javascript:;" role="button" id="dropdownMenuLink{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ user.id }}">
-                                    <li><a class="dropdown-item" href="#">Modifier</a></li>
-                                    <li><a class="dropdown-item" href="#">Supprimer</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_user_profile', { id: user.id }) }}">Modifier</a></li>
+                                    <li><a class="dropdown-item" href="javascript:;" onclick="openConfirmation(event)" data-link="{{ path('app_user_deny', { id: user.id }) }}">Supprimer</a></li>
                                 </ul>
                             </div>
                             
@@ -139,4 +140,14 @@
             </tbody>
         </table>
     </main>
+    <div class="confirmation-container" style="display: none;">
+        <div class="confirmation d-flex flex-column gap-2 align-items-center">
+            <p>Vous êtes sure?</p>
+            <div class="d-flex flex-row gap-2">
+                <a class="btn btn-sm btn-danger" href="javascript:;" onclick="closeConfirmation()">Non</a>
+                <a class="btn btn-sm btn-success" href="javascript:;">Oui</a>
+            </div>
+        </div>
+        <div class="background"></div>
+    </div>
 {% endblock %}
