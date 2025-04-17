@@ -7,9 +7,11 @@ use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/project')]
 final class ProjectController extends AbstractController
@@ -19,7 +21,6 @@ public function index(ProjectRepository $projectRepository): Response
 {
     $projects = $projectRepository->findAll();
 
-    // 💥 If any of these return null, it will break!
     $total = count($projects);
     $enCours = 0;
     $termine = 0;
@@ -94,7 +95,12 @@ public function index(ProjectRepository $projectRepository): Response
 
         return $this->redirectToRoute('project_index', [], Response::HTTP_SEE_OTHER);
     }
+    private HttpClientInterface $client;
 
+    public function __construct(HttpClientInterface $client)
+    {
+    $this->client = $client;
+    }
     private function checkEndDateNotifications(array $projects): void
     {
         $today = new \DateTime();
@@ -163,4 +169,43 @@ public function index(ProjectRepository $projectRepository): Response
             'projects' => $projects,
         ]);
     }
+    #[Route('/myprojects', name: 'project_my_department')]
+    public function myDepartmentProjects(ProjectRepository $projectRepository): Response
+    {
+    $user = $this->getUser();
+    /** @var User $user */
+
+    if (!$user || !$user->getDepartment()) {
+        $this->addFlash('warning', 'Aucun département associé à votre compte.');
+        return $this->redirectToRoute('project_index');
+    }
+
+    $projects = $projectRepository->findBy(['department' => $user->getDepartment()]);
+
+    return $this->render('project/myprojects.html.twig', [
+        'projects' => $projects,
+    ]);
+}
+#[Route('/gemini/chat', name: 'gemini_chat', methods: ['POST'])]
+public function geminiChat(Request $request): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    $message = $data['message'] ?? '';
+
+    $apiKey = $this->getParameter('gemini_api_key');
+    $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
+        'json' => [
+            'contents' => [[
+                'parts' => [[ 'text' => $message ]]
+            ]]
+        ],
+    ]);
+
+    $result = $response->toArray(false);
+    $reply = $result['candidates'][0]['content']['parts'][0]['text'] ?? "Aucune réponse de Gemini.";
+
+    return new JsonResponse(['reply' => $reply]);
+}
+
+
 }

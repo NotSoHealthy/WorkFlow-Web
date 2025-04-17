@@ -1,8 +1,9 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Ajouter un Département{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
 <style>
     html, body {
         height: 100%;
@@ -195,12 +196,12 @@
 </style>
 {% endblock %}
 
-{% block body %}
+{% block main %}
 <h1 class="page-title">Ajouter un Département</h1>
 
 <div class="page-wrapper">
     <div class="form-container">
-        {{ form_start(form) }}
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
             {{ form_row(form.Name) }}
             {{ form_row(form.Year_Budget) }}
             {{ form_row(form.manager) }}

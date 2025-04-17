@@ -1,173 +1,173 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Liste des Projets{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
 <style>
     body {
         background-color: #f1f5f9;
     }
 
-    .book-card {
-        background: #f3f4f6;
+    .project-board {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .project-card {
+        background-color: #fff;
         border-radius: 14px;
-        border: 1px solid #d1d5db;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+        position: relative;
+        border-left: 6px solid #ccc;
         transition: transform 0.2s ease;
-        padding: 1.8rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
     }
 
-    .book-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    .project-card:hover {
+        transform: translateY(-4px);
     }
 
-    .book-header h3 {
-        font-size: 1.5rem;
+    .project-title {
+        font-size: 1.4rem;
         font-weight: 700;
+        margin-bottom: 0.3rem;
         color: #1f2937;
     }
 
-    .book-header p {
-        font-size: 0.95rem;
+    .project-meta {
         color: #4b5563;
+        font-size: 0.95rem;
+        margin-bottom: 0.3rem;
     }
 
-    .book-body {
+    .project-actions {
+        display: flex;
+        gap: 0.5rem;
         margin-top: 1rem;
-        font-size: 0.9rem;
-        color: #374151;
-    }
-
-    .status-badge {
-        font-size: 0.8rem;
-        font-weight: 600;
-        padding: 6px 12px;
-        border-radius: 8px;
-        color: white;
-        text-transform: uppercase;
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .status-terminé {
-        background-color: #16a34a;
-    }
-
-    .status-en-cours {
-        background-color: #facc15;
-        color: #1e293b;
-    }
-
-    .status-annulé {
-        background-color: #dc2626;
-    }
-
-    .status-planifié {
-        background-color: #3b82f6;
-    }
-
-    .border-state-terminé {
-        border-left: 6px solid #16a34a;
-    }
-
-    .border-state-en-cours {
-        border-left: 6px solid #facc15;
-    }
-
-    .border-state-annulé {
-        border-left: 6px solid #dc2626;
-    }
-
-    .border-state-planifié {
-        border-left: 6px solid #3b82f6;
-    }
-
-    .book-footer {
-        margin-top: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .project-buttons {
-        display: flex;
-        gap: 0.6rem;
-    }
-
-    .btn-action {
-        font-size: 0.85rem;
-        padding: 6px 14px;
-        font-weight: 500;
-        border-radius: 8px;
-        border: none;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        color: white;
+        flex-wrap: wrap;
     }
 
     .btn-edit {
-        background-color: #f59e0b;
-    }
-    .btn-edit:hover {
-        background-color: #d97706;
+        background-color: #facc15;
+        color: #000;
+        font-weight: 600;
     }
 
     .btn-delete {
         background-color: #ef4444;
+        color: #fff;
+        font-weight: 600;
     }
-    .btn-delete:hover {
-        background-color: #b91c1c;
+
+    .btn-desc {
+        background-color: #3b82f6;
+        color: #fff;
+        font-weight: 600;
     }
+
+    .badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 8px;
+        color: white;
+    }
+
+    .badge.termine {
+        background-color: #10b981;
+    }
+
+    .badge.en-cours {
+        background-color: #f59e0b;
+    }
+
+    .badge.annule {
+        background-color: #ef4444;
+    }
+
+    .state-border-termine {
+        border-left-color: #10b981 !important;
+    }
+
+    .state-border-en-cours {
+        border-left-color: #f59e0b !important;
+    }
+
+    .state-border-annule {
+        border-left-color: #ef4444 !important;
+    }
+
+    .description {
+        margin-top: 0.8rem;
+        font-size: 0.9rem;
+        background-color: #f9fafb;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
 </style>
 {% endblock %}
 
-{% block body %}
-<div class="container mt-4">
-    <h1 class="mb-4 text-center">📘 Liste des Projets</h1>
+{% block main %}
+<div class="container py-4">
+    <h1 class="text-3xl font-bold mb-4">
+        📘 Liste des Projets
+    </h1>
+    <a href="{{ path('project_new') }}" class="btn btn-success">
+        <i class="fas fa-plus-circle"></i> Ajouter un Projet
+    </a>
 
-    <div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="project-board">
         {% for project in projects %}
-            <div class="col">
-                <div class="book-card border-state-{{ project.State|lower|replace({' ': '-'}) }}">
-                    <div>
-                        <div class="book-header d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h3 class="mb-1">{{ project.Name }}</h3>
-                                <p class="mb-1">Département : {{ project.department.Name }}</p>
-                                <p class="mb-1">Budget : {{ project.Budget }} €</p>
-                            </div>
-                            <div>
-                                <span class="status-badge status-{{ project.State|lower|replace({' ': '-'}) }}">
-                                    {{ project.State }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="book-body">
-                            📁 <strong>ID:</strong> #{{ project.id }}<br>
-                            {# Optional: deadline, description, etc. #}
-                        </div>
-                    </div>
-                    <div class="book-footer">
-                        <small class="text-muted">Créé récemment</small>
-                        <div class="project-buttons">
-                            <a href="{{ path('project_edit', { id: project.id }) }}" class="btn btn-action btn-edit">✏️ Modifier</a>
-                            <form method="post" action="{{ path('project_delete', { id: project.id }) }}" class="d-inline" onsubmit="return confirm('Supprimer ce projet ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                                <button class="btn btn-action btn-delete">🗑️ Supprimer</button>
-                            </form>
-                        </div>
-                    </div>
+            {% set state = project.State|lower %}
+            {% set badgeClass = state == 'terminé' ? 'termine' : (state == 'en cours' ? 'en-cours' : 'annule') %}
+            {% set borderClass = state == 'terminé' ? 'state-border-termine' : (state == 'en cours' ? 'state-border-en-cours' : 'state-border-annule') %}
+
+            <div class="project-card {{ borderClass }}">
+                <div class="badge {{ badgeClass }}">
+                    {{ project.State|upper }}
                 </div>
+                <div class="project-title">{{ project.Name }}</div>
+                <div class="project-meta">🏢 Département : {{ project.department.Name|capitalize }}</div>
+                <div class="project-meta">💶 Budget : {{ project.Budget }} €</div>
+                <div class="project-meta">📅 Début : {{ project.StartDate ? project.StartDate|date('Y-m-d') : 'N/A' }}</div>
+                <div class="project-meta">📅 Fin : {{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</div>
+                <div class="project-meta">👤 Manager : {{ project.manager.first_name ~ ' ' ~ project.manager.last_name }}</div>
+
+                <div class="project-actions">
+                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn btn-edit btn-sm">✏️ Modifier</a>
+                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                        <button class="btn btn-delete btn-sm">🗑️ Supprimer</button>
+                    </form>
+                    <button class="btn btn-desc btn-sm" onclick="toggleDesc({{ project.id }})">📄 Description</button>
+                </div>
+
+                {% if project.Description %}
+                    <div class="description" id="desc-{{ project.id }}" style="display: none;">
+                        {{ project.Description }}
+                    </div>
+                {% endif %}
             </div>
         {% else %}
-            <div class="col-12">
-                <div class="alert alert-info text-center">Aucun projet trouvé.</div>
+            <div class="alert alert-info">
+                Aucun projet trouvé.
             </div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+    function toggleDesc(id) {
+        const el = document.getElementById('desc-' + id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
 {% endblock %}

@@ -1,8 +1,9 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Mon Département{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
 <style>
     .department-hero {
         text-align: center;
@@ -103,7 +104,7 @@
 </style>
 {% endblock %}
 
-{% block body %}
+{% block main %}
 <div class="container mt-5">
     <div class="department-hero">
         <h1>🏢 Mon Département : {{ department.Name }}</h1>

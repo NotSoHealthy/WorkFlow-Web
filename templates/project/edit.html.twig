@@ -1,8 +1,9 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Modifier un Projet{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
 <style>
     body {
         background: linear-gradient(145deg, #e0f2fe, #f0f9ff);
@@ -110,12 +111,12 @@
 </style>
 {% endblock %}
 
-{% block body %}
+{% block main %}
 <div class="edit-form-container">
     
     <h1>Modifier un Projet</h1>
 
-    {{ form_start(form) }}
+   {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         {{ form_row(form.Name) }}
         {{ form_row(form.Description) }}
         {{ form_row(form.Start_Date) }}

@@ -1,9 +1,10 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Ajouter un Projet{% endblock %}
 
 {% block stylesheets %}
-<style>
+    {{ parent() }}
+    <style>
     body {
         background: linear-gradient(145deg, #fdf6e3, #fceabb);
         font-family: 'Inter', sans-serif;
@@ -101,12 +102,11 @@
     }
 </style>
 {% endblock %}
-
-{% block body %}
+{% block main %}
 <div class="form-container">
     <h1>Ajouter un Projet</h1>
 
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         {{ form_row(form.Name) }}
         {{ form_row(form.Description) }}
         {{ form_row(form.Start_Date) }}
