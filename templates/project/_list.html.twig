@@ -1,0 +1,36 @@
+{% for project in projects %}
+    {% set stateClass = 'en-cours' %}
+    {% if project.State|lower == 'terminé' %}
+        {% set stateClass = 'termine' %}
+    {% elseif project.State|lower == 'annulé' %}
+        {% set stateClass = 'annule' %}
+    {% endif %}
+
+    <div class="book-card">
+        <div class="book">
+            <div class="book-description">
+                {{ project.Description ?? 'Aucune description disponible.' }}
+            </div>
+            <div class="book-content">
+                <div>
+                    <span class="state-badge {{ stateClass }}">{{ project.State }}</span>
+                    <h3>{{ project.Name }}</h3>
+                    <div class="book-info"><i class="fas fa-calendar-alt"></i> {{ project.StartDate|date('Y-m-d') }}</div>
+                    <div class="book-info"><i class="fas fa-calendar-check"></i> {{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</div>
+                    <div class="book-info"><i class="fas fa-wallet"></i> {{ project.Budget }} €</div>
+                    <div class="book-info"><i class="fas fa-user-tie"></i> {{ project.manager.first_name }}</div>
+                    <div class="book-info"><i class="fas fa-building"></i> {{ project.department ? project.department.Name : 'N/A' }}</div>
+                </div>
+                <div class="book-actions">
+                    <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn-edit"><i class="fas fa-edit"></i> Modifier</a>
+                    <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                        <button class="btn-delete"><i class="fas fa-trash-alt"></i> Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center">Aucun projet trouvé.</div>
+{% endfor %}

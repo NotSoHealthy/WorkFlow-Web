@@ -13,6 +13,7 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "knplabs/knp-paginator-bundle": "^6.8",
         "google/apiclient": "^2.18",
         "endroid/qr-code": "^5.0",
         "phpdocumentor/reflection-docblock": "^5.6",

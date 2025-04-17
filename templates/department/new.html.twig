@@ -1,0 +1,225 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Ajouter un Département{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom right, #fef9c3, #fffbea);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1100px;
+        margin: 0 auto 5rem auto;
+        padding: 3rem;
+        background: #fffde7;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        gap: 2rem;
+        min-height: 500px;
+    }
+
+    .form-container {
+        flex: 1;
+        padding: 3rem 3.5rem;
+        background: #fffde7;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #374151;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        font-size: 1.05rem;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        background-color: white;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+        outline: none;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2.5rem;
+    }
+
+    button,
+    a {
+        padding: 0.75rem 1.4rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #d97706;
+    }
+
+    .btn-secondary {
+        background-color: #9ca3af;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #6b7280;
+    }
+
+    .building-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .building {
+        position: relative;
+        width: 200px;
+        height: 380px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 10px;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    .building::before {
+        content: '';
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120%;
+        height: 25px;
+        background: #cbd5e1;
+        border-radius: 10px 10px 0 0;
+        box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
+    }
+
+    .window {
+        width: 100%;
+        height: 40px;
+        background: #f8fafc;
+        border: 2px solid #94a3b8;
+        border-radius: 4px;
+        box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+    }
+
+    .window.on {
+        background: #fde68a;
+    }
+
+    .door {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 80px;
+        background: #334155;
+        border-radius: 6px 6px 0 0;
+        box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    }
+
+    .door::after {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 38px;
+        width: 8px;
+        height: 8px;
+        background: #facc15;
+        border-radius: 50%;
+        box-shadow: 0 0 6px #facc15;
+    }
+
+    @media (max-width: 900px) {
+        .page-wrapper {
+            flex-direction: column;
+        }
+
+        .building-container {
+            margin-top: 2rem;
+        }
+
+        .building {
+            transform: scale(0.85);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<h1 class="page-title">Ajouter un Département</h1>
+
+<div class="page-wrapper">
+    <div class="form-container">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_row(form.Name) }}
+            {{ form_row(form.Year_Budget) }}
+            {{ form_row(form.manager) }}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Ajouter</button>
+                <a href="{{ path('department_index') }}" class="btn-secondary">Retour</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+
+    <div class="building-container">
+        <div class="building">
+            {% for i in 1..9 %}
+                <div class="window {{ i is odd ? 'on' : '' }}"></div>
+            {% endfor %}
+            <div class="door"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

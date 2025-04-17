@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Repository\ProjectRepository;
 
@@ -18,6 +19,51 @@ class Project
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: "Le nom du projet est requis.")]
+    #[Assert\Length(max: 255, maxMessage: "Le nom ne doit pas dépasser {{ limit }} caractères.")]
+    private ?string $Name = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: "La description est requise.")]
+    private ?string $Description = null;
+
+    #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\NotBlank(message: "La date de début est requise.")]
+    #[Assert\Type(type: \DateTimeInterface::class, message: "La date de début doit être une date valide.")]
+    private ?\DateTimeInterface $Start_Date = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\Type(type: \DateTimeInterface::class, message: "La date de fin doit être une date valide.")]
+    private ?\DateTimeInterface $End_Date = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\Choice(choices: ["en cours", "terminé", "annulé"], message: "Choisissez un état valide.")]
+    private ?string $State = null;
+
+    #[ORM\Column(type: 'float', nullable: false)]
+    #[Assert\NotNull(message: "Le budget est requis.")]
+    #[Assert\Positive(message: "Le budget doit être un nombre positif.")]
+    private ?float $Budget = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'projects')]
+    #[ORM\JoinColumn(name: 'manager', referencedColumnName: 'id', nullable: false)]
+    #[Assert\NotNull(message: "Veuillez sélectionner un manager.")]
+    private ?User $Manager = null;
+
+    #[ORM\ManyToOne(targetEntity: Department::class, inversedBy: 'projects')]
+    #[ORM\JoinColumn(name: 'Department', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: "Veuillez sélectionner un département.")]
+    private ?Department $department = null;
+
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'project')]
+    private Collection $tasks;
+
+    public function __construct()
+    {
+        $this->tasks = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -28,9 +74,6 @@ class Project
         $this->id = $id;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $Name = null;
 
     public function getName(): ?string
     {
@@ -43,9 +86,6 @@ class Project
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $Description = null;
-
     public function getDescription(): ?string
     {
         return $this->Description;
@@ -57,22 +97,16 @@ class Project
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: false)]
-    private ?\DateTimeInterface $Start_Date = null;
-
     public function getStart_Date(): ?\DateTimeInterface
     {
         return $this->Start_Date;
     }
 
-    public function setStart_Date(\DateTimeInterface $Start_Date): self
+    public function setStart_Date(?\DateTimeInterface $Start_Date): self
     {
         $this->Start_Date = $Start_Date;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $End_Date = null;
 
     public function getEnd_Date(): ?\DateTimeInterface
     {
@@ -85,9 +119,6 @@ class Project
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $State = null;
-
     public function getState(): ?string
     {
         return $this->State;
@@ -98,9 +129,6 @@ class Project
         $this->State = $State;
         return $this;
     }
-
-    #[ORM\Column(type: 'float', nullable: false)]
-    private ?float $Budget = null;
 
     public function getBudget(): ?float
     {
@@ -113,23 +141,16 @@ class Project
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
-    private ?int $Manager = null;
-
-    public function getManager(): ?int
+    public function getManager(): ?User
     {
         return $this->Manager;
     }
 
-    public function setManager(int $Manager): self
+    public function setManager(?User $Manager): self
     {
         $this->Manager = $Manager;
         return $this;
     }
-
-    #[ORM\ManyToOne(targetEntity: Department::class, inversedBy: 'projects')]
-    #[ORM\JoinColumn(name: 'Department', referencedColumnName: 'id')]
-    private ?Department $department = null;
 
     public function getDepartment(): ?Department
     {
@@ -140,14 +161,6 @@ class Project
     {
         $this->department = $department;
         return $this;
-    }
-
-    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'project')]
-    private Collection $tasks;
-
-    public function __construct()
-    {
-        $this->tasks = new ArrayCollection();
     }
 
     /**
@@ -180,10 +193,9 @@ class Project
         return $this->Start_Date;
     }
 
-    public function setStartDate(\DateTimeInterface $Start_Date): static
+    public function setStartDate(?\DateTimeInterface $Start_Date): static
     {
         $this->Start_Date = $Start_Date;
-
         return $this;
     }
 
@@ -195,8 +207,6 @@ class Project
     public function setEndDate(?\DateTimeInterface $End_Date): static
     {
         $this->End_Date = $End_Date;
-
         return $this;
     }
-
 }
