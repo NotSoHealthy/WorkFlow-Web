@@ -3,8 +3,16 @@
     flex-direction: column;
     padding: 2em 1em;
     row-gap: 1em;
-    width: 230px;
+    min-width: 230px;
+    width: auto;
+    max-width: 270px;
     background-color: var(--background-secondary);
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
 }
 
 .nav-disconnect{
@@ -21,11 +29,11 @@
     padding: .5em 1em .5em .5em;
 }
 
-.nav-link:hover{
+.nav-link:hover, .nav-profile:hover{
     background-color: #9DE0E1;
 }
 
-.nav-link > span{
+.nav-link > span, .nav-profile img{
     transition: all .3s;
 }
 
@@ -37,6 +45,7 @@
     display: flex;
     align-items: center;
     gap: 1em;
+    cursor: pointer;
 }
 
 .nav-profile img{
@@ -53,4 +62,8 @@
 
 .nav-item.active{
     background-color: var(--background-highlight);
+}
+
+.nav-profile-lastname{
+    font-weight: bold;
 }

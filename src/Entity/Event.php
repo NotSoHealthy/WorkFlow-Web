@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Repository\EventRepository;
 
@@ -30,6 +31,11 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'le titre ne doit pas être vide')]
+    #[Assert\Regex(
+        pattern: "/^[A-Za-z\s]+$/",
+        message: "le titre doit etres lettres seulement"
+    )]
     private ?string $Title = null;
 
     public function getTitle(): ?string
@@ -44,6 +50,11 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'la description ne doit pas être vide')]
+    #[Assert\Regex(
+        pattern: "/^[A-Za-z\s]+$/",
+        message: "la description doit etres lettres seulement"
+    )]
     private ?string $Description = null;
 
     public function getDescription(): ?string
@@ -57,7 +68,12 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[ORM\Column(name: "DateAndTime",type: 'datetime', nullable: false)]
+    #[Assert\NotBlank(message: 'choisir une date et une heure')]
+    #[Assert\GreaterThan(
+        "today",
+        message: "choisir une date et une heure supérieures à la date actuelle",
+    )]
     private ?\DateTimeInterface $DateAndTime = null;
 
     public function getDateAndTime(): ?\DateTimeInterface
@@ -72,6 +88,7 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: ' adresse ne doit pas être vide')]
     private ?string $Location = null;
 
     public function getLocation(): ?string
@@ -86,6 +103,11 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'choisir un type')]
+    #[Assert\NotEqualTo(
+        value: "select a type",
+        message: "choisir un type valide",
+    )]
     private ?string $Type = null;
 
     public function getType(): ?string
@@ -99,7 +121,13 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(name: "NumberOfPlaces",type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: 'nombre de places ne doit pas être vide')]
+    #[Assert\Regex(
+        pattern: "/^[0-9]+$/",
+        message: "le nombre de places doit etres chiffres seulement"
+    )]
+    #[Assert\Positive(message: 'le nombre de places doit etres positif')]
     private ?int $NumberOfPlaces = null;
 
     public function getNumberOfPlaces(): ?int
@@ -113,13 +141,10 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(name: "isOnline",type: 'boolean', nullable: false)]
     private ?bool $isOnline = null;
 
-    public function isIsOnline(): ?bool
-    {
-        return $this->isOnline;
-    }
+ 
 
     public function setIsOnline(bool $isOnline): self
     {
@@ -179,5 +204,6 @@ class Event
     {
         return $this->isOnline;
     }
+    
 
 }
