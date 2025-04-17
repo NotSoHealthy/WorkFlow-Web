@@ -16,11 +16,13 @@ final class FormationController extends AbstractController
     #[Route(name: 'app_formation_list')]
     public function ListFormation(Request $request,FormationRepository $formationRepository,PaginatorInterface $paginator,EntityManagerInterface $em): Response
     {
-        
+        $yearlyStats = $formationRepository->getFormationsCountPerYear();
         $search = trim($request->query->get('search', ''));
-
+        
         $filterSort = $request->query->get('filter_sort', '');
+        
         $formations = $formationRepository->searchFormations($search);
+
         if ($filterSort == 'titre') {
             $formations = $formationRepository->sortFormations('titre');
         } 
@@ -40,9 +42,11 @@ final class FormationController extends AbstractController
             'user_inscriptions' => $user?->getInscriptions(),
             'search' => $search,
             'filter_sort' => $filterSort,
+            'yearlyStats' => $yearlyStats,
             
         ]);
     }
+    
     #[Route('/new',name: 'app_formation_add')]
     public function addFormation(Request $request,EntityManagerInterface $em): Response
     {

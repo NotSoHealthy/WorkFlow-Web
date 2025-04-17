@@ -1,6 +1,7 @@
 {% extends 'layout.html.twig' %}
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
     <style>
         h1 {
             text-align: center;
@@ -34,6 +35,7 @@
           border: none;
           border-radius: 10px;
           transition: all 0.2s ease;
+          margin:5px;
         }
 
         .custom-btn:hover {
@@ -81,7 +83,6 @@
         flex-direction: column;
         gap: 10px;
         padding: 10px;
-       
         z-index: 1000;
     }
 
@@ -97,19 +98,40 @@
         color: white;
     }
     
+    .stats-btn {
+      background-color: transparent;
+      padding: 4px 8px;
+      width:2.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .stats-btn:hover {
+        background-color: #0f2d3b;
+        box-shadow: 0 4px 10px rgba(19, 132, 150, 0.4);
+        color: #fff;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
     </style>
 {% endblock %}
 {% block title %}Liste des Formations{% endblock %}
 {% block main %}
 <main class="main-content">
     <h1>Liste des Formations</h1><br>
-    <a href="{{ path('app_inscription_list') }}" class="custom-btn">📝</a>
-    {% if is_granted('ROLE_RESPONSABLE') %}
-    <a href="{{ path('app_formation_add') }}" class="custom-btn"> 📥 </a>
-    {% endif %}
+    <div class="d-flex justify-content-center align-items-center mb-3">
+        <a href="{{ path('app_inscription_list') }}" class="custom-btn">📝</a>
+        {% if is_granted('ROLE_RESPONSABLE') %}
+        <a href="{{ path('app_formation_add') }}" class="custom-btn"> 📥 </a>
+        <button type="button" class="custom-btn stats-btn" data-toggle="modal" data-target="#statsModal">
+            📊
+        </button>
+        {% endif %}
+    </div>
+    
     <div class="container mt-4 d-flex justify-content-center">
       <input type="text" id="searchInput" class="form-control" style="width: 60%;" placeholder="Search formations" value="{{ search }}" aria-label="Search">
-  </div>
+    </div>
   {% if pagination.totalItemCount > 0 %}
     <div class="sorting-container mb-4">
       <form action="{{ path('app_formation_list') }}" method="GET" >
@@ -175,12 +197,36 @@
     <div class="d-flex justify-content-center mt-4">
         {{ knp_pagination_render(pagination, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
     </div>
+    
+    <!-- Statistics Modal -->
+    <div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Formations Par Année</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="formationsChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 {% block javascripts %}
-    <script>
-      
+{{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>  
       document.addEventListener('DOMContentLoaded', function () {
-
+        
         const searchInput = document.getElementById('searchInput');
 
         if (searchInput) {
@@ -199,10 +245,59 @@
               
           }); 
       }
+      
+      // Initialize chart when the modal is shown
+      $('#statsModal').on('shown.bs.modal', function() {
+          const ctx = document.getElementById('formationsChart').getContext('2d');
+          
+          const years = [{% for year, count in yearlyStats %}{{ year }}{% if not loop.last %}, {% endif %}{% endfor %}];
+            const counts = [{% for year, count in yearlyStats %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}];
+          
+          // Generate dynamic background colors for the pie slices
+          const backgroundColors = [];
+          const borderColors = [];
+          
+          for (let i = 0; i < years.length; i++) {
+              const hue = (i * 137) % 360;
+              backgroundColors.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+              borderColors.push(`hsla(${hue}, 70%, 50%, 1)`);
+          }
+          
+          new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: years.map(year => 'Année ' + year),
+                  datasets: [{
+                      data: counts,
+                      backgroundColor: backgroundColors,
+                      borderColor: borderColors,
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  legend: {
+                      position: 'right'
+                  },
+                  tooltips: {
+                      callbacks: {
+                          title: function(tooltipItem, data) {
+                              return data.labels[tooltipItem[0].index];
+                          },
+                          label: function(tooltipItem, data) {
+                              const value = data.datasets[0].data[tooltipItem.index];
+                              const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                              const percentage = Math.round((value / total) * 100);
+                              return `Formations: ${value} (${percentage}%)`;
+                          }
+                      }
+                  }
+              }
+          });
+      });
          
   });
   
     </script>
 {% endblock %}
 {% endblock %}
-

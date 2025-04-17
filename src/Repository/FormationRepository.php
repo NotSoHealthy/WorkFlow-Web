@@ -40,6 +40,20 @@ class FormationRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+    public function getFormationsCountPerYear(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT YEAR(f.date_begin) as year, COUNT(f.id) as count FROM formation f GROUP BY year ORDER BY year ASC';
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeQuery()->fetchAllAssociative();
+        $stats = [];
+        foreach ($result as $row) {
+            $stats[$row['year']] = $row['count'];
+        }
+    
+        return $stats;
+    }
+
     //    /**
     //     * @return Formation[] Returns an array of Formation objects
     //     */
