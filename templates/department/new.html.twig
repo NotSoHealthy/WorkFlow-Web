@@ -5,14 +5,6 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(to bottom right, #fef9c3, #fffbea);
-        font-family: 'Inter', sans-serif;
-    }
-
     .page-title {
         text-align: center;
         font-size: 2.6rem;
@@ -197,29 +189,31 @@
 {% endblock %}
 
 {% block main %}
-<h1 class="page-title">Ajouter un Département</h1>
-
-<div class="page-wrapper">
-    <div class="form-container">
-        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-            {{ form_row(form.Name) }}
-            {{ form_row(form.Year_Budget) }}
-            {{ form_row(form.manager) }}
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Ajouter</button>
-                <a href="{{ path('department_index') }}" class="btn-secondary">Retour</a>
+<main>
+    <h1 class="page-title">Ajouter un Département</h1>
+    
+    <div class="page-wrapper">
+        <div class="form-container">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_row(form.Name) }}
+                {{ form_row(form.Year_Budget) }}
+                {{ form_row(form.manager) }}
+    
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Ajouter</button>
+                    <a href="{{ path('department_index') }}" class="btn-secondary">Retour</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    
+        <div class="building-container">
+            <div class="building">
+                {% for i in 1..9 %}
+                    <div class="window {{ i is odd ? 'on' : '' }}"></div>
+                {% endfor %}
+                <div class="door"></div>
             </div>
-        {{ form_end(form) }}
-    </div>
-
-    <div class="building-container">
-        <div class="building">
-            {% for i in 1..9 %}
-                <div class="window {{ i is odd ? 'on' : '' }}"></div>
-            {% endfor %}
-            <div class="door"></div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
