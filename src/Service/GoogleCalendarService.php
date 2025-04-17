@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Event;
 use App\Entity\Reservation;
+use DateTime;
 use Google\Client as GoogleClient;
 use Google\Service\Calendar;
 use Google\Service\Calendar\EventDateTime;
@@ -128,6 +129,7 @@ class GoogleCalendarService
             // Set end time (3 hours after start time)
             $endDateTime = new EventDateTime();
             $endDate = clone $event->getDateAndTime();
+            /** @var DateTime $endDate */
             $endDate->modify('+3 hours');
             $endDateTime->setDateTime($endDate->format('c'));
             $googleEvent->setEnd($endDateTime);
