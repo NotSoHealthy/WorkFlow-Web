@@ -19,7 +19,7 @@
           }
   
           .custom-btn:hover {
-            background-color: #0f2d3b;
+            background-color: rgba(40, 166, 208, 0.21);
             box-shadow: 0 4px 10px rgba(20, 60, 78, 0.4);
             color: #fff;
             text-decoration: none;
@@ -67,7 +67,7 @@
     <div class="form-wrapper">
     
     <h1>Modifier</h1>
-    <a href="{{ path('app_formation_list') }}" class="custom-btn"><<</a>
+    <a href="{{ path('app_formation_list') }}" class="custom-btn"><span class="material-symbols-outlined">arrow_back</span></a>
     <hr>
     {{ form_start(form) }}
     {{ form_widget(form) }}

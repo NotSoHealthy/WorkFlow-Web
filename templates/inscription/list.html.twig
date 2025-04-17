@@ -18,7 +18,7 @@
           }
   
           .custom-btn:hover {
-            background-color: #0f2d3b;
+            background-color:rgba(40, 166, 208, 0.21);
             box-shadow: 0 4px 10px rgba(20, 60, 78, 0.4);
             color: #fff;
             text-decoration: none;
@@ -37,6 +37,7 @@
             margin-left: 15rem;
            
         }
+        
     </style>        
 {% endblock %}
 {% block title %}Liste des Inscriptions{% endblock %}
@@ -45,7 +46,7 @@
 <main class="main-content">
 <h1>Liste des Inscriptions</h1>
 
-<a href="{{ path('app_formation_list') }}" class="custom-btn"><<</a>
+<a href="{{ path('app_formation_list') }}" class="custom-btn"><span class="material-symbols-outlined">arrow_back</span></a>
 
 <div class="container mt-4">
     {% for inscription in pagination %}
