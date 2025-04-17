@@ -1,0 +1,78 @@
+main{
+    display: flex;
+    gap: 2em;
+    flex-direction: row;
+    width: 100%;
+}
+
+.header img{
+    aspect-ratio: 1/1;
+    width: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.form-row{
+    display: flex;
+    gap: 1em;
+    justify-content: space-evenly;
+}
+
+.form-column{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: .5em;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.right p{
+    max-width: 500px
+}
+
+.right button{
+    height: 50px;
+    width: 200px;
+    margin-left: auto;
+}
+
+.right img{
+    aspect-ratio: 1/1;
+    width: 150px;
+}
+
+.container{
+    display: flex;
+    gap: 2em;
+    flex-direction: column;
+    background-color: var(--background-tertiary);
+    padding: 1em;
+    border-radius: 10px;
+}
+
+.left, .right{
+    display: flex;
+    gap: 2em;
+    flex-direction: column;
+    flex: 1;
+}
+
+h3{
+    font-weight: 600;
+}
+.password-container{
+    position: relative;
+}
+
+.password-container span{
+    position: absolute;
+    right: .5em;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}

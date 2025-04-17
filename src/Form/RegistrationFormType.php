@@ -3,9 +3,11 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Service\DelegationService;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -20,42 +22,42 @@ use Symfony\Component\Validator\Constraints\Regex;
 
 class RegistrationFormType extends AbstractType
 {
+    private $delegationService;
+
+    public function __construct(DelegationService $delegationService)
+    {
+        $this->delegationService = $delegationService;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $delegations = $this->delegationService->getDelegations();
+
         $builder
             ->add('first_name', TextType::class, [
-                'label' => 'Prénom',
-                'constraints' => [
-                    new Regex([
-                        'pattern' => '/^[a-zA-Z\s\-]+$/',
-                        'message' => 'Le nom ne peut contenir que des lettres, des espaces et des tirets'
-                    ])
-                ]
+                'label' => 'Prénom'
                 ])
             ->add('last_name', TextType::class, [
-                'label' => 'Nom',
-                'constraints' => [
-                    new Regex([
-                        'pattern' => '/^[a-zA-Z\s\-]+$/',
-                        'message' => 'Le nom ne peut contenir que des lettres, des espaces et des tirets'
-                    ])
-                ]
+                'label' => 'Nom'
                 ])
             ->add('email', EmailType::class, [
-                'label' => 'Adresse email',
-                'constraints' => [
-                    new Email(['message' => 'Veuillez entrer une adresse email valide']),
-                    new NotBlank(['message' => 'L\'adresse email est obligatoire'])
-                ]])
+                'label' => 'Adresse email'
+                ])
             ->add('number', TelType::class, [
-                'label' => 'Numéro de téléphone',
-                'constraints' => [
-                    new NotBlank(['message' => 'Le numéro de téléphone est obligatoire']),
-                    new Regex([
-                        'pattern' => '/^[0-9]{8}$/',
-                        'message' => 'Veuillez entrer un numéro de téléphone valide'
-                    ])
-                ]])
+                'label' => 'Numéro de téléphone'
+                ])
+            ->add('gouvernorat', ChoiceType::class, [
+                'choices' => array_combine($delegations, $delegations),
+                'placeholder' => 'Selectionner une délégation',
+                'label' => 'Délégation',
+                'attr' => [
+                    'placeholder' => 'Sélectionnez une délégation',
+                    'list' => 'delegation_list'
+                ]
+            ])
+            ->add('address', TextType::class, [
+                'label' => 'Adresse'
+                ])
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
