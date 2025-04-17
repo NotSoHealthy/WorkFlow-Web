@@ -1,0 +1,302 @@
+{% extends 'layout.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
+    <style>
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            
+        }
+        .custom-btn {
+          padding: 10px;
+          text-decoration: none;
+          color: #fff;
+          border: none;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+          margin:5px;
+        }
+
+        .custom-btn:hover {
+          background-color: #0f2d3b;
+          box-shadow: 0 4px 10px rgba(20, 60, 78, 0.4);
+          color: #fff;
+          text-decoration: none;
+          transform: translateY(-1px);
+        }
+        .custom-btn .material-symbols-outlined {
+          font-size: 18px;
+        }
+        .card_a{
+          text-decoration: none;
+        }
+        .btn-sm {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .supp:hover{
+          background-color:rgb(117, 31, 27);
+          box-shadow: 0 4px 10px rgba(52, 14, 11, 0.4);
+          color: #fff;
+          text-decoration: none;
+          transform: translateY(-1px);
+        }
+        .btn-hover-shadow:hover {
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+      .sidenav {
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+      }
+      .main-content {
+        margin-left: 15rem;
+       
+      }
+    .sorting-container {
+        position: fixed;
+        top: 13rem;
+        left: 15rem; 
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        z-index: 1000;
+    }
+
+    .sorting-container a {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .sorting-container a:hover {
+        background-color: #0f2d3b;
+        color: white;
+    }
+    
+    .stats-btn {
+      background-color: transparent;
+      padding: 4px 8px;
+      width:2.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .stats-btn:hover {
+        background-color: #0f2d3b;
+        box-shadow: 0 4px 10px rgba(19, 132, 150, 0.4);
+        color: #fff;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    </style>
+{% endblock %}
+{% block title %}Liste des Formations{% endblock %}
+{% block main %}
+<main class="main-content">
+    <h1>Liste des Formations</h1><br>
+    <div class="d-flex justify-content-center align-items-center mb-3">
+        <a href="{{ path('app_inscription_list') }}" class="custom-btn">📝</a>
+        {% if is_granted('ROLE_RESPONSABLE') %}
+        <a href="{{ path('app_formation_add') }}" class="custom-btn"> 📥 </a>
+        <button type="button" class="custom-btn stats-btn" data-toggle="modal" data-target="#statsModal">
+            📊
+        </button>
+        {% endif %}
+    </div>
+    
+    <div class="container mt-4 d-flex justify-content-center">
+      <input type="text" id="searchInput" class="form-control" style="width: 60%;" placeholder="Search formations" value="{{ search }}" aria-label="Search">
+    </div>
+  {% if pagination.totalItemCount > 0 %}
+    <div class="sorting-container mb-4">
+      <form action="{{ path('app_formation_list') }}" method="GET" >
+      <select id="sort-select" name="filter_sort" class="form-control" onchange="this.form.submit()">
+        <option disabled selected>choisissez un trie</option>
+        <option value="titre" {{ filter_sort == 'titre' ? 'selected' : '' }}>Par titre</option>
+        <option value="period" {{ filter_sort == 'period' ? 'selected' : '' }}>Par period</option>
+      </select>
+    </form>
+  </div>
+  {% endif %}
+    <div class="container mt-4" id="formation-container" >  
+        {% for formation in pagination %}
+        {% if is_granted('ROLE_RESPONSABLE') %}
+        <a href="{{ path('app_formation_edit', { id: formation.id }) }}" class="card_a">
+          <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
+            <div class="card-body">
+              <h5 class="card-title">{{ formation.title }}</h5>
+              <p class="card-text">
+                <strong>Date : </strong> {{ formation.dateBegin|date('Y-m-d') }} → {{ formation.dateEnd|date('Y-m-d') }}<br>
+                <strong>Description : </strong> {{ formation.description }}<br>
+                <strong>Participants max :</strong> {{ formation.participantsMax }}
+              </p>
+            </a>
+            {% endif %}
+            {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
+              <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
+                <div class="card-body">
+                  <h5 class="card-title">{{ formation.title }}</h5>
+                  <p class="card-text">
+                    <strong>Date : </strong> {{ formation.dateBegin|date('Y-m-d') }} → {{ formation.dateEnd|date('Y-m-d') }}<br>
+                    <strong>Description : </strong> {{ formation.description }}<br>
+                    <strong>Participants max :</strong> {{ formation.participantsMax }}
+                  </p>
+            {% endif %}
+              <div class="d-flex justify-content-end gap-2">
+                {% if is_granted('ROLE_RESPONSABLE') %}
+                <a href="{{ path('app_formation_delete', { id: formation.id }) }}" class="btn supp btn-danger w-100" style="margin-top:5px;">🗑 Supprimer</a>
+                {% endif %}
+                {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
+                  {% set alreadyRegistered = false %}
+
+                  {% for inscription in user_inscriptions %}
+                    {% if inscription.formation.id == formation.id %}
+                      {% set alreadyRegistered = true %}
+                    {% endif %}
+                  {% endfor %}
+
+                {% if alreadyRegistered %}
+                  <button class="btn btn-success btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
+                {% else %}
+                  <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary w-100 btn-hover-shadow" style="margin-top:5px;">✅ S'inscrire</a>
+                {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-info">No formations found.</div>
+
+        {% endfor %}
+      </div>      
+    <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
+    </div>
+    
+    <!-- Statistics Modal -->
+    <div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Formations Par Année</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="formationsChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% block javascripts %}
+{{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>  
+      document.addEventListener('DOMContentLoaded', function () {
+        
+        const searchInput = document.getElementById('searchInput');
+
+        if (searchInput) {
+          const savedCursorPosition = localStorage.getItem('cursorPosition');
+          if (savedCursorPosition) {
+              searchInput.setSelectionRange(savedCursorPosition, savedCursorPosition);
+          }
+
+          searchInput.focus();
+
+          searchInput.addEventListener('input', function () {
+              localStorage.setItem('cursorPosition', searchInput.selectionStart);
+        
+              let searchQuery = this.value;
+              window.location.href = "{{ path('app_formation_list') }}?search=" + searchQuery;
+              
+          }); 
+      }
+      
+      // Initialize chart when the modal is shown
+      $('#statsModal').on('shown.bs.modal', function() {
+          const ctx = document.getElementById('formationsChart').getContext('2d');
+          
+          const years = [{% for year, count in yearlyStats %}{{ year }}{% if not loop.last %}, {% endif %}{% endfor %}];
+            const counts = [{% for year, count in yearlyStats %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}];
+          
+          // Generate dynamic background colors for the pie slices
+          const backgroundColors = [];
+          const borderColors = [];
+          
+          for (let i = 0; i < years.length; i++) {
+              const hue = (i * 137) % 360;
+              backgroundColors.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+              borderColors.push(`hsla(${hue}, 70%, 50%, 1)`);
+          }
+          
+          new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: years.map(year => 'Année ' + year),
+                  datasets: [{
+                      data: counts,
+                      backgroundColor: backgroundColors,
+                      borderColor: borderColors,
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  legend: {
+                      position: 'right'
+                  },
+                  tooltips: {
+                      callbacks: {
+                          title: function(tooltipItem, data) {
+                              return data.labels[tooltipItem[0].index];
+                          },
+                          label: function(tooltipItem, data) {
+                              const value = data.datasets[0].data[tooltipItem.index];
+                              const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                              const percentage = Math.round((value / total) * 100);
+                              return `Formations: ${value} (${percentage}%)`;
+                          }
+                      }
+                  }
+              }
+          });
+      });
+         
+  });
+  
+    </script>
+{% endblock %}
+{% endblock %}
