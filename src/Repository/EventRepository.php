@@ -16,28 +16,55 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    //    /**
-    //     * @return Event[] Returns an array of Event objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function increaseNumberOfPlaces(int $eventId, int $increment): int
+    {
+        return $this->createQueryBuilder('e')
+            ->update()
+            ->set('e.NumberOfPlaces', 'e.NumberOfPlaces + :increment')
+            ->where('e.id = :id')
+            ->setParameter('increment', $increment)
+            ->setParameter('id', $eventId)
+            ->getQuery()
+            ->execute();
+    }
+    public function decreaseNumberOfPlaces(int $eventId, int $decrement): int
+    {
+        $event = $this->find($eventId);
+        if (!$event) {
+            throw new \InvalidArgumentException("Event not found for id {$eventId}");
+        }
+        $current = $event->getNumberOfPlaces();
+        $newNumber = max(0, $current - $decrement);
+        $event->setNumberOfPlaces($newNumber);
+        $this->getEntityManager()->flush();
+        return 1;
+    }
+    public function findByTitle(string $title): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.Title LIKE :title')
+            ->setParameter('title', '%' . $title . '%')
+            ->getQuery()
+            ->getResult();
+    }
+    public function findBySearchQuery(?string $query, ?string $sortByDate, ?string $eventType)
+    {
+        $qb = $this->createQueryBuilder('e');
 
-    //    public function findOneBySomeField($value): ?Event
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($query) {
+            $qb->andWhere('e.Title LIKE :query')
+               ->setParameter('query', '%' . $query . '%');
+        }
+
+        if ($eventType) {
+            $qb->andWhere('e.Type = :eventType')
+               ->setParameter('eventType', $eventType);
+        }
+
+        if ($sortByDate) {
+            $qb->orderBy('e.DateAndTime', 'ASC');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
