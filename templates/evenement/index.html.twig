@@ -104,6 +104,29 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
         }
+        /* Modified project actions styles */
+        .project-actions {
+            position: absolute;
+            top: 10px;
+            right: -10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid black;
+            color: #000;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        
         .btn-details {
             position: relative;
             bottom: 2.5rem;
@@ -115,37 +138,57 @@
             color: solid black;
             transform: scale(1.05);
         }
-        .btn-edit {
-            background: rgb(37,202,8);
-            color: #000;
-            position: relative;
-            bottom: 2.5rem;
+        
+        .btn-edit-icon {
+            color: rgb(37,202,8);
+            background-color:rgb(137, 228, 121);
         }
-        .btn-edit:hover {
-            background: #00cc00;
-            transform: scale(1.05);
+        
+        .btn-edit-icon:hover {
+            color: #00cc00;
+            transform: scale(1.1);
         }
-        .btn-delete {
-            position: relative;
-            bottom: 2.1rem;
-            color: rgb(0,0,0);
-            background: rgb(196,4,4);
+        
+        .btn-delete-icon {
+            color: rgb(196,4,4);
+            background-color: rgb(255, 121, 121);
         }
-        .btn-delete:hover {
-            background: rgb(255,0,0);
-            color: rgb(0,0,0);
-            transform: scale(1.05);
+        
+        .btn-delete-icon:hover {
+            color: rgb(255,0,0);
+            transform: scale(1.1);
         }
-        .btn-reserve {
-            background: rgb(255,252,94);
-            color: #000;
+        
+        /* Fixed reservation button style */
+        .btn-reserve-icon {
+            position: absolute;
+            bottom: -15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgb(98,138,248);
+            color: rgb(98,138,248);
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
-            border: 2px solid black;
+            z-index: 5;
         }
-        .btn-reserve:hover {
-            background: rgb(255,255,0);
-            transform: scale(1.05);
+        
+        .btn-reserve-icon i {
+            font-size: 1.2rem;
         }
+        
+        .btn-reserve-icon:hover {
+            transform: scale(1.1);
+            color: white;
+            background-color: rgb(98,138,248);
+            opacity: 1; /* Fix for transparency issue */
+        }
+        
         .btn-add-project {
             background: rgb(98,138,248);
             color: #000;
@@ -243,6 +286,7 @@
         .events-container .col {
             padding-top: 10px; 
             padding-bottom: 10px;
+            position: relative;
         }
         
         /* Custom scrollbar styling */
@@ -262,6 +306,12 @@
         
         .events-container::-webkit-scrollbar-thumb:hover {
             background: rgb(53,105,248);
+        }
+        
+        /* Event wrapper to position project and buttons */
+        .event-wrapper {
+            position: relative;
+            padding-right: 40px;
         }
     </style>
 {% endblock %}
@@ -293,46 +343,57 @@
                     </div>
                 {% endif %}
                 {% if events|length > 0 %}
-                    <!-- This div is now scrollable -->
                     <div class="events-container">
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                             {% for event in events %}
                                 <div class="col">
-                                    <div class="project" data-bs-toggle="modal" data-bs-target="#projectModal{{ event.id }}">
-                                        <div class="project-header">
-                                            <h3 align="center">{{ event.Title }}</h3>
+                                    <div class="event-wrapper">
+                                        <div class="project" data-bs-toggle="modal" data-bs-target="#projectModal{{ event.id }}">
+                                            <div class="project-header">
+                                                <h3 align="center">{{ event.Title }}</h3>
+                                            </div>
+                                            <div class="project-body">
+                                                <table>
+                                                    <tr class="project-info">
+                                                        <td><i class="fas fa-calendar-alt"></i></td>
+                                                        <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
+                                                    </tr>
+                                                    <tr class="project-info">
+                                                        <td><i class="fa-solid fa-map-location-dot"></i></td>
+                                                        <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
+                                                    </tr>
+                                                    <tr class="project-info">
+                                                        <td><i class="fa-solid fa-list"></i></td>
+                                                        <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <div class="project-body">
-                                            <table>
-                                                <tr class="project-info">
-                                                    <td><i class="fas fa-calendar-alt"></i></td>
-                                                    <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
-                                                </tr>
-                                                <tr class="project-info">
-                                                    <td><i class="fa-solid fa-map-location-dot"></i></td>
-                                                    <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
-                                                </tr>
-                                                <tr class="project-info">
-                                                    <td><i class="fa-solid fa-list"></i></td>
-                                                    <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    {% if is_granted('ROLE_RESPONSABLE') %}
-                                    <div class="project-footer">
-                                        <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
-                                            <button class="btn btn-edit">
-                                                <i class="fa-solid fa-pen"></i> Modifier
+                                        
+                                        <!-- Reservation button outside the card -->
+                                        <form method="post" action="{{ path('app_add_reservation', {'id': event.id}) }}" style="display:inline;">
+                                            <button type="submit" class="btn-reserve-icon" title="Réserver">
+                                                <i class="fas fa-ticket-alt"></i>
                                             </button>
                                         </form>
-                                        <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
-                                            <button class="btn btn-delete">
-                                                <i class="fas fa-trash-alt"></i> Supprimer
-                                            </button>
-                                        </form>
+                                        
+                                        {% if is_granted('ROLE_RESPONSABLE') %}
+                                        <!-- Moved action buttons outside the project container -->
+                                        <div class="project-actions">
+                                            <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
+                                                <button type="submit" class="action-btn btn-edit-icon" title="Modifier">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
+                                                <button type="submit" class="action-btn btn-delete-icon" title="Supprimer">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
                                     </div>
-                                    {% endif %}
+
                                     <div class="modal fade" id="projectModal{{ event.id }}" tabindex="-1" aria-labelledby="projectModalLabel{{ event.id }}" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -371,11 +432,6 @@
                                                             <td>{{ event.Description }}</td>
                                                         </tr>
                                                     </table>
-                                                    <form method="post" action="{{ path('app_add_reservation', {'id': event.id}) }}" style="display:inline;">
-                                                        <button class="btn-reserve">
-                                                            <i class="fas fa-ticket-alt"></i> Réserver
-                                                        </button>
-                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -429,7 +485,7 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- End Row -->
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </main>
