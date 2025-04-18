@@ -114,7 +114,7 @@ class GoogleCalendarService
                 "\n\nReservation Details:" .
                 "\nType: " . $reservation->getType() .
                 "\nNumber of Places: " . $reservation->getNombreDePlaces() .
-                "\nTotal Price: " . $reservation->getPrice() . "€");
+                "\nTotal Price: " . $reservation->getPrice() . "TND");
             
             // Set location if available
             if ($event->getLocation()) {
