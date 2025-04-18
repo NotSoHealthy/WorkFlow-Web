@@ -29,7 +29,7 @@ final class FormationController extends AbstractController
         elseif ($filterSort == 'period') {
             $formations = $formationRepository->sortFormations('period');
         } 
-        
+        /** @var User $user */
         $user = $this->getUser();
 
         $pagination = $paginator->paginate(
