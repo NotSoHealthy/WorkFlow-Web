@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Inscription;
+use App\Entity\Formation;
+use App\Repository\InscriptionRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
+
+#[Route('/inscription')]
+class InscriptionController extends AbstractController
+{
+    #[Route(name: 'app_inscription_list')]
+    public function list(Request $request,EntityManagerInterface $em,PaginatorInterface $paginator): Response
+    {
+        $inscription = $em->getRepository(Inscription::class)->findAll();
+        $pagination = $paginator->paginate(
+            $inscription,
+            $request->query->getInt('page', 1),
+            3
+        );
+        return $this->render('inscription/list.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
+
+    #[Route('/{id}/new', name: 'app_inscription_new')]
+    public function new(Formation $formation, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser(); 
+        $existing = $em->getRepository(Inscription::class)->findOneBy([
+            'formation' => $formation,
+            'user' => $user,
+        ]);
+
+        if ($existing) {
+            $this->addFlash('warning', 'You are already registered for this formation.');
+            return $this->redirectToRoute('app_formation_list');
+        }
+        $inscription = new Inscription();
+        $inscription->setDateRegistration(new \DateTime());
+        $inscription->setStatus('en attente');
+        $inscription->setFormation($formation);
+        $inscription->setUser($user);
+
+        $em->persist($inscription);
+        $em->flush();
+        return $this->redirectToRoute('app_formation_list');
+    }
+    #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])]
+    public function updateStatus(Request $request, Inscription $inscription, EntityManagerInterface $em): Response
+    {
+        $status = $request->request->get('status');
+    
+        if (!in_array($status, ['en attente', 'validé', 'refusé'])) {
+            return new Response('Invalid status', 400);
+        }
+        if ($status === 'refusé') {
+            $em->remove($inscription);
+            $em->flush();
+        } else {
+            $inscription->setStatus($status);
+            $em->flush();
+        }
+        return $this->redirectToRoute('app_inscription_list');
+    } 
+}

@@ -1,0 +1,420 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Création / Édition Offre d'emploi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary-color: #1a73e8; /* Blue for active steps and buttons */
+            --accent-color: #4caf50; /* Green for completed steps and submit */
+            --background-color: #f5f7fa; /* Light gray background */
+            --card-bg: #ffffff; /* White container background */
+            --text-color: #333; /* Dark text */
+            --border-color: #e0e0e0; /* Subtle borders */
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .wizard-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--border-color);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .progress-step {
+            width: 50px;
+            height: 50px;
+            background-color: var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-weight: 600;
+            color: #fff;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .progress-step.active {
+            background-color: var(--primary-color);
+            transform: scale(1.15);
+        }
+
+        .progress-step.completed {
+            background-color: var(--accent-color);
+        }
+
+        .progress-step.completed::after {
+            content: '✓';
+            font-size: 1.2rem;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .progress-label {
+            width: 50px;
+            text-align: center;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-color);
+            background-color: #fff;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        /* Error message styling */
+        .error-message {
+            color: red;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            min-height: 18px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-next,
+        .btn-prev {
+            background-color: var(--primary-color);
+        }
+
+        .btn-next:hover,
+        .btn-prev:hover {
+            background-color: #1557b0;
+            transform: translateY(-2px);
+        }
+
+        .btn-prev {
+            background-color: #666;
+        }
+
+        .btn-prev:hover {
+            background-color: #555;
+        }
+
+        .btn-submit {
+            background-color: var(--accent-color);
+        }
+
+        .btn-submit:hover {
+            background-color: #388e3c;
+            transform: translateY(-2px);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <div class="wizard-container">
+        <h2>Création / Édition Offre d'emploi</h2>
+        {# Global error summary (if any) #}
+        {{ form_errors(form) }}
+        <div class="progress-container">
+            <div class="progress-step active" data-step="1">1</div>
+            <div class="progress-step" data-step="2">2</div>
+            <div class="progress-step" data-step="3">3</div>
+        </div>
+        <div class="progress-labels">
+            <div class="progress-label">Info</div>
+            <div class="progress-label">Dates</div>
+            <div class="progress-label">Détails</div>
+        </div>
+        <form id="job-offer-wizard-form" method="POST" data-edit-id="{{ jobOffer.id|default('') }}">
+            {{ form_widget(form._token) }}
+
+            <!-- Step 1: Basic Info -->
+            <div class="form-step active" data-step="1">
+                <div class="form-group">
+                    {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.title, {'attr': {'class': 'form-input'}}) }}
+                    {{ form_errors(form.title) }}
+                    <div class="error-message" id="client-error-title"></div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-input'}}) }}
+                    {{ form_errors(form.description) }}
+                    <div class="error-message" id="client-error-description"></div>
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="btn btn-next" id="btn-next-1">Suivant</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Dates -->
+            <div class="form-step" data-step="2">
+                <div class="form-group">
+                    {{ form_label(form.publicationDate, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.publicationDate, {'attr': {'class': 'form-input', 'placeholder': 'YYYY-MM-DD'}}) }}
+                    {{ form_errors(form.publicationDate) }}
+                    <div class="error-message" id="client-error-publicationDate"></div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.expirationDate, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.expirationDate, {'attr': {'class': 'form-input', 'placeholder': 'YYYY-MM-DD'}}) }}
+                    {{ form_errors(form.expirationDate) }}
+                    <div class="error-message" id="client-error-expirationDate"></div>
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="btn btn-prev" id="btn-prev-2">Précédent</button>
+                    <button type="button" class="btn btn-next" id="btn-next-2">Suivant</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Additional Details -->
+            <div class="form-step" data-step="3">
+                <div class="form-group">
+                    {{ form_label(form.contractType, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.contractType, {'attr': {'class': 'form-input'}}) }}
+                    {{ form_errors(form.contractType) }}
+                    <div class="error-message" id="client-error-contractType"></div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.salary, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.salary, {'attr': {'class': 'form-input'}}) }}
+                    {{ form_errors(form.salary) }}
+                    <div class="error-message" id="client-error-salary"></div>
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="btn btn-prev" id="btn-prev-3">Précédent</button>
+                    <button type="submit" class="btn btn-submit">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentStep = 1;
+            const steps = document.querySelectorAll('.form-step');
+            const progressSteps = document.querySelectorAll('.progress-step');
+
+            function showStep(step) {
+                steps.forEach(s => {
+                    s.classList.remove('active');
+                    if (parseInt(s.getAttribute('data-step')) === step) {
+                        s.classList.add('active');
+                    }
+                });
+                progressSteps.forEach(ps => {
+                    let psStep = parseInt(ps.getAttribute('data-step'));
+                    if (psStep < step) {
+                        ps.classList.add('completed');
+                        ps.classList.remove('active');
+                    } else if (psStep === step) {
+                        ps.classList.add('active');
+                        ps.classList.remove('completed');
+                    } else {
+                        ps.classList.remove('active', 'completed');
+                    }
+                });
+            }
+
+            function validateStep1() {
+                let isValid = true;
+                const titleInput = document.querySelector('input[name="job_offer[title]"]');
+                const descriptionInput = document.querySelector('textarea[name="job_offer[description]"]');
+                const titleError = document.getElementById('client-error-title');
+                const descriptionError = document.getElementById('client-error-description');
+                
+                titleError.textContent = '';
+                descriptionError.textContent = '';
+
+                if (titleInput.value.trim().length < 5) {
+                    titleError.textContent = "Le titre doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                if (descriptionInput.value.trim().length < 5) {
+                    descriptionError.textContent = "La description doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            function validateStep2() {
+                let isValid = true;
+                const pubInput = document.querySelector('input[name="job_offer[publicationDate]"]');
+                const expInput = document.querySelector('input[name="job_offer[expirationDate]"]');
+                const pubError = document.getElementById('client-error-publicationDate');
+                const expError = document.getElementById('client-error-expirationDate');
+                
+                pubError.textContent = '';
+                expError.textContent = '';
+
+                if (!pubInput.value.trim()) {
+                    pubError.textContent = "La date de publication est requise.";
+                    isValid = false;
+                }
+                if (!expInput.value.trim()) {
+                    expError.textContent = "La date d'expiration est requise.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            function validateStep3() {
+                let isValid = true;
+                const contractInput = document.querySelector('input[name="job_offer[contractType]"]');
+                const salaryInput = document.querySelector('input[name="job_offer[salary]"]');
+                const contractError = document.getElementById('client-error-contractType');
+                const salaryError = document.getElementById('client-error-salary');
+                
+                contractError.textContent = '';
+                salaryError.textContent = '';
+
+                if (contractInput.value.trim().length < 5) {
+                    contractError.textContent = "Le type de contrat doit contenir au moins 5 caractères.";
+                    isValid = false;
+                }
+                if (isNaN(salaryInput.value) || Number(salaryInput.value) <= 0) {
+                    salaryError.textContent = "Le salaire doit être un nombre supérieur à 0.";
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            document.getElementById('btn-next-1').addEventListener('click', function() {
+                if (validateStep1()) {
+                    currentStep = 2;
+                    showStep(currentStep);
+                }
+            });
+
+            document.getElementById('btn-prev-2').addEventListener('click', function() {
+                currentStep = 1;
+                showStep(currentStep);
+            });
+
+            document.getElementById('btn-next-2').addEventListener('click', function() {
+                if (validateStep2()) {
+                    currentStep = 3;
+                    showStep(currentStep);
+                }
+            });
+
+            document.getElementById('btn-prev-3').addEventListener('click', function() {
+                currentStep = 2;
+                showStep(currentStep);
+            });
+
+            document.getElementById('job-offer-wizard-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!validateStep3()) {
+                    return;
+                }
+                const form = e.target;
+                const formData = new FormData(form);
+                const editId = form.getAttribute('data-edit-id');
+                let url = editId
+                    ? `{{ path('job_offer_update', {'id': 'ID_PLACEHOLDER'}) }}`.replace('ID_PLACEHOLDER', editId)
+                    : `{{ path('job_offer_create') }}`;
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '{{ path("job_offer_index") }}';
+                    } else {
+                        alert("Erreur: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Erreur:", error));
+            });
+        });
+    </script>
+{% endblock %}

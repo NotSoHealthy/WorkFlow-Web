@@ -4,8 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Repository\CongeRepository;
 
@@ -31,6 +30,7 @@ class Conge
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'conges')]
     #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+    #[Assert\NotBlank(message: "L'utilisateur ne peut pas être vide.")]
     private ?User $user = null;
 
     public function getUser(): ?User
@@ -45,6 +45,8 @@ class Conge
     }
 
     #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\Type(type: \DateTimeInterface::class, message: "La date de début doit être une date valide.")]
+    #[Assert\LessThanOrEqual("today", message: "La date de demande ne peut pas être dans le futur.")]
     private ?\DateTimeInterface $request_date = null;
 
     public function getRequest_date(): ?\DateTimeInterface
@@ -59,6 +61,9 @@ class Conge
     }
 
     #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\Type(type: \DateTimeInterface::class, message: "La date de début doit être une date valide.")]
+    #[Assert\NotNull(message: "La date de début est obligatoire.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date de début ne peut pas être dans le passé.")]
     private ?\DateTimeInterface $start_date = null;
 
     public function getStart_date(): ?\DateTimeInterface
@@ -73,6 +78,9 @@ class Conge
     }
 
     #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\Type(type: \DateTimeInterface::class, message: "La date de début doit être une date valide.")]
+    #[Assert\NotNull(message: "La date de fin doit être une date valide.")]
+    #[Assert\GreaterThanOrEqual(propertyPath: "start_date", message: "La date de fin doit être après la date de début.")]
     private ?\DateTimeInterface $end_date = null;
 
     public function getEnd_date(): ?\DateTimeInterface
@@ -87,6 +95,8 @@ class Conge
     }
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: "Une raison est obligatoire.")]
+    #[Assert\Length(max: 255, maxMessage: "La raison ne peut pas dépasser 255 caractères.")]
     private ?string $reason = null;
 
     public function getReason(): ?string
@@ -101,6 +111,8 @@ class Conge
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: "Le statut ne peut pas être vide.")]
+    #[Assert\Choice(choices: ["pending", "approved", "rejected"], message: "Le statut doit être l'un des suivants : 'pending', 'approved', ou 'rejected'.")]
     private ?string $status = null;
 
     public function getStatus(): ?string
@@ -131,7 +143,7 @@ class Conge
         return $this->start_date;
     }
 
-    public function setStartDate(\DateTimeInterface $start_date): static
+    public function setStartDate(?\DateTimeInterface $start_date): static
     {
         $this->start_date = $start_date;
 
@@ -143,7 +155,7 @@ class Conge
         return $this->end_date;
     }
 
-    public function setEndDate(\DateTimeInterface $end_date): static
+    public function setEndDate(?\DateTimeInterface $end_date): static
     {
         $this->end_date = $end_date;
 

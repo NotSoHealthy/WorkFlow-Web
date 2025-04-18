@@ -1,0 +1,69 @@
+{% extends 'layout.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .custom-btn {
+            padding: 10px;
+            text-decoration: none;
+            font-size:20px;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            
+          }
+  
+          .custom-btn:hover {
+            background-color: #0f2d3b;
+            box-shadow: 0 4px 10px rgba(20, 60, 78, 0.4);
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-1px);
+          }
+          .custom-btn .material-symbols-outlined {
+            font-size: 18px;
+          }
+        .form-wrapper {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+    
+        .form-wrapper .form-control {
+            padding: 12px;
+            font-size: 1rem;
+        }
+    
+        .form-wrapper label {
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding:5px;
+        }
+    </style>        
+{% endblock %}
+{% block title %}Ajouter Formation{% endblock %}
+
+{% block main %}
+<main class="main-content">
+    <div class="form-wrapper">
+        
+    {{ form_start(form) }}
+    <h1>Ajouter</h1>
+    <a href="{{ path('app_formation_list') }}" class="custom-btn"><<</a>
+    <hr>
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">Ajouter</button>
+    {{ form_end(form) }}
+
+</div>
+</main>
+{% endblock %}

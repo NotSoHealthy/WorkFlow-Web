@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Application{% endblock %}
+
+{% block body %}
+    <h1>Application</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ application.id }}</td>
+            </tr>
+            <tr>
+                <th>CV</th>
+                <td>{{ application.CV }}</td>
+            </tr>
+            <tr>
+                <th>Cover_Letter</th>
+                <td>{{ application.CoverLetter }}</td>
+            </tr>
+            <tr>
+                <th>Submission_Date</th>
+                <td>{{ application.SubmissionDate ? application.SubmissionDate|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ application.status }}</td>
+            </tr>
+            <tr>
+                <th>First_Name</th>
+                <td>{{ application.FirstName }}</td>
+            </tr>
+            <tr>
+                <th>Last_Name</th>
+                <td>{{ application.LastName }}</td>
+            </tr>
+            <tr>
+                <th>Mail</th>
+                <td>{{ application.mail }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_application_index') }}">back to list</a>
+
+    <a href="{{ path('app_application_edit', {'id': application.id}) }}">edit</a>
+
+    {{ include('application/_delete_form.html.twig') }}
+{% endblock %}

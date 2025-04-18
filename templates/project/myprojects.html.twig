@@ -1,0 +1,132 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}📂 Projets de Mon Département{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .project-wrapper {
+        padding: 3rem;
+    }
+
+    .project-box {
+        background: white;
+        border-radius: 1.2rem;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border-left: 6px solid #e2e8f0;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .project-box .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .project-box h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1e293b;
+    }
+
+    .state-badge {
+        padding: 6px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: white;
+        text-transform: uppercase;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .state-en-cours { background: #facc15; color: black; }
+    .state-termine { background: #22c55e; }
+    .state-annule { background: #ef4444; }
+
+    .meta-item {
+        font-size: 1rem;
+        color: #334155;
+        margin-bottom: 0.6rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .meta-item i {
+        width: 22px;
+        margin-right: 10px;
+        color: #475569;
+    }
+
+    .description-box {
+        margin-top: 1.2rem;
+        background: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: flex-start;
+        font-size: 0.96rem;
+        color: #1e293b;
+    }
+
+    .description-box i {
+        margin-right: 10px;
+        margin-top: 2px;
+        color: #3b82f6;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        color: #1e293b;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <div class="project-wrapper">
+        <h2 class="section-title">📂 Projets de Mon Département</h2>
+    
+        {% for project in projects %}
+            <div class="project-box">
+                <div class="header">
+                    <h2>{{ project.Name }}</h2>
+                    <div class="state-badge
+                        {% if project.State == 'en cours' %}state-en-cours
+                        {% elseif project.State == 'terminé' %}state-termine
+                        {% elseif project.State == 'annulé' %}state-annule
+                        {% endif %}">
+                        {{ project.State|upper }}
+                    </div>
+                </div>
+    
+                <div class="meta-item">
+                    <strong>👔 Manager :</strong>&nbsp;{{ project.manager.first_name }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Début :</strong>&nbsp;{{ project.StartDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Fin :</strong>&nbsp;{{ project.EndDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>💶 Budget :</strong>&nbsp;{{ project.Budget }} €
+                </div>
+    
+                <div class="description-box">
+                    <i 📝 class="fas fa-align-left"></i> {{ project.Description }}
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center">Aucun projet trouvé pour votre département.</div>
+        {% endfor %}
+    </div>
+</main> 
+{% endblock %}

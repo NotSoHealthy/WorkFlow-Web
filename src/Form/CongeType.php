@@ -6,6 +6,7 @@ use App\Entity\Conge;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,21 +15,28 @@ class CongeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('request_date', null, [
+            ->add('request_date', DateType::class, [
                 'widget' => 'single_text',
+                'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
-            ->add('start_date', null, [
+            ->add('start_date', DateType::class, [
                 'widget' => 'single_text',
+                'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
-            ->add('end_date', null, [
+            ->add('end_date', DateType::class, [
                 'widget' => 'single_text',
+                'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
             ->add('reason')
-            ->add('status')
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
         ;
     }
 

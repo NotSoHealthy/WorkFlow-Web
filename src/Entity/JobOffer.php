@@ -6,8 +6,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\JobOfferRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: JobOfferRepository::class)]
 #[ORM\Table(name: 'job_offer')]
@@ -17,6 +17,54 @@ class JobOffer
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 15, nullable: false)]
+    #[Assert\NotBlank(message: 'The title should not be blank.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'The title cannot be longer than {{ limit }} characters.'
+    )]
+    private ?string $Title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $Description = null;
+
+    #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\NotNull(message: 'Publication date must be provided.')]
+    #[Assert\Type("\DateTimeInterface", message: 'Publication date must be a valid date.')]
+    private ?\DateTimeInterface $Publication_Date = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\Type("\DateTimeInterface", message: 'Expiration date must be a valid date.')]
+    private ?\DateTimeInterface $Expiration_Date = null;
+
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(
+        max: 100,
+        maxMessage: 'Contract type cannot be longer than {{ limit }} characters.'
+    )]
+    private ?string $Contract_Type = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[Assert\Positive(message: 'Salary must be a positive value.')]
+    private ?float $Salary = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'jobOffers')]
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+
+    private ?User $user = null;
+
+    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'jobOffer')]
+    private Collection $applications;
+
+
+
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+    }
+
+    // Getters and setters
 
     public function getId(): ?int
     {
@@ -29,9 +77,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $Title = null;
-
     public function getTitle(): ?string
     {
         return $this->Title;
@@ -42,9 +87,6 @@ class JobOffer
         $this->Title = $Title;
         return $this;
     }
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $Description = null;
 
     public function getDescription(): ?string
     {
@@ -57,9 +99,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: false)]
-    private ?\DateTimeInterface $Publication_Date = null;
-
     public function getPublication_Date(): ?\DateTimeInterface
     {
         return $this->Publication_Date;
@@ -70,9 +109,6 @@ class JobOffer
         $this->Publication_Date = $Publication_Date;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $Expiration_Date = null;
 
     public function getExpiration_Date(): ?\DateTimeInterface
     {
@@ -85,9 +121,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $Contract_Type = null;
-
     public function getContract_Type(): ?string
     {
         return $this->Contract_Type;
@@ -98,9 +131,6 @@ class JobOffer
         $this->Contract_Type = $Contract_Type;
         return $this;
     }
-
-    #[ORM\Column(type: 'decimal', nullable: true)]
-    private ?float $Salary = null;
 
     public function getSalary(): ?float
     {
@@ -113,10 +143,6 @@ class JobOffer
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'jobOffers')]
-    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
-    private ?User $user = null;
-
     public function getUser(): ?User
     {
         return $this->user;
@@ -126,14 +152,6 @@ class JobOffer
     {
         $this->user = $user;
         return $this;
-    }
-
-    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'jobOffer')]
-    private Collection $applications;
-
-    public function __construct()
-    {
-        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -169,7 +187,6 @@ class JobOffer
     public function setPublicationDate(\DateTimeInterface $Publication_Date): static
     {
         $this->Publication_Date = $Publication_Date;
-
         return $this;
     }
 
@@ -181,7 +198,6 @@ class JobOffer
     public function setExpirationDate(?\DateTimeInterface $Expiration_Date): static
     {
         $this->Expiration_Date = $Expiration_Date;
-
         return $this;
     }
 
@@ -193,8 +209,18 @@ class JobOffer
     public function setContractType(?string $Contract_Type): static
     {
         $this->Contract_Type = $Contract_Type;
-
         return $this;
     }
 
+
+
+    /**
+     * Convert the JobOffer object to a string representation.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->Title;
+    }
 }

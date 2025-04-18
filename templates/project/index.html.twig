@@ -1,0 +1,175 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Liste des Projets{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    body {
+        background-color: #f1f5f9;
+    }
+
+    .project-board {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .project-card {
+        background-color: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+        position: relative;
+        border-left: 6px solid #ccc;
+        transition: transform 0.2s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .project-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        color: #1f2937;
+    }
+
+    .project-meta {
+        color: #4b5563;
+        font-size: 0.95rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .project-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-edit {
+        background-color: #facc15;
+        color: #000;
+        font-weight: 600;
+    }
+
+    .btn-delete {
+        background-color: #ef4444;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .btn-desc {
+        background-color: #3b82f6;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 8px;
+        color: white;
+    }
+
+    .badge.termine {
+        background-color: #10b981;
+    }
+
+    .badge.en-cours {
+        background-color: #f59e0b;
+    }
+
+    .badge.annule {
+        background-color: #ef4444;
+    }
+
+    .state-border-termine {
+        border-left-color: #10b981 !important;
+    }
+
+    .state-border-en-cours {
+        border-left-color: #f59e0b !important;
+    }
+
+    .state-border-annule {
+        border-left-color: #ef4444 !important;
+    }
+
+    .description {
+        margin-top: 0.8rem;
+        font-size: 0.9rem;
+        background-color: #f9fafb;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+</style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <div class="container py-4">
+        <h1 class="text-3xl font-bold mb-4">
+            📘 Liste des Projets
+        </h1>
+        <a href="{{ path('project_new') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle"></i> Ajouter un Projet
+        </a>
+    
+        <div class="project-board">
+            {% for project in projects %}
+                {% set state = project.State|lower %}
+                {% set badgeClass = state == 'terminé' ? 'termine' : (state == 'en cours' ? 'en-cours' : 'annule') %}
+                {% set borderClass = state == 'terminé' ? 'state-border-termine' : (state == 'en cours' ? 'state-border-en-cours' : 'state-border-annule') %}
+    
+                <div class="project-card {{ borderClass }}">
+                    <div class="badge {{ badgeClass }}">
+                        {{ project.State|upper }}
+                    </div>
+                    <div class="project-title">{{ project.Name }}</div>
+                    <div class="project-meta">🏢 Département : {{ project.department.Name|capitalize }}</div>
+                    <div class="project-meta">💶 Budget : {{ project.Budget }} €</div>
+                    <div class="project-meta">📅 Début : {{ project.StartDate ? project.StartDate|date('Y-m-d') : 'N/A' }}</div>
+                    <div class="project-meta">📅 Fin : {{ project.EndDate ? project.EndDate|date('Y-m-d') : 'N/A' }}</div>
+                    <div class="project-meta">👤 Manager : {{ project.manager.first_name ~ ' ' ~ project.manager.last_name }}</div>
+    
+                    <div class="project-actions">
+                        <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn btn-edit btn-sm">✏️ Modifier</a>
+                        <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                            <button class="btn btn-delete btn-sm">🗑️ Supprimer</button>
+                        </form>
+                        <button class="btn btn-desc btn-sm" onclick="toggleDesc({{ project.id }})">📄 Description</button>
+                    </div>
+    
+                    {% if project.Description %}
+                        <div class="description" id="desc-{{ project.id }}" style="display: none;">
+                            {{ project.Description }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Aucun projet trouvé.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleDesc(id) {
+        const el = document.getElementById('desc-' + id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

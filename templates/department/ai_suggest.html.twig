@@ -1,0 +1,39 @@
+{% extends 'layout.html.twig' %}
+{% block title %}Suggestions IA - {{ department.name }}{% endblock %}
+
+{% block main %}
+<main>
+  <div class="container mt-5">
+    <h2 class="mb-4">
+      <span style="font-size: 2rem;">🧠</span>
+      Suggestions IA pour le Département <span class="text-primary fw-bold">{{ department.name }}</span>
+    </h2>
+  
+    {% if tools is empty %}
+      <div class="alert alert-warning">Aucune suggestion reçue de Gemini.</div>
+    {% else %}
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for tool in tools %}
+    {% if tool starts with '* **' %}
+      {% set parts = tool|replace({'*': ''})|split(':', 2) %}
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-lightbulb text-warning me-2"></i>{{ parts[0]|trim }}
+            </h5>
+            <p class="card-text">{{ parts[1]|default('')|trim }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+      </div>
+    {% endif %}
+  
+    <a href="{{ path('department_index') }}" class="btn btn-outline-secondary mt-4">
+      ← Retour aux départements
+    </a>
+  </div>
+</main>
+{% endblock %}
