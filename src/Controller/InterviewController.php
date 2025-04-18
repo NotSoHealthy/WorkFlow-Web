@@ -127,7 +127,7 @@ final class InterviewController extends AbstractController
                     ]);
 
                     $email = (new TemplatedEmail())
-                        ->from('your-email@example.com')
+                        ->from('noreply@demomailtrap.co')
                         ->to($application->getMail())
                         ->subject('Interview Scheduled')
                         ->html($emailBody);
