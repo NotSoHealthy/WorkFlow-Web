@@ -55,19 +55,7 @@ class ReclamationType extends AbstractType
                 'mapped' => false,
             ]);
 
-        // Only add 'etat' if the user has ROLE_RESPONSABLE and it’s an edit form
-        if ($this->security->isGranted('ROLE_RESPONSABLE') && $options['data'] && $options['data']->getId()) {
-            $builder->add('etat', ChoiceType::class, [
-                'label' => 'État',
-                'choices' => [
-                    'Ouvert' => 'ouvert',
-                    'En cours' => 'enc_cours',
-                    'En attente' => 'en_attente',
-                    'Fermé' => 'ferme',
-                    'Rejeté' => 'rejete',
-                ],
-            ]);
-        }
+       
     }
 
     public function configureOptions(OptionsResolver $resolver): void
