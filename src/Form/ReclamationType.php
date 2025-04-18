@@ -36,29 +36,23 @@ class ReclamationType extends AbstractType
                 'label' => 'Catégorie',
                 'choices' => [
                     'Technique' => 'technique',
-                    'Administratif' => 'administratif',
+                    'Administratif' => 'facturation',
+                    'Service' => 'service',
                     'Autre' => 'autre',
                 ],
             ])
             ->add('type', ChoiceType::class, [
                 'label' => 'Type',
                 'choices' => [
-                    'Urgent' => 'urgent',
-                    'Normal' => 'normal',
+                    'Plainte' => 'plainte',
+                    'Demande' => 'demande',
+                    'Feedback' => 'feedback',
                 ],
             ])
             ->add('attachedfile', FileType::class, [
                 'label' => 'Fichier joint',
                 'required' => false,
                 'mapped' => false,
-            ])
-            ->add('date', DateType::class, [
-                'label' => 'Date',
-                'widget' => 'single_text',
-            ])
-            ->add('heure', TimeType::class, [
-                'label' => 'Heure',
-                'widget' => 'single_text',
             ]);
 
         // Only add 'etat' if the user has ROLE_RESPONSABLE and it’s an edit form
@@ -66,9 +60,11 @@ class ReclamationType extends AbstractType
             $builder->add('etat', ChoiceType::class, [
                 'label' => 'État',
                 'choices' => [
-                    'Ouvert' => 'open',
-                    'En cours' => 'in progress',
-                    'Fermé' => 'closed',
+                    'Ouvert' => 'ouvert',
+                    'En cours' => 'enc_cours',
+                    'En attente' => 'en_attente',
+                    'Fermé' => 'ferme',
+                    'Rejeté' => 'rejete',
                 ],
             ]);
         }

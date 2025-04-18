@@ -1,3 +1,32 @@
+<style>
+    .form-scroll-wrapper {
+        max-height: 300px;    
+        overflow-y: auto;
+        padding-right: 10px; 
+        padding : 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        scrollbar-width: none; 
+        -ms-overflow-style: none;  
+    }
+    .form-scroll-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+    .edit-mode {
+        background-color: #f8f9fa;
+        border-left: 3px solid #ffc107;
+        
+    }
+    .btn-submit
+    {
+        margin-top: 20px;
+    }
+
+
+    
+</style>
+
 <h3>{{ reclamation.titre }}</h3>
 <p><strong>Description :</strong> {{ reclamation.description }}</p>
 <p><strong>Catégorie :</strong> {{ reclamation.category }}</p>
@@ -5,17 +34,103 @@
 <p><strong>Date :</strong> {{ reclamation.date|date('Y-m-d') }}</p>
 <p><strong>Heure :</strong> {{ reclamation.heure|date('H:i') }}</p>
 <p><strong>État :</strong> <span class="badge badge-{{ reclamation.etat|replace({' ': '-'})|lower }}">{{ reclamation.etat }}</span></p>
-<p><strong>Date de résolution :</strong> {{ reclamation.dateResolution ? reclamation.dateResolution|date('Y-m-d') : 'N/A' }}</p>
-<p><strong>Responsable :</strong> {{ reclamation.responsable ? reclamation.responsable.email : 'N/A' }}</p>
-<p><strong>Utilisateur :</strong> {{ reclamation.user.email }}</p>
+{% if reclamation.dateResolution %}
+    <p><strong>Date de résolution :</strong> {{ reclamation.dateResolution|date('Y-m-d') }}</p>
+{% endif %}
+<p><strong>Responsable :</strong> 
+    {% if reclamation.responsable %}
+       {{ reclamation.responsable.firstName }}  {{ reclamation.responsable.lastName }} 
+    {% else %}
+        <em>Le responsable n'est pas encore assigné.</em>
+    {% endif %}
+</p>
+<p><strong>Utilisateur :</strong> {{ reclamation.user.firstName }}  {{ reclamation.user.lastName }}</p>
 {% if reclamation.attachedfile %}
     <p><strong>Fichier joint :</strong> <a href="{{ asset('uploads/reclamations/' ~ reclamation.attachedfile) }}" target="_blank">Voir le fichier</a></p>
 {% endif %}
-<h4>Messages</h4>
-<ul>
-    {% for message in reclamation.messages %}
-        <li>{{ message.content }} - {{ message.date|date('Y-m-d H:i') }}</li>
-    {% else %}
-        <li>Aucun message pour l'instant.</li>
-    {% endfor %}
-</ul>
+
+
+    <div class="alert alert-warning mb-0" id="edit-mode-alert" style="display: none";>
+        <strong>Mode édition</strong> - Vous êtes en train de modifier un message existant.
+    </div>
+    <button id="edit-btn-toggle" class="btn btn-warning" style="display: none";>
+        Annuler l'édition <i class="bi bi-x-circle"></i>
+    </button>
+
+
+{% if reclamation.etat not in ['Ouvert', 'Ferme', 'Rejete'] and (app.user == reclamation.responsable or app.user == reclamation.user) %}
+    <div class="form-container">
+        {{ form_start(form, {
+            'action': path('app_reclamation_details', { id: reclamation.id }),
+            'attr': { 'id': 'message-textarea', 'novalidate': 'novalidate' }
+        }) }}
+        <input type="hidden" id="edit-message-id" name="edit_message_id" value="">
+        <div class="form-group">
+            {{ form_label(form.contenu, 'Écrivez un commentaire :', {
+                'label_attr': {
+                    'class': 'form-label',
+                    'style': 'font-weight: bold; font-size: 1.2rem; width:300px;'
+                }
+            }) }}
+            {{ form_widget(form.contenu, {
+                'attr': {'class': 'form-control', 'placeholder': 'Entrez un commentaire', 'id':'message-textarea'}
+            }) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.contenu) }}
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-submit btn-primary" id="submit-btn">
+                {{ edit_message_id ? 'Mettre à jour' : 'Soumettre' }}
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endif %}
+
+<hr>
+<h4>Messages :</h4>
+<div class="form-scroll-wrapper">
+    <ul class="message-list" style="list-style-type: none; padding-left: 0;">
+        {% for message in reclamation.messages %}
+         
+            <li class="message-item" data-message-id="{{ message.id }}" style="position: relative; padding: 1rem; border-bottom: 1px solid #eee;">
+                <div class="nav-profile" style="display: flex; align-items: center; gap: 10px;">
+                    <img class="nav-profile-img" src="{{ users[message.id].imageUrl|default('/assets/default-avatar.png') }}" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                    <div>
+                        <h5 class="nav-profile-name" style="margin: 0;">
+                            {{ users[message.id].firstName }} {{ users[message.id].lastName }}
+                            <small style="font-weight: normal; color: #888;">— {{ message.date|date('Y-m-d') }} {{ message.heure|date('H:i') }}</small>
+                        </h5>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                    <p class="message-content" style="margin: 0;">{{ message.Contenu }}</p>
+
+                    <div class="dropdown ms-auto">
+                        <button class="btn p-0 border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                        
+                           <li><a class="dropdown-item edit-message-btn" href="#" data-contenu="{{ message.contenu }}">Modifier</a></li>
+                            <form action="{{ path('app_message_delete', { 'id': message.id }) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
+                                <button type="submit" class="message-delete-btn dropdown-item text-danger">Supprimer</button>
+                            </form>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+        {% else %}
+            <li>Aucun message pour l'instant.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% block javascripts %}
+
+<script>
+
+    </script>
+{% endblock %}

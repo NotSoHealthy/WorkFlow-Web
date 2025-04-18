@@ -17,8 +17,28 @@ final class ReclamationController extends AbstractController
     #[Route(name: 'app_reclamation_index', methods: ['GET'])]
     public function index(ReclamationRepository $reclamationRepository): Response
     {
+
+        $reclamations = $reclamationRepository->findAll();
+
+        $types = [];
+        $categories = [];
+    
+        foreach ($reclamations as $rec) {
+            $type = $rec->getType();
+            $category = $rec->getCategory();
+    
+            $types[$type] = ($types[$type] ?? 0) + 1;
+            $categories[$category] = ($categories[$category] ?? 0) + 1;
+        }
+    
         return $this->render('reclamation/index.html.twig', [
-            'reclamations' => $reclamationRepository->findAll(),
+            'reclamations' => $reclamations,
+            'types' => $types,
+            'categories' => $categories,
+        ]);
+
+        return $this->render('reclamation/index.html.twig', [
+            'reclamations' => $reclamations,
         ]);
     }
 
@@ -28,7 +48,6 @@ final class ReclamationController extends AbstractController
         $reclamation = new Reclamation();
         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $attachedFile = $form->get('attachedfile')->getData();
             if ($attachedFile) {
@@ -37,12 +56,16 @@ final class ReclamationController extends AbstractController
                     $this->getParameter('uploads_directory'),
                     $newFilename
                 );
-                $reclamation->setAttachedfile($newFilename);
-            }
+            $reclamation->setAttachedfile($newFilename);}
 
+            $timezone = new \DateTimeZone('+01:00');
+            $now = new \DateTime('now', $timezone);
             $reclamation->setUser($this->getUser());
+            $reclamation->setDate($now);
+            $reclamation->setHeure($now);
+     
             $reclamation->setResponsable(null);
-            $reclamation->setEtat('open'); // Default state
+            $reclamation->setEtat('Ouvert');
 
             $entityManager->persist($reclamation);
             $entityManager->flush();
@@ -64,28 +87,37 @@ final class ReclamationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/details', name: 'app_reclamation_details', methods: ['GET'])]
-    public function details(Reclamation $reclamation): Response
-    {
-        return $this->render('reclamation/_details.html.twig', [
-            'reclamation' => $reclamation,
-        ]);
-    }
+   
 
     #[Route('/{id}/edit', name: 'app_reclamation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
     {
+      
         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $attachedFile = $form->get('attachedfile')->getData();
+        if ($attachedFile) {
+            if ($reclamation->getAttachedfile()) {
+                $oldFilePath = $this->getParameter('uploads_directory') . '/' . $reclamation->getAttachedfile();
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
+            $newFilename = uniqid() . '.' . $attachedFile->guessExtension();
+            $attachedFile->move(
+                $this->getParameter('uploads_directory'),
+                $newFilename
+            );
+            $reclamation->setAttachedfile($newFilename);
+        }
             $entityManager->flush();
             return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
         }
-
         return $this->render('reclamation/edit.html.twig', [
             'reclamation' => $reclamation,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -99,4 +131,55 @@ final class ReclamationController extends AbstractController
 
         return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/{id}/update-status', name: 'app_reclamation_update_status', methods: ['POST'])]
+public function updateStatus(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+{
+    $data = json_decode($request->getContent(), true);
+    $status = $data['status'] ?? null;
+    
+    // Map the status to your internal values if needed
+    $statusMapping = [
+        'ouvert' => 'Ouvert',
+        'enc_cours' => 'En cours',
+        'en_attente' => 'En attente',
+        'ferme' => 'Ferme',
+        'rejete' => 'Rejete'
+    ];
+    
+    if ($status && isset($statusMapping[$status])) {
+        $reclamation->setEtat($statusMapping[$status]);
+        $entityManager->flush();
+        return $this->json(['success' => true]);
+    }
+    return $this->json(['success' => false], 400);
+}
+
+#[Route('/{id}/resign', name: 'app_reclamation_resign', methods: ['POST'])]
+public function resign(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+{
+    $reclamation->setResponsable(null);
+    $entityManager->flush();
+    return $this->json(['success' => true]);
+}
+
+#[Route('/{id}/take-ownership', name: 'app_reclamation_take_ownership', methods: ['POST'])]
+public function takeOwnership(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+{
+    $user = $this->getUser();
+    if ($reclamation->getResponsable()) {
+        return $this->json([
+            'success' => false,
+            
+        ]);
+    }
+    
+    $reclamation->setResponsable($user);
+    $entityManager->flush();
+    
+    return $this->json([
+        'success' => true,
+    
+    ]);
+}
 }

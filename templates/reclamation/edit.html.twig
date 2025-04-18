@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         main {
-            margin-left: 250px;
+          
             padding: 20px;
         }
         .form-container {
@@ -62,15 +62,24 @@
     <main>
         <div class="form-container">
             <h1 class="text-center mb-4">Modifier la Réclamation</h1>
-            {{ form_start(form) }}
-                <div class="form-group">
-                    {{ form_label(form.titre, 'Titre', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                </div>
+                    {{ form_start(form, {
+        'attr': { 'novalidate': 'novalidate' }
+    }) }}
+              <div class="form-group">
+        {{ form_label(form.titre, 'Titre', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre'}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.titre) }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez votre réclamation'}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.description) }}
+        </div>
+    </div>
                 <div class="form-group">
                     {{ form_label(form.category, 'Catégorie', {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
@@ -86,20 +95,6 @@
                         <small>Fichier actuel : <a href="{{ asset('uploads/reclamations/' ~ reclamation.attachedfile) }}" target="_blank">{{ reclamation.attachedfile }}</a></small>
                     {% endif %}
                 </div>
-                <div class="form-group">
-                    {{ form_label(form.date, 'Date', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.heure, 'Heure', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.heure, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                {% if is_granted('ROLE_RESPONSABLE') %}
-                    <div class="form-group">
-                        {{ form_label(form.etat, 'État', {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.etat, {'attr': {'class': 'form-select'}}) }}
-                    </div>
-                {% endif %}
                 <div class="text-center">
                     <button type="submit" class="btn btn-submit">Mettre à jour</button>
                 </div>

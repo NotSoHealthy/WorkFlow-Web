@@ -8,25 +8,20 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class MessageType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('contenu')
-            ->add('date', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('heure', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('user')
-            ->add('reclamation', EntityType::class, [
-                'class' => Reclamation::class,
-                'choice_label' => 'id',
-            ])
-        ;
+        ->add('contenu', TextareaType::class, [
+            'label' => false,
+            'attr' => [
+                'placeholder' => 'Écrivez un message...',
+                'rows' => 3
+            ]
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -34,5 +29,6 @@ class MessageType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Message::class,
         ]);
+        $resolver->setDefined(['reclamation']);
     }
 }
