@@ -103,23 +103,25 @@
 </style>
 {% endblock %}
 {% block main %}
-<div class="form-container">
-    <h1>Ajouter un Projet</h1>
-
-    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-        {{ form_row(form.Name) }}
-        {{ form_row(form.Description) }}
-        {{ form_row(form.Start_Date) }}
-        {{ form_row(form.End_Date) }}
-        {{ form_row(form.Budget) }}
-        {{ form_row(form.manager) }}
-        {{ form_row(form.department) }}
-        {{ form_row(form.State) }}
-
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Ajouter</button>
-            <a href="{{ path('project_index') }}" class="btn-secondary">Retour</a>
+    <main>
+        <div class="form-container">
+            <h1>Ajouter un Projet</h1>
+        
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_row(form.Name) }}
+                {{ form_row(form.Description) }}
+                {{ form_row(form.Start_Date) }}
+                {{ form_row(form.End_Date) }}
+                {{ form_row(form.Budget) }}
+                {{ form_row(form.manager) }}
+                {{ form_row(form.department) }}
+                {{ form_row(form.State) }}
+        
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Ajouter</button>
+                    <a href="{{ path('project_index') }}" class="btn-secondary">Retour</a>
+                </div>
+            {{ form_end(form) }}
         </div>
-    {{ form_end(form) }}
-</div>
+    </main>
 {% endblock %}

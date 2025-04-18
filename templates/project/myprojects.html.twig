@@ -90,41 +90,43 @@
 {% endblock %}
 
 {% block main %}
-<div class="project-wrapper">
-    <h2 class="section-title">📂 Projets de Mon Département</h2>
-
-    {% for project in projects %}
-        <div class="project-box">
-            <div class="header">
-                <h2>{{ project.Name }}</h2>
-                <div class="state-badge 
-                    {% if project.State == 'en cours' %}state-en-cours
-                    {% elseif project.State == 'terminé' %}state-termine
-                    {% elseif project.State == 'annulé' %}state-annule
-                    {% endif %}">
-                    {{ project.State|upper }}
+<main>
+    <div class="project-wrapper">
+        <h2 class="section-title">📂 Projets de Mon Département</h2>
+    
+        {% for project in projects %}
+            <div class="project-box">
+                <div class="header">
+                    <h2>{{ project.Name }}</h2>
+                    <div class="state-badge
+                        {% if project.State == 'en cours' %}state-en-cours
+                        {% elseif project.State == 'terminé' %}state-termine
+                        {% elseif project.State == 'annulé' %}state-annule
+                        {% endif %}">
+                        {{ project.State|upper }}
+                    </div>
+                </div>
+    
+                <div class="meta-item">
+                    <strong>👔 Manager :</strong>&nbsp;{{ project.manager.first_name }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Début :</strong>&nbsp;{{ project.StartDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Fin :</strong>&nbsp;{{ project.EndDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>💶 Budget :</strong>&nbsp;{{ project.Budget }} €
+                </div>
+    
+                <div class="description-box">
+                    <i 📝 class="fas fa-align-left"></i> {{ project.Description }}
                 </div>
             </div>
-
-            <div class="meta-item">
-                <strong>👔 Manager :</strong>&nbsp;{{ project.manager.first_name }}
-            </div>
-            <div class="meta-item">
-                <strong>📅 Début :</strong>&nbsp;{{ project.StartDate|date('Y-m-d') }}
-            </div>
-            <div class="meta-item">
-                <strong>📅 Fin :</strong>&nbsp;{{ project.EndDate|date('Y-m-d') }}
-            </div>  
-            <div class="meta-item">
-                <strong>💶 Budget :</strong>&nbsp;{{ project.Budget }} €
-            </div>
-
-            <div class="description-box">
-                <i 📝 class="fas fa-align-left"></i> {{ project.Description }}
-            </div>
-        </div>
-    {% else %}
-        <div class="alert alert-warning text-center">Aucun projet trouvé pour votre département.</div>
-    {% endfor %}
-</div>
+        {% else %}
+            <div class="alert alert-warning text-center">Aucun projet trouvé pour votre département.</div>
+        {% endfor %}
+    </div>
+</main> 
 {% endblock %}

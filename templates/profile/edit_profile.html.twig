@@ -15,7 +15,7 @@
         <div class="left">
             <h3>Modifier votre profil</h3>
             <div class="container">
-                {{ form_start(form, {'attr': {'novalidate':'novalidate'}}) }}
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'onsubmit': 'return uploadImage(event)'}}) }}
                     <div class="form-row header">
                         <label for="imageInput">
                             <input type="file" onchange="previewImage(event)" name="imageInput" id="imageInput" accept="image/*" style="display:none;"/>

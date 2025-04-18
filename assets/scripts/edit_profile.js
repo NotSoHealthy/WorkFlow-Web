@@ -18,7 +18,7 @@ async function uploadImage(event) {
 
     const imageInput = document.getElementById('imageInput');
     if (imageInput.value === "") {
-        document.getElementById('edit-profile-form').submit(); // Submit the form if no image is selected
+        event.target.submit(); // Submit the form if no image is selected
         return;
     }
 
@@ -51,7 +51,7 @@ async function uploadImage(event) {
                 hiddenInput.value = result.data.url;
 
                 // Submit the form after the image is uploaded
-                document.getElementById('edit-profile-form').submit();
+                event.target.submit();
             } else {
                 console.error("Upload failed:", result);
                 alert("Image upload failed. Please try again.");
