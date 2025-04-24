@@ -1,5 +1,5 @@
 window.onload = function () {
-    if (document.querySelector('.alert-danger')) {
+    if (document.querySelector('.request-container .invalid-feedback')) {
         document.querySelector('.request-container').style.display = 'block';
     }
 }

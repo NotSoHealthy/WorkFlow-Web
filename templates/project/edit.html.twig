@@ -112,11 +112,12 @@
 {% endblock %}
 
 {% block main %}
+<main>
 <div class="edit-form-container">
     
     <h1>Modifier un Projet</h1>
 
-   {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         {{ form_row(form.Name) }}
         {{ form_row(form.Description) }}
         {{ form_row(form.Start_Date) }}
@@ -132,4 +133,5 @@
         </div>
     {{ form_end(form) }}
 </div>
+</main>
 {% endblock %}

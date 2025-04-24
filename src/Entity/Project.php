@@ -80,7 +80,7 @@ class Project
         return $this->Name;
     }
 
-    public function setName(string $Name): self
+    public function setName(?string $Name): self
     {
         $this->Name = $Name;
         return $this;
@@ -91,7 +91,7 @@ class Project
         return $this->Description;
     }
 
-    public function setDescription(string $Description): self
+    public function setDescription(?string $Description): self
     {
         $this->Description = $Description;
         return $this;
@@ -135,7 +135,7 @@ class Project
         return $this->Budget;
     }
 
-    public function setBudget(float $Budget): self
+    public function setBudget(?float $Budget): self
     {
         $this->Budget = $Budget;
         return $this;

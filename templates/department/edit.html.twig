@@ -218,30 +218,32 @@
 {% endblock %}
 
 {% block main %}
-<h1 class="page-title">Modifier un Département</h1>
-
-<div class="page-wrapper">
-    <div class="form-container">
-        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-            {{ form_row(form.Name) }}
-            {{ form_row(form.Year_Budget) }}
-            {{ form_row(form.manager) }}
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Modifier</button>
-                <a href="{{ path('department_index') }}" class="btn-secondary">Retour</a>
+<main>
+    <h1 class="page-title">Modifier un Département</h1>
+    
+    <div class="page-wrapper">
+        <div class="form-container">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_row(form.Name) }}
+                {{ form_row(form.Year_Budget) }}
+                {{ form_row(form.manager) }}
+    
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Modifier</button>
+                    <a href="{{ path('department_index') }}" class="btn-secondary">Retour</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    
+        <div class="illustration-container">
+            <div class="wrench"></div>
+            <div class="building">
+                {% for i in 1..9 %}
+                    <div class="window {{ i is even ? 'on' : '' }}"></div>
+                {% endfor %}
+                <div class="door"></div>
             </div>
-        {{ form_end(form) }}
+        </div>
     </div>
-
-    <div class="illustration-container">
-        <div class="wrench"></div>
-        <div class="building">
-            {% for i in 1..9 %}
-                <div class="window {{ i is even ? 'on' : '' }}"></div>
-            {% endfor %}
-            <div class="door"></div>
-        </div>      
-    </div>
-</div>
+</main>
 {% endblock %}

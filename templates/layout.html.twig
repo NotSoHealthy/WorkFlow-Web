@@ -2,6 +2,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
+    
 {% endblock stylesheets %}
 
 {% block body %}
@@ -37,7 +38,7 @@
             <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">group_add</span>Candidatures</a>
         {% endif %} #}
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_conge_index' %}active{% endif %}" href="{{path('app_conge_index')}}"><span class="material-symbols-outlined">beach_access</span>Congés</a>
-        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == '_RouteName' %}active{% endif %}" href="#"><span class="material-symbols-outlined">edit</span>Réclamations</a>
+        <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_reclamation_index' %}active{% endif %}" href="{{ path('app_reclamation_index') }}"><span class="material-symbols-outlined">edit</span>Réclamations</a>
               
         <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
     </div>

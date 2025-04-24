@@ -105,76 +105,78 @@
 {% endblock %}
 
 {% block main %}
-<div class="container mt-5">
-    <div class="department-hero">
-        <h1>🏢 Mon Département : {{ department.Name }}</h1>
-        <p class="lead">Vue personnalisée de votre département</p>
-    </div>
-
-    <div class="info-grid">
-        <div class="info-card">
-            <h4>👔 Manager</h4>
-            <p>{{ department.manager.firstName }}</p>
+<main>
+    <div class="container mt-5">
+        <div class="department-hero">
+            <h1>🏢 Mon Département : {{ department.Name }}</h1>
+            <p class="lead">Vue personnalisée de votre département</p>
         </div>
-        <div class="info-card">
-            <h4>💸 Budget Annuel</h4>
-            <p>{{ department.YearBudget }} €</p>
+    
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>👔 Manager</h4>
+                <p>{{ department.manager.firstName }}</p>
+            </div>
+            <div class="info-card">
+                <h4>💸 Budget Annuel</h4>
+                <p>{{ department.YearBudget }} €</p>
+            </div>
+            <div class="info-card">
+                <h4>👥 Membres</h4>
+                <p>{{ department.users|length }}</p>
+            </div>
+            <div class="info-card">
+                <h4>📁 Projets Actifs</h4>
+                <p>{{ department.projects|length }}</p>
+            </div>
         </div>
-        <div class="info-card">
-            <h4>👥 Membres</h4>
-            <p>{{ department.users|length }}</p>
-        </div>
-        <div class="info-card">
-            <h4>📁 Projets Actifs</h4>
-            <p>{{ department.projects|length }}</p>
-        </div>
-    </div>
-
-    <h3 class="section-title">👥 Membres de l'Équipe</h3>
-    {% if department.users|length > 0 %}
-        {% for user in department.users %}
-            <span class="user-chip">{{ user.first_name }} {{user.last_name}}  ({{ user.email }})</span>
-        {% endfor %}
-    {% else %}
-        <p>Aucun membre dans cette équipe.</p>
-    {% endif %}
-
-    <h3 class="section-title">📁 Projets en cours</h3>
-    {% if department.projects|length > 0 %}
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-            {% for project in department.projects %}
-                <div class="col">
-                    <div class="card project-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary">
-                                <i class="fas fa-diagram-project me-1"></i> {{ project.Name }}
-                            </h5>
-
-                            <p class="card-text text-muted mb-2">
-                                État :
-                                <span class="badge 
-                                    {% if project.State == 'Terminé' %}
-                                        bg-success
-                                    {% elseif project.State == 'En cours' %}
-                                        bg-warning text-dark
-                                    {% elseif project.State == 'Annulé' %}
-                                        bg-danger
-                                    {% else %}
-                                        bg-secondary
-                                    {% endif %}
-                                ">
-                                    {{ project.State ?? 'N/A' }}
-                                </span>
-                            </p>
+    
+        <h3 class="section-title">👥 Membres de l'Équipe</h3>
+        {% if department.users|length > 0 %}
+            {% for user in department.users %}
+                <span class="user-chip">{{ user.first_name }} {{user.last_name}}  ({{ user.email }})</span>
+            {% endfor %}
+        {% else %}
+            <p>Aucun membre dans cette équipe.</p>
+        {% endif %}
+    
+        <h3 class="section-title">📁 Projets en cours</h3>
+        {% if department.projects|length > 0 %}
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                {% for project in department.projects %}
+                    <div class="col">
+                        <div class="card project-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    <i class="fas fa-diagram-project me-1"></i> {{ project.Name }}
+                                </h5>
+    
+                                <p class="card-text text-muted mb-2">
+                                    État :
+                                    <span class="badge
+                                        {% if project.State == 'Terminé' %}
+                                            bg-success
+                                        {% elseif project.State == 'En cours' %}
+                                            bg-warning text-dark
+                                        {% elseif project.State == 'Annulé' %}
+                                            bg-danger
+                                        {% else %}
+                                            bg-secondary
+                                        {% endif %}
+                                    ">
+                                        {{ project.State ?? 'N/A' }}
+                                    </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Aucun projet associé.</p>
-    {% endif %}
-
-    <a href="{{ path('department_index') }}" class="btn btn-secondary back-btn">← Retour</a>
-</div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun projet associé.</p>
+        {% endif %}
+    
+        <a href="{{ path('department_index') }}" class="btn btn-secondary back-btn">← Retour</a>
+    </div>
+</main>
 {% endblock %}

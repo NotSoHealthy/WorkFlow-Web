@@ -33,7 +33,7 @@
                 },
                 "order": [[0, "asc"]], // Default sorting by "Nom"
                 "columnDefs": [
-                    { width: '20%', targets: 0 }
+                    { width: '25%', targets: 0 }
                 ]
             });
         });
@@ -99,7 +99,7 @@
         </table>
     </main>
     <div class="request-container">
-        {{ form_start(form) }}
+        {{ form_start(form, {'attr': {'novalidate':'novalidate'}}) }}
                 {% for flash_error in app.flashes('conge_form_error') %}
                     <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                 {% endfor %}

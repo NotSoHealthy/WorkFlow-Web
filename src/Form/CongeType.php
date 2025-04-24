@@ -18,14 +18,23 @@ class CongeType extends AbstractType
             ->add('request_date', DateType::class, [
                 'widget' => 'single_text',
                 'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
             ->add('start_date', DateType::class, [
                 'widget' => 'single_text',
                 'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
             ->add('end_date', DateType::class, [
                 'widget' => 'single_text',
                 'required' => true,
+                'input' => 'datetime',
+                'html5' => true,
+                'empty_data' => '',
             ])
             ->add('reason')
         ;
