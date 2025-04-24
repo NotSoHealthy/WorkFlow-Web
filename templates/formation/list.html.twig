@@ -172,14 +172,14 @@
                 {% endif %}
                 {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
                   {% set alreadyRegistered = false %}
-
                   {% for inscription in user_inscriptions %}
                     {% if inscription.formation.id == formation.id %}
                       {% set alreadyRegistered = true %}
                     {% endif %}
                   {% endfor %}
-
-                {% if alreadyRegistered %}
+                  {% if  not alreadyRegistered and formation.participantsMax == 0 %}
+                  <button class="btn btn-secondary btn-sm" style="font-size: 1rem;" disabled>Participants Full</button>
+                  {% elseif alreadyRegistered %}
                   <button class="btn btn-success btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
                 {% else %}
                   <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary w-100 btn-hover-shadow" style="margin-top:5px;">✅ S'inscrire</a>

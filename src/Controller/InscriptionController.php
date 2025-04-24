@@ -52,19 +52,28 @@ class InscriptionController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('app_formation_list');
     }
-    #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])]
+    #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])] 
     public function updateStatus(Request $request, Inscription $inscription, EntityManagerInterface $em): Response
     {
         $status = $request->request->get('status');
-    
+        $formation= $inscription->getFormation();
         if (!in_array($status, ['en attente', 'validé', 'refusé'])) {
             return new Response('Invalid status', 400);
+        }
+        if ($status === 'refusé' && $inscription->getStatus() === 'validé') {
+            $formation->setParticipantsMax($formation->getParticipantsMax() + 1);
         }
         if ($status === 'refusé') {
             $em->remove($inscription);
             $em->flush();
         } else {
             $inscription->setStatus($status);
+            if ($status === 'validé') {
+                if ($formation->getParticipantsMax() > 0) {
+
+                    $formation->setParticipantsMax($formation->getParticipantsMax() - 1);
+                }
+            }
             $em->flush();
         }
         return $this->redirectToRoute('app_inscription_list');
