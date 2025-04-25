@@ -168,14 +168,22 @@
                       {% set alreadyRegistered = true %}
                     {% endif %}
                   {% endfor %}
+
                   {% if  not alreadyRegistered and formation.participantsMax == 0 %}
-                  <button class="btn btn-secondary btn-sm" style="font-size: 1rem;" disabled>Participants Full</button>
+                  <button class="btn btn-secondary btn-sm" style="font-size: 1rem;" disabled>Formation Pleine</button>
+
                   {% elseif alreadyRegistered %}
                   <button class="btn btn-success btn-sm" style="font-size: 1rem;" disabled>Déjà inscrit</button>
-                {% else %}
+
+                  {% elseif formation.dateBegin|date('Y-m-d') < "now"|date("Y-m-d") %}
+                  <button class="btn btn-secondary w-100 btn-sm" style="margin-top:5px;" disabled>Fermer</button>
+
+                  {% else %}
                   <a href="{{ path('app_inscription_new', { id: formation.id }) }}" class="btn btn-primary w-100 btn-hover-shadow" style="margin-top:5px;">✅ S'inscrire</a>
+                
                 {% endif %}
                 {% endif %}
+                
               </div>
             </div>
           </div>
@@ -236,14 +244,13 @@
           }); 
       }
       
-      // Initialize chart when the modal is shown
+      
       $('#statsModal').on('shown.bs.modal', function() {
           const ctx = document.getElementById('formationsChart').getContext('2d');
           
           const years = [{% for year, count in yearlyStats %}{{ year }}{% if not loop.last %}, {% endif %}{% endfor %}];
-            const counts = [{% for year, count in yearlyStats %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}];
+          const counts = [{% for year, count in yearlyStats %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}];
           
-          // Generate dynamic background colors for the pie slices
           const backgroundColors = [];
           const borderColors = [];
           

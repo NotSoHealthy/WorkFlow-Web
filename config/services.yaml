@@ -30,5 +30,11 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
+  # sms
+  App\Service\SmsSender:
+    arguments:
+        $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
+        $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

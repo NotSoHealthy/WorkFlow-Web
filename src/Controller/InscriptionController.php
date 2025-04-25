@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Service\SmsSender;
 
 #[Route('/inscription')]
 class InscriptionController extends AbstractController
@@ -53,10 +54,14 @@ class InscriptionController extends AbstractController
         return $this->redirectToRoute('app_formation_list');
     }
     #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])] 
-    public function updateStatus(Request $request, Inscription $inscription, EntityManagerInterface $em): Response
+    public function updateStatus(Request $request,SmsSender $smsSender, Inscription $inscription, EntityManagerInterface $em): Response
     {
         $status = $request->request->get('status');
         $formation= $inscription->getFormation();
+        $titre=$formation->getTitle();
+        $employee = $inscription->getUser();
+        $fullName = $employee->getFirst_name() . ' ' . $employee->getLast_name();
+
         if (!in_array($status, ['en attente', 'validé', 'refusé'])) {
             return new Response('Invalid status', 400);
         }
@@ -64,11 +69,17 @@ class InscriptionController extends AbstractController
             $formation->setParticipantsMax($formation->getParticipantsMax() + 1);
         }
         if ($status === 'refusé') {
+
+            $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été refusée.";
+            $smsSender->sendSms("+21698264250", $message);
             $em->remove($inscription);
             $em->flush();
+
         } else {
             $inscription->setStatus($status);
             if ($status === 'validé') {
+                $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été acceptée.";
+                $smsSender->sendSms("+21698264250", $message);
                 if ($formation->getParticipantsMax() > 0) {
 
                     $formation->setParticipantsMax($formation->getParticipantsMax() - 1);
