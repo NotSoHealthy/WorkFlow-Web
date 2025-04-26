@@ -19,6 +19,8 @@ class InscriptionController extends AbstractController
     #[Route(name: 'app_inscription_list')]
     public function list(Request $request,EntityManagerInterface $em,PaginatorInterface $paginator): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
         $inscription = $em->getRepository(Inscription::class)->findAll();
         $pagination = $paginator->paginate(
             $inscription,
@@ -27,6 +29,7 @@ class InscriptionController extends AbstractController
         );
         return $this->render('inscription/list.html.twig', [
             'pagination' => $pagination,
+            'user' => $user
         ]);
     }
 

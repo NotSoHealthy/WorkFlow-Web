@@ -224,6 +224,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
     <script>  
       document.addEventListener('DOMContentLoaded', function () {
+        {% if formations_today is defined and formations_today|length > 0 %}
+            const today = new Date().toISOString().split('T')[0];
+            const key = "formation_notify_{{ app.user.id }}_" + today;
+            if (!localStorage.getItem(key)) {
+                const titles = [
+                    {% for formation in formations_today %}
+                        "{{ formation.title }}",
+                    {% endfor %}
+                  ];
+                if (Notification.permission === "granted") {
+                    new Notification("📅 Vous avez une formation aujourd'hui!", {
+                        body: "Vous êtes inscrit pour "+titles.join(", ")+".",
+                    });
+                    localStorage.setItem(key, "shown");
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(function (permission) {
+                        if (permission === "granted") {
+                            new Notification("📅 Vous avez une formation aujourd'hui!", {
+                                body: "Vous êtes inscrit pour "+titles.join(", ")+".",
+                            });
+                            localStorage.setItem(key, "shown");
+                        }
+                    });
+                }
+            }
+        {% endif %}
         
         const searchInput = document.getElementById('searchInput');
 

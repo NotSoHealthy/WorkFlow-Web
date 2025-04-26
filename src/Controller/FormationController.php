@@ -32,7 +32,14 @@ final class FormationController extends AbstractController
         } 
         /** @var User $user */
         $user = $this->getUser();
-
+        $formationsToday = [];
+        foreach ($formationRepository->findBy(['date_begin' => new \DateTimeImmutable('today')]) as $formation) {
+            foreach ($formation->getInscriptions() as $inscription) {
+                if ($inscription->getUser() === $user && $inscription->getStatus() === 'approuver') {
+                    $formationsToday[] = $formation;
+                }
+            }
+        }
         $pagination = $paginator->paginate(
             $formations,
             $request->query->getInt('page', 1),
@@ -44,6 +51,7 @@ final class FormationController extends AbstractController
             'search' => $search,
             'filter_sort' => $filterSort,
             'yearlyStats' => $yearlyStats,
+            'formations_today' => $formationsToday
             
         ]);
     }
