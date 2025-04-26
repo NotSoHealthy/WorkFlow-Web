@@ -62,13 +62,13 @@ class InscriptionController extends AbstractController
         $employee = $inscription->getUser();
         $fullName = $employee->getFirst_name() . ' ' . $employee->getLast_name();
 
-        if (!in_array($status, ['en attente', 'validé', 'refusé'])) {
+        if (!in_array($status, ['en attente', 'approuver', 'refuser'])) {
             return new Response('Invalid status', 400);
         }
-        if ($status === 'refusé' && $inscription->getStatus() === 'validé') {
+        if ($status === 'refuser' && $inscription->getStatus() === 'approuver') {
             $formation->setParticipantsMax($formation->getParticipantsMax() + 1);
         }
-        if ($status === 'refusé') {
+        if ($status === 'refuser') {
 
             $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été refusée.";
             $smsSender->sendSms("+21698264250", $message);
@@ -77,7 +77,7 @@ class InscriptionController extends AbstractController
 
         } else {
             $inscription->setStatus($status);
-            if ($status === 'validé') {
+            if ($status === 'approuver') {
                 $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été acceptée.";
                 $smsSender->sendSms("+21698264250", $message);
                 if ($formation->getParticipantsMax() > 0) {

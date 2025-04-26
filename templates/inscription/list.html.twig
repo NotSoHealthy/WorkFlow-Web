@@ -52,15 +52,15 @@
               <form action="{{ path('app_inscription_edit', { id: inscription.id }) }}" method="POST" class="mb-0">
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                   <option value="en attente" {{ inscription.status == 'en attente' ? 'selected' : '' }} disabled hidden>en attente</option>
-                  <option value="validé" {{ inscription.status == 'validé' ? 'selected' : '' }}>validé</option>
-                  <option value="refusé" {{ inscription.status == 'refusé' ? 'selected' : '' }}>refusé</option>
+                  <option value="approuver" {{ inscription.status == 'approuver' ? 'selected' : '' }}>approuver</option>
+                  <option value="refuser" {{ inscription.status == 'refuser' ? 'selected' : '' }}>refuser</option>
                 </select>
               </form>
             {% endif %}
   
             {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
               <span class="badge 
-                {% if inscription.status == 'validé' %}bg-success
+                {% if inscription.status == 'approuver' %}bg-success
                 {% else %}bg-warning text-dark
                 {% endif %}">
                 {{ inscription.status|capitalize }}

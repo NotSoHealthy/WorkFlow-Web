@@ -10,11 +10,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Notifier\Notification\Notification;
+
 #[Route('/formation')]
 final class FormationController extends AbstractController
 {
     #[Route(name: 'app_formation_list')]
-    public function ListFormation(Request $request,FormationRepository $formationRepository,PaginatorInterface $paginator,EntityManagerInterface $em): Response
+    public function ListFormation(Request $request,FormationRepository $formationRepository,NotifierInterface $notifier,SessionInterface $session,PaginatorInterface $paginator,EntityManagerInterface $em): Response
     {
         $yearlyStats = $formationRepository->getFormationsCountPerYear();
         $search = trim($request->query->get('search', ''));
@@ -32,6 +36,25 @@ final class FormationController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
+        $formationsToday = $formationRepository->findBy([
+            'date_begin' => new \DateTimeImmutable('today')
+        ]);
+        $userFormationsToday = [];
+
+        foreach ($formationsToday as $f) {
+            foreach ($f->getInscriptions() as $inscription) {
+                if ($inscription->getUser() === $user && $inscription->getStatus() === 'approuver') {
+                    $userFormationsToday[] = $f;
+                }
+            }
+        }
+        $notifiedKey = 'notified_today_' . $user->getId();
+        if (!empty($formationsToday) && $session->get($notifiedKey) !== $today) {
+            $message = 'Bonjour ' . $user->getFirst_name() . ' ' . $user->getLast_name() . ', vous avez une formation aujourd\'hui: ' . $formationsToday[0]->getTitle();
+            $notifier->send(new Notification($message, ['browser']));
+            $session->set($notifiedKey, $today);
+        }
         $pagination = $paginator->paginate(
             $formations,
             $request->query->getInt('page', 1),
