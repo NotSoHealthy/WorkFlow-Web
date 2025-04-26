@@ -23,7 +23,7 @@ class JobOfferController extends AbstractController
 
         if ($search) {
             $qb->andWhere('jo.Title LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
+                ->setParameter('search', '%' . $search . '%');
         }
 
         if ($sort === 'newest') {

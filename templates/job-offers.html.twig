@@ -3,129 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Offers - Workflow</title>
+    <title>{% block title %}Job Offers - Workflow{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            background-color: #f8f9fa;
-            margin: 0;
-        }
+    {% block stylesheets %}
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                line-height: 1.6;
+                background-color: #f8f9fa;
+                margin: 0;
+            }
 
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background-color: #fff;
-        }
+            .navbar {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                background-color: #fff;
+            }
 
-        .container {
-            max-width: 1200px;
-            padding: 40px 15px;
-        }
+            .container {
+                max-width: 1200px;
+                padding: 40px 15px;
+            }
 
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 40px;
-        }
+            h2 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 40px;
+            }
 
-        .filter-sort-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+            .filter-sort-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+            }
 
-        .filter-sort-container input,
-        .filter-sort-container select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
+            .filter-sort-container input,
+            .filter-sort-container select {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease;
+            }
 
-        .filter-sort-container input:focus,
-        .filter-sort-container select:focus {
-            border-color: #6610f2;
-            outline: none;
-        }
+            .filter-sort-container input:focus,
+            .filter-sort-container select:focus {
+                border-color: #6610f2;
+                outline: none;
+            }
 
-        .filter-sort-container input {
-            width: 70%;
-        }
+            .filter-sort-container input {
+                width: 70%;
+            }
 
-        .filter-sort-container select {
-            width: 25%;
-        }
+            .filter-sort-container select {
+                width: 25%;
+            }
 
-        .card {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fff;
-        }
+            .card {
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                border-radius: 10px;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                background-color: #fff;
+            }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            }
 
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #6610f2;
-            margin-bottom: 15px;
-        }
+            .card-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #6610f2;
+                margin-bottom: 15px;
+            }
 
-        .card-text {
-            color: #555;
-            margin-bottom: 20px;
-        }
+            .card-text {
+                color: #555;
+                margin-bottom: 20px;
+            }
 
-        .list-unstyled li {
-            font-size: 0.95rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
+            .list-unstyled li {
+                font-size: 0.95rem;
+                color: #666;
+                margin-bottom: 10px;
+            }
 
-        .list-unstyled i {
-            margin-right: 8px;
-            color: #6610f2;
-        }
+            .list-unstyled i {
+                margin-right: 8px;
+                color: #6610f2;
+            }
 
-        .btn-apply {
-            background-color: #6610f2;
-            color: white;
-            font-weight: 700;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+            .btn-apply {
+                background-color: #6610f2;
+                color: white;
+                font-weight: 700;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
 
-        .btn-apply:hover {
-            background-color: #007bff;
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
-        }
+            .btn-apply:hover {
+                background-color: #007bff;
+                box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+                transform: translateY(-2px);
+            }
 
-        footer {
-            background: #343a40;
-            color: white;
-            padding: 20px 0;
-        }
+            footer {
+                background: #343a40;
+                color: white;
+                padding: 20px 0;
+            }
 
-        .text-muted {
-            color: #6c757d !important;
-        }
-    </style>
+            .text-muted {
+                color: #6c757d !important;
+            }
+
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                min-width: 300px;
+                max-width: 400px;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+                color: #fff;
+                font-family: 'Roboto', sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                z-index: 2000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: opacity 0.4s ease, transform 0.4s ease;
+            }
+
+            .toast.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            .toast.success {
+                background: linear-gradient(45deg, #28a745, #34c759);
+            }
+
+            .toast.warning {
+                background: linear-gradient(45deg, #ff9500, #ffcc00);
+                color: #333;
+            }
+
+            .toast-close {
+                float: right;
+                cursor: pointer;
+                font-weight: bold;
+                margin-left: 10px;
+                font-size: 18px;
+            }
+
+            .toast-progress {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.7);
+                animation: toastProgress 3000ms linear forwards;
+            }
+
+            @keyframes toastProgress {
+                from { width: 100%; }
+                to { width: 0; }
+            }
+
+            @media (max-width: 600px) {
+                .toast {
+                    min-width: 80%;
+                    right: 10px;
+                    left: 10px;
+                    margin: 0 auto;
+                }
+            }
+        </style>
+    {% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" data-aos="fade-down">
@@ -161,7 +227,7 @@
                 <input type="text" id="search-input" placeholder="Rechercher par Offre d'emploi">
                 <select id="sort-select">
                     <option value="newest">Plus récentes d'abord</option>
-                <option value="oldest">Plus anciennes d'abord</option>
+                    <option value="oldest">Plus anciennes d'abord</option>
                 </select>
             </div>
             <div class="row">
@@ -170,7 +236,9 @@
                         <div class="card" data-publication-date="{{ jobOffer.publicationDate|date('Y-m-d') }}">
                             <div class="card-body">
                                 <h5 class="card-title">{{ jobOffer.title }}</h5>
-                                <p class="card-text">{{ jobOffer.description }}</p>
+                                <div class="card-text">
+                                    {{ jobOffer.description|raw }}
+                                </div>
                                 <ul class="list-unstyled text-muted">
                                     <li><i class="bi bi-calendar"></i> <strong>Date de publication :</strong> {{ jobOffer.publicationDate|date('Y-m-d') }}</li>
                                     <li><i class="bi bi-calendar-check"></i> <strong>Date d'expiration :</strong> {{ jobOffer.expirationDate ? jobOffer.expirationDate|date('Y-m-d') : 'N/A' }}</li>
@@ -194,48 +262,72 @@
         <p>© 2023 Workflow. Tous droits réservés.</p>
     </footer>
 
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="toast {{ type }}" role="alert" aria-live="assertive" aria-atomic="true" data-aos="fade-left">
+                <span class="toast-close" onclick="this.parentElement.style.display='none'">×</span>
+                {{ message }}
+                <div class="toast-progress"></div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script>
-        AOS.init({
-            duration: 1000,
-            once: true
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search-input');
-            const sortSelect = document.getElementById('sort-select');
-            const cards = document.querySelectorAll('.card');
-            const container = document.querySelector('.row');
-
-            // Filtering by job title
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = this.value.toLowerCase();
-                cards.forEach(card => {
-                    const title = card.querySelector('.card-title').textContent.toLowerCase();
-                    card.parentElement.style.display = title.includes(searchTerm) ? 'block' : 'none';
-                });
+    {% block javascripts %}
+        <script>
+            AOS.init({
+                duration: 1000,
+                once: true
             });
 
-            // Sorting by publication date
-            sortSelect.addEventListener('change', function() {
-                const sortBy = this.value;
-                const colElements = Array.from(container.children);
-                colElements.sort((a, b) => {
-                    const dateA = new Date(a.querySelector('.card').dataset.publicationDate);
-                    const dateB = new Date(b.querySelector('.card').dataset.publicationDate);
-                    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
-                });
-                container.innerHTML = '';
-                colElements.forEach(col => container.appendChild(col));
-            });
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('search-input');
+                const sortSelect = document.getElementById('sort-select');
+                const cards = document.querySelectorAll('.card');
+                const container = document.querySelector('.row');
 
-            // Set default sort to newest on page load
-            sortSelect.value = 'newest';
-            sortSelect.dispatchEvent(new Event('change'));
-        });
-    </script>
+                // Filtering by job title
+                searchInput.addEventListener('keyup', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    cards.forEach(card => {
+                        const title = card.querySelector('.card-title').textContent.toLowerCase();
+                        card.parentElement.style.display = title.includes(searchTerm) ? 'block' : 'none';
+                    });
+                });
+
+                // Sorting by publication date
+                sortSelect.addEventListener('change', function() {
+                    const sortBy = this.value;
+                    const colElements = Array.from(container.children);
+                    colElements.sort((a, b) => {
+                        const dateA = new Date(a.querySelector('.card').dataset.publicationDate);
+                        const dateB = new Date(b.querySelector('.card').dataset.publicationDate);
+                        return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+                    });
+                    container.innerHTML = '';
+                    colElements.forEach(col => container.appendChild(col));
+                });
+
+                // Set default sort to newest on page load
+                sortSelect.value = 'newest';
+                sortSelect.dispatchEvent(new Event('change'));
+
+                // Handle toasts
+                const toasts = document.querySelectorAll('.toast');
+                toasts.forEach(toast => {
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => {
+                            toast.style.display = 'none';
+                        }, 400);
+                    }, 3000);
+                });
+            });
+        </script>
+    {% endblock %}
 </body>
 </html>

@@ -1,12 +1,13 @@
 <?php
+// src/Form/JobOfferType.php
 
 namespace App\Form;
 
 use App\Entity\JobOffer;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -17,34 +18,33 @@ class JobOfferType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label'    => 'Title',
-                'required' => true,
+                'label' => 'Titre',
+                'attr'  => ['class' => 'form-input'],
             ])
-            ->add('description', TextareaType::class, [
-                'label'    => 'Description',
-                'required' => true,
+            ->add('description', CKEditorType::class, [
+                'label'       => 'Description',
+                'config_name' => 'default',
+                'attr'        => ['class' => 'form-input'],
             ])
             ->add('publicationDate', DateType::class, [
-                'label'    => 'Publication Date',
-                'widget'   => 'single_text',
-                'format'   => 'yyyy-MM-dd',
-                'input'    => 'datetime',  // Ensures transformation to DateTime
-                'required' => true,
+                'widget'  => 'single_text',
+                'label'   => 'Date de publication',
+                'attr'    => ['class' => 'form-input', 'placeholder' => 'YYYY-MM-DD'],
             ])
             ->add('expirationDate', DateType::class, [
-                'label'    => 'Expiration Date',
                 'widget'   => 'single_text',
-                'format'   => 'yyyy-MM-dd',
-                'input'    => 'datetime',  // Ensures transformation to DateTime
+                'label'    => "Date d'expiration",
                 'required' => false,
+                'attr'     => ['class' => 'form-input', 'placeholder' => 'YYYY-MM-DD'],
             ])
             ->add('contractType', TextType::class, [
-                'label'    => 'Contract Type',
-                'required' => true,
+                'label' => 'Type de contrat',
+                'attr'  => ['class' => 'form-input'],
             ])
-            ->add('salary', NumberType::class, [
-                'label'    => 'Salary',
-                'required' => true,
+            ->add('salary', MoneyType::class, [
+                'label'    => 'Salaire',
+                'currency' => 'TND',
+                'attr'     => ['class' => 'form-input'],
             ]);
     }
 

@@ -18,6 +18,12 @@ class Application
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $alreadyApplied = false;
+
+    #[ORM\Column(type: 'string', length: 45, nullable: false)]
+    private string $ipAddress;
+
     #[ORM\ManyToOne(targetEntity: JobOffer::class, inversedBy: 'applications')]
     #[ORM\JoinColumn(name: 'job', referencedColumnName: 'id')]
     private ?JobOffer $jobOffer = null;
@@ -32,7 +38,6 @@ class Application
     private ?\DateTimeInterface $submissionDate = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-
     private ?string $status = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'applications')]
@@ -53,8 +58,6 @@ class Application
 
     #[ORM\OneToMany(targetEntity: Interview::class, mappedBy: 'application')]
     private Collection $interviews;
-
-
 
     public function __construct()
     {
@@ -189,6 +192,28 @@ class Application
                 $interview->setApplication(null);
             }
         }
+        return $this;
+    }
+
+    public function getIpAddress(): ?string
+    {
+        return $this->ipAddress;
+    }
+
+    public function setIpAddress(string $ipAddress): self
+    {
+        $this->ipAddress = $ipAddress;
+        return $this;
+    }
+
+    public function isAlreadyApplied(): bool
+    {
+        return $this->alreadyApplied;
+    }
+
+    public function setAlreadyApplied(bool $alreadyApplied): self
+    {
+        $this->alreadyApplied = $alreadyApplied;
         return $this;
     }
 }
