@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
+use App\Service\SmsSender;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,6 +16,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -35,17 +37,23 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      */
     #[Route('', name: 'app_forgot_password_request')]
-    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
+    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator, SmsSender $smsSender): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $email */
-            $email = $form->get('email')->getData();
 
-            return $this->processSendingPasswordResetEmail($email, $mailer, $translator
-            );
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            if ($data['method'] === 'phone') {
+                return $this->processSendingPasswordResetSms($data['phone'], $smsSender);
+            }
+            else {
+                /** @var string $email */
+                $email = $form->get('email')->getData();
+
+                return $this->processSendingPasswordResetEmail($email, $mailer, $translator);
+            }
         }
 
         return $this->render('reset_password/request.html.twig', [
@@ -57,7 +65,7 @@ class ResetPasswordController extends AbstractController
      * Confirmation page after a user has requested a password reset.
      */
     #[Route('/check-email', name: 'app_check_email')]
-    public function checkEmail(): Response
+    public function checkEmail(string $method = 'email'): Response
     {
         // Generate a fake token if the user does not exist or someone hit this page directly.
         // This prevents exposing whether or not a user was found with the given email address or not
@@ -67,6 +75,7 @@ class ResetPasswordController extends AbstractController
 
         return $this->render('reset_password/check_email.html.twig', [
             'resetToken' => $resetToken,
+            'method' => $method,
         ]);
     }
 
@@ -173,4 +182,46 @@ class ResetPasswordController extends AbstractController
 
         return $this->redirectToRoute('app_check_email');
     }
+
+    private function processSendingPasswordResetSms(string $phoneNumber, SmsSender $smsSender): RedirectResponse
+    {
+        $user = $this->entityManager->getRepository(User::class)->findOneBy([
+            'number' => $phoneNumber,
+        ]);
+
+        if (!$user) {
+            return $this->redirectToRoute('app_check_email', [
+                'method' => 'phone',
+            ]);
+        }
+
+        try {
+            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+        } catch (ResetPasswordExceptionInterface $e) {
+            return $this->redirectToRoute('app_check_email', [
+                'method' => 'phone',
+            ]);
+        }
+
+        $resetUrl = $this->generateUrl('app_reset_password', ['token' => $resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // Send SMS here (use a service like Twilio, Nexmo, or any SMS gateway)
+        $this->sendSms($phoneNumber, $resetUrl, $smsSender);
+
+        $this->setTokenObjectInSession($resetToken);
+
+        return $this->redirectToRoute('app_check_email', [
+            'method' => 'phone',
+        ]);
+    }
+
+    private function sendSms(string $phoneNumber,string $resetUrl, SmsSender $smsSender): void
+    {
+        $message = "Bonjour!\n\n
+        Pour réinitialiser votre mot de passe, veuillez visiter le lien suivant\n
+        $resetUrl \n\n
+        Ce lien expirera dans 1 heure.";
+        $smsSender->sendSms("+21698264250", $message);
+    }
+
 }

@@ -10,17 +10,58 @@
         {% for flash_error in app.flashes('reset_password_error') %}
         <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
         {% endfor %}
-        <h2>Réinitialiser votre mot de passe</h2>
+        <h2>Mot de passe oublié?</h2>
 
-        {{ form_start(requestForm, {'attr': {'novalidate':'novalidate'}}) }}
-            {{ form_row(requestForm.email) }}
-            <div>
-                <small>
-                    Entrez votre adresse e-mail et vous recevrez un lien pour réinitialiser votre mot de passe
-                </small>
+    {{ form_start(requestForm, {'attr': {'novalidate':'novalidate'}}) }}
+        <div class="form-row">
+            <div class="form-column">
+                {{ form_widget(requestForm.method) }}
+                {{ form_errors(requestForm.method) }}
             </div>
+        </div>
+        <div class="form-row" id="emailField">
+            <div class="form-column">
+                {{ form_label(requestForm.email) }}
+                {{ form_widget(requestForm.email) }}
+                {{ form_errors(requestForm.email) }}
 
-            <button class="btn btn-primary">Envoyer un e-mail de réinitialisation</button>
-        {{ form_end(requestForm) }}
+            </div>
+        </div>
+
+        <div class="form-row" id="phoneField" style="display: none;">
+            <div class="form-column">
+                {{ form_label(requestForm.phone) }}
+                {{ form_widget(requestForm.phone) }}
+                {{ form_errors(requestForm.phone) }}
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3">Envoyer le lien de réinitialisation</button>
+    {{ form_end(requestForm) }}
     </main>
+    <script>
+        const emailField = document.querySelector('#emailField');
+        const emailSelector = document.querySelector('#reset_password_request_form_method_0');
+        const phoneField = document.querySelector('#phoneField');
+        const phoneSelector = document.querySelector('#reset_password_request_form_method_1');
+
+        emailSelector.addEventListener('click', function() {
+            emailField.style.display = 'block';
+            phoneField.style.display = 'none';
+        });
+        phoneSelector.addEventListener('click', function() {
+            emailField.style.display = 'none';
+            phoneField.style.display = 'block';
+        });
+
+        window.addEventListener('load', function() {
+            if (emailSelector.checked) {
+                emailField.style.display = 'block';
+                phoneField.style.display = 'none';
+            } else if (phoneSelector.checked) {
+                emailField.style.display = 'none';
+                phoneField.style.display = 'block';
+            }
+        });
+    </script>
 {% endblock %}
