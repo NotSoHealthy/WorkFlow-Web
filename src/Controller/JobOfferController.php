@@ -14,10 +14,32 @@ use Symfony\Component\Routing\Annotation\Route;
 class JobOfferController extends AbstractController
 {
     #[Route('/joboffer', name: 'job_offer_index')]
-    public function index(EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
-        // Fetch all job offers from the database.
-        $jobOffers = $em->getRepository(JobOffer::class)->findAll();
+        $search = $request->query->get('search', '');
+        $sort = $request->query->get('sort', 'newest');
+
+        $qb = $em->getRepository(JobOffer::class)->createQueryBuilder('jo');
+
+        if ($search) {
+            $qb->andWhere('jo.Title LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($sort === 'newest') {
+            $qb->orderBy('jo.Publication_Date', 'DESC');
+        } else {
+            $qb->orderBy('jo.Publication_Date', 'ASC');
+        }
+
+        $jobOffers = $qb->getQuery()->getResult();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('job_offer/_list.html.twig', [
+                'jobOffers' => $jobOffers,
+            ]);
+        }
+
         return $this->render('job_offer/index.html.twig', [
             'jobOffers' => $jobOffers,
         ]);

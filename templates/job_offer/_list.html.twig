@@ -1,0 +1,24 @@
+{% for offer in jobOffers %}
+    <div class="job-offer-card" id="job-offer-{{ offer.id }}" data-publication-date="{{ offer.publicationDate|date('Y-m-d') }}">
+        <h3>{{ offer.title }}</h3>
+        <p><strong>Description:</strong> {{ offer.description|length > 50 ? offer.description|slice(0, 50) ~ '...' : offer.description }}</p>
+        <p><strong>Date de publication:</strong> {{ offer.publicationDate|date('Y-m-d') }}</p>
+        <p><strong>Date d'expiration:</strong> {{ offer.expirationDate ? offer.expirationDate|date('Y-m-d') : 'N/A' }}</p>
+        <p><strong>Contrat:</strong> {{ offer.contractType }}</p>
+        <p><strong>Salaire:</strong> {{ offer.salary }}</p>
+        <div class="actions">
+            <a href="{{ path('job_offer_wizard', {'id': offer.id}) }}" class="cta btn-edit">
+                <span class="hover-underline-animation">Modifier</span>
+            </a>
+            <button class="cta btn-delete" onclick="deleteOffer('{{ offer.id }}')">
+                <span class="hover-underline-animation">Supprimer</span>
+            </button>
+            <a href="{{ path('app_application_list', {'id': offer.id}) }}" class="cta btn-view">
+                <span class="hover-underline-animation">Voir candidatures</span>
+            </a>
+        </div>
+        <div class="error-message"></div>
+    </div>
+{% else %}
+    <p class="text-center">Aucune offre d'emploi disponible pour le moment.</p>
+{% endfor %}
