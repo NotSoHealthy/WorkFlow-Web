@@ -8,6 +8,8 @@ use App\Form\ApplicationType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,119 +17,140 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/apply')]
 class ShowJobsController extends AbstractController
 {
-    private $logger;
-    private $entityManager;
+    private LoggerInterface $logger;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
-        $this->logger = $logger;
+        $this->logger        = $logger;
         $this->entityManager = $entityManager;
     }
 
     #[Route('/{id}', name: 'app_show_jobs_apply', methods: ['GET', 'POST'])]
     public function apply(int $id, Request $request): Response
     {
-        $jobOffer = $this->entityManager->getRepository(JobOffer::class)->find($id);
+        // 1) Fetch the JobOffer
+        $jobOffer = $this->entityManager
+            ->getRepository(JobOffer::class)
+            ->find($id);
+
         if (!$jobOffer) {
             throw $this->createNotFoundException('Job offer not found');
         }
 
-        // Get IP address with simple, reliable method
+        // 2) Early duplicate check by IP
         $userIp = $request->server->get('REMOTE_ADDR') ?: 'unknown';
-        if ($userIp === 'unknown') {
-            $this->logger->warning('Could not determine client IP address', [
-                'remote_addr' => $request->server->get('REMOTE_ADDR'),
-                'x_forwarded_for' => $request->headers->get('X-Forwarded-For'),
+        if ('unknown' === $userIp) {
+            $this->logger->warning('Could not determine client IP', [
+                'REMOTE_ADDR'     => $request->server->get('REMOTE_ADDR'),
+                'X-Forwarded-For' => $request->headers->get('X-Forwarded-For'),
             ]);
         }
-        $this->logger->debug('IP address set', ['ip' => $userIp]);
 
-        // Check for duplicate application before rendering form
-        $existingApplication = $this->entityManager->getRepository(Application::class)->findOneBy([
-            'jobOffer' => $jobOffer,
-            'ipAddress' => $userIp,
-        ]);
+        $duplicateByIp = $this->entityManager
+            ->getRepository(Application::class)
+            ->findOneBy([
+                'jobOffer'  => $jobOffer,
+                'ipAddress' => $userIp,
+            ]);
 
-        if ($existingApplication) {
+        if ($duplicateByIp) {
             $this->addFlash('warning', 'Vous avez déjà postulé pour cette offre.');
             return $this->redirectToRoute('job_offers_public');
         }
 
-        // Create new application
-        $application = new Application();
-        $application->setJobOffer($jobOffer);
-        $application->setStatus('open');
-        $application->setSubmissionDate(new \DateTime());
-        $application->setIpAddress($userIp);
-        $application->setAlreadyApplied(false);
-        $application->setUser($jobOffer->getUser()); // Link to job offer creator
+        // 3) Build the new Application entity
+        $application = (new Application())
+            ->setJobOffer($jobOffer)
+            ->setStatus('open')
+            ->setSubmissionDate(new \DateTime())
+            ->setIpAddress($userIp)
+            ->setAlreadyApplied(false)
+            ->setUser($jobOffer->getUser());
 
-        // Create form
-        $form = $this->createForm(ApplicationType::class, $application);
+        // 4) Create & handle the form
+        $form = $this->createForm(ApplicationType::class, $application, [
+            // ensure file fields trigger multipart/form-data
+            'attr'      => ['enctype' => 'multipart/form-data'],
+        ]);
         $form->handleRequest($request);
 
+        // 5) If submitted & valid, process
         if ($form->isSubmitted() && $form->isValid()) {
-            // Get email from form
             $email = $application->getMail();
 
-            // Double-check for email-based duplicates
-            $emailDuplicate = $this->entityManager->getRepository(Application::class)->findOneBy([
-                'jobOffer' => $jobOffer,
-                'mail' => $email,
-            ]);
+            // 5a) Email‐based duplicate check
+            $duplicateByEmail = $this->entityManager
+                ->getRepository(Application::class)
+                ->findOneBy([
+                    'jobOffer' => $jobOffer,
+                    'mail'     => $email,
+                ]);
 
-            if ($emailDuplicate) {
+            if ($duplicateByEmail) {
                 $this->addFlash('warning', 'Vous avez déjà postulé pour cette offre.');
                 return $this->redirectToRoute('job_offers_public');
             }
 
-            // Handle CV file upload
+            // 5b) File uploads with try/catch
+            /** @var UploadedFile|null $cvFile */
             $cvFile = $form->get('CV')->getData();
             if ($cvFile) {
-                $cvFileName = uniqid() . '.' . $cvFile->guessExtension();
-                $cvFile->move($this->getParameter('uploads_directory'), $cvFileName);
-                $application->setCv('/uploads/applications/' . $cvFileName);
+                try {
+                    $cvFilename = uniqid() . '_' . $id . '.' . $cvFile->guessExtension();
+                    $cvFile->move(
+                        $this->getParameter('uploads_directory'),
+                        $cvFilename
+                    );
+                    $application->setCv('/uploads/applications/' . $cvFilename);
+                } catch (FileException $e) {
+                    $this->logger->error('CV upload failed', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $this->addFlash('error', 'Le téléchargement du CV a échoué.');
+                    return $this->redirectToRoute('app_show_jobs_apply', ['id' => $id]);
+                }
             }
 
-            // Handle cover letter file upload
-            $coverLetterFile = $form->get('Cover_Letter')->getData();
-            if ($coverLetterFile) {
-                $coverLetterFileName = uniqid() . '.' . $cvFile->guessExtension();
-                $coverLetterFile->move($this->getParameter('uploads_directory'), $coverLetterFileName);
-                $application->setCoverLetter('/uploads/applications/' . $coverLetterFileName);
+            /** @var UploadedFile|null $coverFile */
+            $coverFile = $form->get('Cover_Letter')->getData();
+            if ($coverFile) {
+                try {
+                    $coverFilename = uniqid() . '_' . $id . '.' . $coverFile->guessExtension();
+                    $coverFile->move(
+                        $this->getParameter('uploads_directory'),
+                        $coverFilename
+                    );
+                    $application->setCoverLetter('/uploads/applications/' . $coverFilename);
+                } catch (FileException $e) {
+                    $this->logger->error('Cover letter upload failed', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $this->addFlash('error', 'Le téléchargement de la lettre de motivation a échoué.');
+                    return $this->redirectToRoute('app_show_jobs_apply', ['id' => $id]);
+                }
             }
 
-            // Final IP validation
-            if (!$application->getIpAddress()) {
-                $this->logger->error('IP address is null before persisting', ['previousIp' => $userIp]);
-                $application->setIpAddress('unknown');
-            }
-
-            // Log state before persisting
-            $this->logger->debug('Application state', [
-                'ipAddress' => $application->getIpAddress(),
-                'email' => $email,
-                'user' => $jobOffer->getUser() ? $jobOffer->getUser()->getId() : null,
-            ]);
-
-            // Persist and flush
+            // 5c) Final persist & flush
             $this->entityManager->persist($application);
             $application->setAlreadyApplied(true);
             $this->entityManager->flush();
 
-            $this->logger->info('Application saved', [
-                'id' => $application->getId(),
-                'ipAddress' => $application->getIpAddress(),
+            $this->logger->info('New application persisted', [
+                'application_id' => $application->getId(),
+                'job_offer_id'   => $jobOffer->getId(),
+                'ip'             => $userIp,
             ]);
 
             $this->addFlash('success', 'Candidature soumise avec succès.');
             return $this->redirectToRoute('job_offers_public');
         }
 
+        // 6) Render the form (GET or invalid POST)
         return $this->render('application/indexApplication.html.twig', [
-            'form' => $form->createView(),
-            'jobOfferId' => $id,
-            'joboffer' => $jobOffer,
+            'form'       => $form->createView(),
+            'jobOfferId' => $jobOffer->getId(),
+            'joboffer'   => $jobOffer,
         ]);
     }
 }

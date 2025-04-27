@@ -246,7 +246,7 @@
 
         #stats-chart {
             max-width: 100%;
-            height: auto;
+            height: 300px;
         }
     </style>
 {% endblock %}
@@ -304,7 +304,11 @@
                             <option value="in progress" {% if application.status == 'in progress' %}selected{% endif %}>En cours</option>
                             <option value="closed" {% if application.status == 'closed' %}selected{% endif %}>Fermé</option>
                         </select>
-                        <button class="interview-btn" data-application-id="{{ application.id }}">Interview</button>
+                        <button 
+                            class="interview-btn" 
+                            data-application-id="{{ application.id }}"
+                            data-url="{{ path('app_interview_new', {'applicationId': application.id}) }}"
+                        >Interview</button>
                     </div>
                 {% endfor %}
             {% else %}
@@ -313,16 +317,36 @@
         </div>
 
         <!-- Statistics Button -->
-        <button id="stats-btn" class="stats-btn">Show Statistics</button>
+        <button id="stats-btn" class="stats-btn">Voir les statistiques</button>
 
         <!-- Statistics Modal -->
-        <div id="stats-modal" class="modal fade" tabindex="-1" role="dialog">
-            <!-- ... -->
+        <div id="stats-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Statistiques des candidatures</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="stats-chart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Interview Modal -->
-        <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
-            <!-- ... -->
+        <div id="interviewModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="interviewModalLabel">Planifier un entretien</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Form will be injected here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -376,280 +400,89 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Search & Sort
             const searchInput = document.getElementById('search-input');
-            const sortSelect = document.getElementById('sort-select');
-            const cards = document.querySelectorAll('.application-card');
-            const container = document.querySelector('.application-list');
+            const sortSelect  = document.getElementById('sort-select');
+            const container   = document.querySelector('.application-list');
 
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = this.value.toLowerCase();
-                cards.forEach(card => {
+            searchInput.addEventListener('keyup', () => {
+                const term = searchInput.value.toLowerCase();
+                document.querySelectorAll('.application-card').forEach(card => {
                     const name = card.querySelector('h3').textContent.toLowerCase();
-                    card.style.display = name.includes(searchTerm) ? 'block' : 'none';
+                    card.style.display = name.includes(term) ? 'block' : 'none';
                 });
             });
 
-            sortSelect.addEventListener('change', function() {
-                const sortBy = this.value;
-                const cardsArray = Array.from(cards);
-                cardsArray.sort((a, b) => {
-                    const dateA = new Date(a.dataset.submissionDate);
-                    const dateB = new Date(b.dataset.submissionDate);
-                    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+            sortSelect.addEventListener('change', () => {
+                const sortBy = sortSelect.value;
+                const cards  = Array.from(document.querySelectorAll('.application-card'));
+                cards.sort((a,b) => {
+                    const dA = new Date(a.dataset.submissionDate);
+                    const dB = new Date(b.dataset.submissionDate);
+                    return sortBy === 'newest' ? dB - dA : dA - dB;
                 });
                 container.innerHTML = '';
-                cardsArray.forEach(card => container.appendChild(card));
+                cards.forEach(c => container.appendChild(c));
             });
 
             sortSelect.value = 'newest';
             sortSelect.dispatchEvent(new Event('change'));
 
-            const modal = document.getElementById('interviewModal');
-            const modalBody = modal.querySelector('.modal-body');
-            const buttons = document.querySelectorAll('.interview-btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const applicationId = this.dataset.applicationId;
-                    fetch(`/interview/new/${applicationId}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Failed to load form');
-                        return response.text();
+            // Interview Modal
+            const interviewModal = $('#interviewModal');
+            const interviewBody  = interviewModal.find('.modal-body');
+            document.querySelectorAll('.interview-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const url = btn.dataset.url;
+                    fetch(url, { headers: { 'X-Requested-With':'XMLHttpRequest' } })
+                    .then(r => {
+                        if (!r.ok) throw new Error(r.statusText);
+                        return r.text();
                     })
                     .then(html => {
-                        modalBody.innerHTML = html;
-                        $(modal).modal('show');
-                        const form = modalBody.querySelector('form');
-                        form.addEventListener('submit', function(e) {
+                        interviewBody.html(html);
+                        interviewModal.modal('show');
+                        // bind form submission
+                        interviewBody.find('form').on('submit', function(e) {
                             e.preventDefault();
-                            const formData = new FormData(form);
-                            fetch(form.action, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Failed to submit form');
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    $(modal).modal('hide');
-                                    alert('Interview scheduled and email sent to the candidate.');
+                            const form = this;
+                            const fm   = new FormData(form);
+                            fetch(form.action, { method:'POST', body: fm, headers:{ 'X-Requested-With':'XMLHttpRequest' } })
+                            .then(r => r.json())
+                            .then(js => {
+                                if (js.success) {
+                                    interviewModal.modal('hide');
+                                    alert('Entretien créé avec succès');
                                     location.reload();
                                 } else {
-                                    alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+                                    interviewBody.html(js); // show errors
                                 }
                             })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('An error occurred while scheduling the interview.');
-                            });
+                            .catch(() => alert('Erreur lors de l’envoi du formulaire'));
                         });
                     })
-                    .catch(error => {
-                        console.error('Error loading form:', error);
-                        alert('Failed to load the interview form.');
-                    });
+                    .catch(() => alert('Impossible de charger le formulaire d’entretien'));
                 });
             });
 
-            // Statistics Button Event Listener with Chart.js
-            document.getElementById('stats-btn').addEventListener('click', function() {
-                fetch('{{ path('app_application_stats', {'id': jobOffer.id}) }}', {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const ctx = document.getElementById('stats-chart').getContext('2d');
-                    if (statsChart) {
-                        statsChart.destroy();
-                    }
-                    statsChart = new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: ['Open', 'In Progress', 'Closed'],
-                            datasets: [{
-                                data: [data.open, data.inProgress, data.closed],
-                                backgroundColor: [
-                                    '#4caf50',  // Green for Open
-                                    '#ff9800',  // Orange for In Progress
-                                    '#f44336'   // Red for Closed
-                                ],
-                                borderColor: '#ffffff',
-                                borderWidth: 2
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        font: {
-                                            size: 14,
-                                            family: 'Inter, sans-serif'
-                                        },
-                                        color: '#333'
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Application Status Distribution',
-                                    font: {
-                                        size: 18,
-                                        family: 'Inter, sans-serif',
-                                        weight: 'bold'
-                                    },
-                                    color: '#333'
-                                },
-                                tooltip: {
-                                    backgroundColor: 'rgba(0,0,0,0.8)',
-                                    titleFont: {
-                                        size: 14,
-                                        family: 'Inter, sans-serif'
-                                    },
-                                    bodyFont: {
-                                        size: 12,
-                                        family: 'Inter, sans-serif'
-                                    },
-                                    titleColor: '#fff',
-                                    bodyColor: '#fff'
-                                }
-                            },
-                            animation: {
-                                animateScale: true,
-                                animateRotate: true
-                            }
-                        }
-                    });
-                    $('#stats-modal').modal('show');
-                })
-                .catch(error => {
-                    console.error('Error loading statistics:', error);
-                    alert('Failed to load statistics. Please try again later.');
-                });
-            });
+            // Statistics Modal & Chart
+            document.getElementById('stats-btn').addEventListener('click', () => {
+                const openCount       = document.querySelectorAll('.application-card:not(.in-progress):not(.closed)').length;
+                const inProgressCount = document.querySelectorAll('.application-card.in-progress').length;
+                const closedCount     = document.querySelectorAll('.application-card.closed').length;
 
-            // Destroy chart when modal is hidden to prevent reopening issues
-            $('#stats-modal').on('hidden.bs.modal', function () {
-                if (statsChart) {
-                    statsChart.destroy();
-                    statsChart = null;
-                }
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('interviewModal');
-            const modalBody = modal.querySelector('.modal-body');
-            const buttons = document.querySelectorAll('.interview-btn');
-        
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const applicationId = this.dataset.applicationId;
-                    fetch(`/interview/new/${applicationId}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Failed to load form');
-                        return response.text();
-                    })
-                    .then(html => {
-                        modalBody.innerHTML = html;
-                        $(modal).modal('show');
-                        const form = modalBody.querySelector('form');
-        
-                        form.addEventListener('submit', function(e) {
-                            e.preventDefault();
-        
-                            // Validation logic
-                            let isValid = true;
-        
-                            // Clear previous error messages
-                            modalBody.querySelectorAll('.error').forEach(el => el.textContent = '');
-        
-                            // Get input values
-                            const interviewDate = form.querySelector('[name="interview[interviewDate]"]');
-                            const location = form.querySelector('[name="interview[location]"]');
-                            const feedback = form.querySelector('[name="interview[feedback]"]');
-                            const status = form.querySelector('[name="interview[status]"]');
-        
-                            // Validate Interview Date (Required)
-                            if (interviewDate.value.trim() === '') {
-                                modalBody.querySelector('#error-interviewDate').textContent = 'Interview Date and Time is required.';
-                                isValid = false;
-                            }
-        
-                            // Validate Location (Required)
-                            // Validate Location (Required and at least 5 characters)
-                            if (location.value.trim() === '') {
-                                modalBody.querySelector('#error-location').textContent = 'Location is required.';
-                                isValid = false;
-                            } else if (location.value.trim().length < 5) {
-                                modalBody.querySelector('#error-location').textContent = 'Location must be at least 5 characters.';
-                                isValid = false;
-                            }
-                            
-        
-                            // Validate Feedback (Optional: at least 5 characters if provided)
-                            if (feedback.value.trim() !== '' && feedback.value.trim().length < 5) {
-                                modalBody.querySelector('#error-feedback').textContent = 'Feedback must be at least 5 characters ';
-                                isValid = false;
-                            }
-        
-                            // Validate Status (Required)
-                            if (status.value.trim() === '') {
-                                modalBody.querySelector('#error-status').textContent = 'Status is required.';
-                                isValid = false;
-                            }
-        
-                            // Proceed with form submission if valid
-                            if (isValid) {
-                                const formData = new FormData(form);
-                                fetch(form.action, {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                .then(response => {
-                                    if (!response.ok) throw new Error('Failed to submit form');
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        $(modal).modal('hide');
-                                        alert('Interview scheduled and email sent to the candidate.');
-                                        location.reload();
-                                    } else {
-                                        alert('Error scheduling interview: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                });
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error loading form:', error);
-                    });
+                const ctx = document.getElementById('stats-chart').getContext('2d');
+                if (statsChart) statsChart.destroy();
+                statsChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Ouvert','En cours','Fermé'],
+                        datasets: [{ data:[openCount,inProgressCount,closedCount], backgroundColor:['#4caf50','#ff9800','#f44336'] }]
+                    },
+                    options: { responsive:true, maintainAspectRatio:false }
                 });
+
+                $('#stats-modal').modal('show');
             });
         });
     </script>
