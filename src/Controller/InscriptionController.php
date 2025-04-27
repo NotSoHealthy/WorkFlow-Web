@@ -17,11 +17,23 @@ use App\Service\SmsSender;
 class InscriptionController extends AbstractController
 {
     #[Route(name: 'app_inscription_list')]
-    public function list(Request $request,EntityManagerInterface $em,PaginatorInterface $paginator): Response
+    public function list(Request $request,EntityManagerInterface $em,InscriptionRepository $inscriptionRepository,PaginatorInterface $paginator): Response
     {
         /** @var User $user */
         $user = $this->getUser();
+        $stats = $inscriptionRepository->getInscriptionsCountPerFormation();
         $inscription = $em->getRepository(Inscription::class)->findAll();
+        $sort = $request->query->get('filter_sort', 'all');
+
+        if($sort=="all")
+        {
+            $inscription = $em->getRepository(Inscription::class)->findAll();
+        }
+        else
+        {
+            $inscription = $inscriptionRepository->sortInscriptions($sort);
+        }
+        
         $pagination = $paginator->paginate(
             $inscription,
             $request->query->getInt('page', 1),
@@ -29,7 +41,9 @@ class InscriptionController extends AbstractController
         );
         return $this->render('inscription/list.html.twig', [
             'pagination' => $pagination,
-            'user' => $user
+            'user' => $user,
+            'stats' => $stats,
+            'filter_sort' => $sort
         ]);
     }
 
@@ -65,9 +79,7 @@ class InscriptionController extends AbstractController
         $employee = $inscription->getUser();
         $fullName = $employee->getFirst_name() . ' ' . $employee->getLast_name();
 
-        if (!in_array($status, ['en attente', 'approuver', 'refuser'])) {
-            return new Response('Invalid status', 400);
-        }
+        
         if ($status === 'refuser' && $inscription->getStatus() === 'approuver') {
             $formation->setParticipantsMax($formation->getParticipantsMax() + 1);
         }
