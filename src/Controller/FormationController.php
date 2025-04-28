@@ -22,14 +22,8 @@ final class FormationController extends AbstractController
         
         $filterSort = $request->query->get('filter_sort', '');
         
-        $formations = $formationRepository->searchFormations($search);
-
-        if ($filterSort == 'titre') {
-            $formations = $formationRepository->sortFormations('titre');
-        } 
-        elseif ($filterSort == 'period') {
-            $formations = $formationRepository->sortFormations('period');
-        } 
+        $formations = $formationRepository->searchAndSortFormations($search, $filterSort);
+        
         /** @var User $user */
         $user = $this->getUser();
         $formationsToday = [];
@@ -45,6 +39,12 @@ final class FormationController extends AbstractController
             $request->query->getInt('page', 1),
             3
         );
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('formation/_list.html.twig', [
+                'pagination' => $pagination,
+                'user_inscriptions' => $user?->getInscriptions()
+            ]);
+        }
         return $this->render('formation/list.html.twig', [
             'pagination' => $pagination,
             'user_inscriptions' => $user?->getInscriptions(),

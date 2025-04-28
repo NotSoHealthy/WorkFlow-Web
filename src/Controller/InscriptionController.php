@@ -39,6 +39,12 @@ class InscriptionController extends AbstractController
             $request->query->getInt('page', 1),
             3
         );
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('inscription/_list.html.twig', [
+                'pagination' => $pagination,
+                'user' => $user
+            ]);
+        }
         return $this->render('inscription/list.html.twig', [
             'pagination' => $pagination,
             'user' => $user,

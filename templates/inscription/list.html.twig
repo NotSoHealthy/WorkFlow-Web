@@ -41,6 +41,9 @@
               text-decoration: none;
               transform: translateY(-1px);
           }
+          .sorting-container{
+            margin-top: 1.5rem;
+          }
     </style>        
 {% endblock %}
 {% block title %}Liste des Inscriptions{% endblock %}
@@ -50,55 +53,22 @@
 <h1>Liste des Inscriptions</h1>
 
 <a href="{{ path('app_formation_list') }}" class="custom-btn"><span class="material-symbols-outlined">arrow_back</span></a>
+{% if is_granted('ROLE_RESPONSABLE') %}
 <div class="text-center my-3">
   <button type="button" class="custom-btn stats-btn" data-toggle="modal" data-target="#statsModal">
     📊
   </button>
 </div>
+{% endif %}
 <div class="sorting-container mb-4">
-      <form action="{{ path('app_inscription_list') }}" method="GET" >
-      <select id="sort-select" name="filter_sort" class="form-control" onchange="this.form.submit()">
+      <select id="sort-select" name="filter_sort" class="form-control">
         <option value="all" {{ filter_sort == 'all' ? 'selected' : '' }}>tous</option>
         <option value="en attente" {{ filter_sort == 'en attente' ? 'selected' : '' }}>en attente</option>
         <option value="approuver" {{ filter_sort == 'approuver' ? 'selected' : '' }}>approuver</option>
       </select>
-    </form>
 </div>
-<div class="container mt-4">
-    {% for inscription in pagination %}
-    {% if is_granted('ROLE_RESPONSABLE') or inscription.user.id == user.id %}
-      <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
-        <div class="card-body">
-          <h5 class="card-title mb-2">{{ inscription.user.firstName }} {{ inscription.user.lastName }}</h5>
-          <p class="card-text mb-1">
-            <strong>Formation : </strong> {{ inscription.formation.title }}<br>
-            <strong>Date : </strong> {{ inscription.dateRegistration|date('Y-m-d') }}
-          </p>
-          <div class="d-flex justify-content-end gap-2">
-            {% if is_granted('ROLE_RESPONSABLE') %}
-              <form action="{{ path('app_inscription_edit', { id: inscription.id }) }}" method="POST" class="mb-0">
-                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                  <option value="en attente" {{ inscription.status == 'en attente' ? 'selected' : '' }} disabled hidden>en attente</option>
-                  <option value="approuver" {{ inscription.status == 'approuver' ? 'selected' : '' }}>approuver</option>
-                  <option value="refuser" {{ inscription.status == 'refuser' ? 'selected' : '' }}>refuser</option>
-                </select>
-              </form>
-            {% endif %}
-            {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
-              <span class="badge 
-                {% if inscription.status == 'approuver' %}bg-success
-                {% else %}bg-warning text-dark
-                {% endif %}">
-                {{ inscription.status|capitalize }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    {% endif %}
-    {% else %}
-      <div class="alert alert-info">No registrations found.</div>
-    {% endfor %}
+<div class="container mt-4" id="inscription-container">
+  {% include 'inscription/_list.html.twig' with {'pagination': pagination} %}
   </div>
   
 <div class="d-flex justify-content-center mt-4">
@@ -131,6 +101,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script> 
 document.addEventListener('DOMContentLoaded', function () {
+
+  const sortSelect = document.getElementById('sort-select');
+
+  sortSelect.addEventListener('change', function () {
+    const sortValue = sortSelect.value;
+
+    fetch(`{{ path('app_inscription_list') }}?filter_sort=${encodeURIComponent(sortValue)}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('inscription-container').innerHTML = html;
+    })
+    .catch(error => {
+      console.error('Erreur AJAX:', error);
+    });
+  });
+
+
   $('#statsModal').on('shown.bs.modal', function() {
     const ctx = document.getElementById('inscriptionChart').getContext('2d');
   
