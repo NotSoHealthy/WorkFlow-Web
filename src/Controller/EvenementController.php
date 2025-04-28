@@ -69,9 +69,19 @@ final class EvenementController extends AbstractController
         $query = $request->query->get('q');
         $sortByDate = $request->query->get('sort_by_date');
         $eventType = $request->query->get('event_type', '');
-
+    
         $events = $eventRepository->findBySearchQuery($query, $sortByDate, $eventType);
-
+    
+        // Check if this is an AJAX request
+        if ($request->query->has('ajax') || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            // Return only the events partial for AJAX requests
+            return $this->render('evenement/_events_list.html.twig', [
+                'events' => $events,
+                'query' => $query,
+            ]);
+        }
+    
+        // Return the full page for standard requests
         return $this->render('evenement/index.html.twig', [
             'events' => $events,
             'query' => $query,
