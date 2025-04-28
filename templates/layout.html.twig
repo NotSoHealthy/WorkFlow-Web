@@ -2,7 +2,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/layout.css') }}">
-    
+    <link rel="stylesheet" href="{{ asset('styles/chatbot.css') }}">
 {% endblock stylesheets %}
 
 {% block body %}
@@ -41,7 +41,101 @@
         <a class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_reclamation_index' %}active{% endif %}" href="{{ path('app_reclamation_index') }}"><span class="material-symbols-outlined">edit</span>Réclamations</a>
               
         <a class="nav-item nav-link nav-disconnect" href="{{ path('app_logout') }}"><span class="material-symbols-outlined">logout</span>Se Déconnecter</a>
+        
+
+    </div>
+    <div id="chatbot-container">
+        <div id="chatbot-toggle" onclick="toggleChatbot()">💬</div>
+        <div id="chatbot-window">
+            <div id="chatbot-messages"></div>
+            <div id="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="Posez votre question..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
     </div>
     {% block main %}
     {% endblock %}
+    {% block javascripts %}
+    {{ parent() }}
+    <script>
+function toggleChatbot() {
+    const window = document.getElementById('chatbot-window');
+    if (window.style.display === "none" || window.style.display === "") {
+        window.style.display = "flex";
+    } else {
+        window.style.display = "none";
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatbot-input');
+    const message = input.value.trim();
+    if (message === '') return;
+
+    appendMessage('Vous', message);
+    appendTyping();
+    fetch('{{ path('gemini_chat') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({message: message})
+    })
+    .then(response => response.json())
+    .then(data => {
+        removeTyping();
+        appendMessage('Ai Helper', data.reply);
+    })
+    .catch(error => {
+        removeTyping();
+        appendMessage('Erreur', 'Impossible de contacter le serveur.');
+    });
+    input.value = '';
+}
+function appendMessage(sender, text) {
+    const messages = document.getElementById('chatbot-messages');
+    const messageElement = document.createElement('div');
+    
+    let icon = '';
+    if (sender === 'Ai Helper') {
+        icon = '🤖'; // Bot icon
+    } else if (sender === 'Vous' || sender === 'Erreur') {
+        icon = '👤'; // User icon
+    }
+
+    messageElement.innerHTML = `
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 20px; margin-right: 8px;">${icon}</div>
+            <div style="background: ${sender === 'Gemini' ? '#f1f0f0' : '#d1e7dd'}; padding: 8px 12px; border-radius: 12px; max-width: 80%;">
+                <strong>${sender}:</strong> ${text}
+            </div>
+        </div>
+    `;
+    
+    messages.appendChild(messageElement);
+    messages.scrollTop = messages.scrollHeight;
+}
+function appendTyping() {
+    const messages = document.getElementById('chatbot-messages');
+    const typingElement = document.createElement('div');
+    typingElement.id = "typing";
+    typingElement.innerHTML = `<em>Gemini est en train d'écrire...</em>`;
+    messages.appendChild(typingElement);
+    messages.scrollTop = messages.scrollHeight;
+}
+function removeTyping() {
+    const typingElement = document.getElementById('typing');
+    if (typingElement) {
+        typingElement.remove();
+    }
+}
+    </script>
+{% endblock %}
 {% endblock body %}

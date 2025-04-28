@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -192,6 +193,14 @@ public function geminiChat(Request $request): JsonResponse
     $data = json_decode($request->getContent(), true);
     $message = $data['message'] ?? '';
 
+    // 1. Check if message is related to projects
+    if (!$this->isProjectRelated($message)) {
+        return new JsonResponse([
+            'reply' => "❌ Désolé, je ne peux répondre qu'aux questions concernant les projets."
+        ]);
+    }
+
+    // 2. If yes, send to Gemini
     $apiKey = $this->getParameter('gemini_api_key');
     $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
         'json' => [
@@ -206,6 +215,41 @@ public function geminiChat(Request $request): JsonResponse
 
     return new JsonResponse(['reply' => $reply]);
 }
+private function isProjectRelated(string $message): bool
+{
+    $keywords = [
+        'projet', 'project', 'deadline', 'livrable', 'team', 'équipe', 'objectifs', 'objectives', 'tâches', 'tasks'
+    ];
+
+    $message = strtolower($message);
+
+    foreach ($keywords as $keyword) {
+        if (strpos($message, $keyword) !== false) {
+            return true;
+        }
+    }
+
+    return false;
+}
+#[Route('/{id}/tasks/json', name: 'project_tasks_json', methods: ['GET'])]
+    public function projectTasksJson(Project $project, TaskRepository $taskRepository): JsonResponse
+    {
+        $tasks = $taskRepository->findBy(['project' => $project]);
+
+        $taskData = [];
+
+        foreach ($tasks as $task) {
+            $taskData[] = [
+                'id' => $task->getId(),
+                'title' => $task->getTitle(),
+                'description' => $task->getDescription(),
+                'status' => $task->getStatus(),
+                'priority' => $task->getPriority(),
+            ];
+        }
+
+        return $this->json($taskData);
+    }
 
 
 }
