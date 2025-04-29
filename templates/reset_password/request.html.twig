@@ -10,6 +10,10 @@
         {% for flash_error in app.flashes('reset_password_error') %}
         <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
         {% endfor %}
+        <div class="title">
+            <img src="{{ asset('icons/logo.png') }}" alt="" class="logo">
+            <h1>WorkFlow</h1>
+        </div>
         <h2>Mot de passe oublié?</h2>
 
     {{ form_start(requestForm, {'attr': {'novalidate':'novalidate'}}) }}

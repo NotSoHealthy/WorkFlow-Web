@@ -6,9 +6,11 @@ use App\Entity\User;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
 use App\Service\SmsSender;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +22,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
+use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 #[Route('/reset-password')]
@@ -29,7 +33,9 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private MailerInterface $mailer,
+        private SmsSender $smsSender
     ) {
     }
 
@@ -37,7 +43,7 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      */
     #[Route('', name: 'app_forgot_password_request')]
-    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator, SmsSender $smsSender): Response
+    public function request(Request $request, TranslatorInterface $translator, SmsSender $smsSender): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
@@ -52,7 +58,7 @@ class ResetPasswordController extends AbstractController
                 /** @var string $email */
                 $email = $form->get('email')->getData();
 
-                return $this->processSendingPasswordResetEmail($email, $mailer, $translator);
+                return $this->processSendingPasswordResetEmail($email);
             }
         }
 
@@ -138,7 +144,7 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer, TranslatorInterface $translator): RedirectResponse
+    private function processSendingPasswordResetEmail(string $emailFormData): RedirectResponse
     {
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $emailFormData,
@@ -165,17 +171,7 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $email = (new TemplatedEmail())
-            ->from(new Address('aminbenhamouda16@gmail.com', 'WorkFlow'))
-            ->to((string) $user->getEmail())
-            ->subject('Your password reset request')
-            ->htmlTemplate('reset_password/email.html.twig')
-            ->context([
-                'resetToken' => $resetToken,
-            ])
-        ;
-
-        $mailer->send($email);
+        $this->sendEmail($user, $resetToken);
 
         // Store the token object in session for retrieval in check-email route.
         $this->setTokenObjectInSession($resetToken);
@@ -206,7 +202,7 @@ class ResetPasswordController extends AbstractController
         $resetUrl = $this->generateUrl('app_reset_password', ['token' => $resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         // Send SMS here (use a service like Twilio, Nexmo, or any SMS gateway)
-        $this->sendSms($phoneNumber, $resetUrl, $smsSender);
+        $this->sendSms($phoneNumber, $resetUrl);
 
         $this->setTokenObjectInSession($resetToken);
 
@@ -215,13 +211,60 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    private function sendSms(string $phoneNumber,string $resetUrl, SmsSender $smsSender): void
+    private function sendSms(string $phoneNumber,string $resetUrl): void
     {
         $message = "Bonjour!\n\n
         Pour réinitialiser votre mot de passe, veuillez visiter le lien suivant\n
         $resetUrl \n\n
         Ce lien expirera dans 1 heure.";
-        $smsSender->sendSms("+21698264250", $message);
+        $this->smsSender->sendSms("+21698264250", $message);
     }
 
+    private function sendEmail(User $user, ResetPasswordToken $resetToken): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address('aminbenhamouda16@gmail.com', 'WorkFlow'))
+            ->to((string) $user->getEmail())
+            ->subject('Your password reset request')
+            ->htmlTemplate('reset_password/email.html.twig')
+            ->context([
+                'resetToken' => $resetToken,
+            ])
+        ;
+
+        $this->mailer->send($email);
+    }
+
+    #[Route('/api/request-password-reset', name: 'api_request_password_reset', methods: ['POST'])]
+    public function requestPasswordReset(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['method'], $data['identifier'])) {
+            return new JsonResponse(['error' => 'Missing method or identifier'], 400);
+        }
+        $method = $data['method'];
+        $identifier = $data['identifier'];
+        if (!in_array($method, ['email', 'number'])) {
+            return new JsonResponse(['error' => 'Invalid method'], 400);
+        }
+        $user = $this->entityManager->getRepository(className: User::class)->findOneBy([$method => $identifier]);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+        try {
+            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+        } catch (TooManyPasswordRequestsException $e) {
+            return new JsonResponse(['error' => 'Too many reset requests. Please try again later.'], 429);
+        }
+        if($method === 'email') {
+            $this->sendEmail($user, $resetToken);
+            return new JsonResponse(['message' => 'Reset email sent'], 200);
+        }
+        else{
+            $resetUrl = $this->generateUrl('app_reset_password', ['token' => $resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $this->sendSms($identifier, $resetUrl);
+            return new JsonResponse(['message' => 'Reset SMS sent'], 200);
+        }
+    }
 }
