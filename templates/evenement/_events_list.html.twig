@@ -42,11 +42,10 @@
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                             </form>
-                            <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
-                                <button type="submit" class="action-btn btn-delete-icon" title="Supprimer">
+                            <div style="display:inline;">
+                                <button type="submit" class="action-btn btn-delete-icon" data-id="{{ event.id }}" title="Supprimer">
                                     <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
+                            </div>
                         </div>
                         {% endif %}
                     </div>

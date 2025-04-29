@@ -8,6 +8,7 @@
             const closeSearch = document.getElementById('close-search');
             const searchResults = document.getElementById('search-results');
             var queryInput = document.getElementById('query');
+            const eventsWrapper = document.getElementById('events-wrapper');
             const eventsContainer = document.querySelector('.events-container');
             
             // Helper function to update URL parameters without page reload
@@ -55,7 +56,7 @@
                 
                 // Prepare URL for fetch
                 const url = new URL(window.location.origin + window.location.pathname);
-                
+                console.log(url.pathname);
                 // Add base path for event list
                 if (!url.pathname.includes('searchevent')) {
                     url.pathname = '/event/searchevent';
@@ -100,7 +101,62 @@
                     `;
                 });
             }
-            
+            //Function to fetch events after deleting an event
+            function fetchDeletedEvents(params, eventId) {
+                // Show loading indicator
+                const eventsCol = document.querySelector('.col-md-9');
+                const originalContent = eventsCol.innerHTML;
+                
+                // Create loading indicator
+                const loadingHtml = `
+                    <div class="text-center p-5">
+                        <i class="fas fa-spinner fa-spin fa-3x"></i>
+                        <p class="mt-3">Chargement des événements...</p>
+                    </div>
+                `;
+                
+                // Insert loading indicator
+                eventsCol.innerHTML = loadingHtml;
+                
+                // Prepare URL for fetch
+                const url = new URL(window.location.origin + window.location.pathname);
+                // Add base path for event list
+                url.pathname = '/event/' +eventId;
+                
+                // Add parameters
+                for (const [key, value] of Object.entries(params)) {
+                    if (value) {
+                        url.searchParams.set(key, value);
+                    }
+                }
+                
+                // Add AJAX identifier
+                url.searchParams.set('ajax', '1');
+                
+                // Fetch events
+                fetch(url.toString(), {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Update the content
+                    eventsCol.innerHTML = html;
+                    
+                    // Reinitialize modals and other event handlers
+                    initializeEventHandlers();
+                })
+                .catch(error => {
+                    console.error('Error fetching events:', error);
+                });
+            }
             // Function to initialize event handlers for newly loaded content
             function initializeEventHandlers() {
                 // Re-initialize Bootstrap modals
@@ -121,7 +177,16 @@
                     fetchEvents(params);
                 });
             });
-            
+            //Handle Delete button click event
+            eventsWrapper.addEventListener('click', function(e) {
+                if(e.target.matches('.btn-delete-icon')) {
+                    e.stopPropagation(); 
+                    const eventId = e.target.dataset.id;
+                    const params = collectFilterParams();
+                    updateUrlParams(params);
+                    fetchDeletedEvents(params, eventId);
+                }
+            });
             // Handle filter checkbox change - prevent default onchange behavior
             if (sortCheckbox) {
                 // Remove any existing onchange attribute

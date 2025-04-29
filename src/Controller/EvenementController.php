@@ -42,11 +42,15 @@ final class EvenementController extends AbstractController
         ]);
     }
     #[Route('/{id}', name: 'app_delete_event', methods: ['POST'])]
-    public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Event $event, EntityManagerInterface $entityManager,eventRepository $eventRepository): Response
     {
         $entityManager->remove($event);
         $entityManager->flush();
-        return $this->redirectToRoute('app_showevent', [], Response::HTTP_SEE_OTHER);
+        $query="ass";
+        return $this->render('evenement/_events_list.html.twig', [
+            'events' => $eventRepository->findAll(),
+            'query' => $query,
+        ]);
     }
     #[Route('/{id}/edit', name: 'app_edit_event', methods: ['GET', 'POST'])]
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
