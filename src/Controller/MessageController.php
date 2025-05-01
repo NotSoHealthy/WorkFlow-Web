@@ -28,76 +28,98 @@ final class MessageController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/details', name: 'app_reclamation_details', methods: ['GET','POST'])]
-    public function details(  Request $request, EntityManagerInterface $entityManager, Reclamation $reclamation): Response
+    #[Route('/{id}/details', name: 'app_reclamation_details', methods: ['GET', 'POST'])]
+    public function details(Request $request, EntityManagerInterface $entityManager, Reclamation $reclamation): Response
     {
-
         $editMessageId = $request->request->get('edit_message_id');
         $message = $editMessageId 
             ? $entityManager->getRepository(Message::class)->find($editMessageId)
             : new Message();
 
-            if ($editMessageId && $message->getReclamation() !== $reclamation) {
-                throw $this->createAccessDeniedException();
-            }
+        if ($editMessageId && $message->getReclamation() !== $reclamation) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(MessageType::class, $message, [
             'reclamation' => $reclamation
         ]);
 
-
         $form->handleRequest($request);
-        
-    
+
         if ($form->isSubmitted() && $form->isValid()) {
-        
             $timezone = new \DateTimeZone('+01:00');
             $now = new \DateTime('now', $timezone);
-           
 
             if (!$editMessageId) {
-                $message->setUser($this->getUser()->getId());
+                $message->setUser($this->getUser());
                 $message->setDate($now);
                 $message->setHeure($now);
                 $message->setReclamation($reclamation);
             }
-        
-         
-         
+
             $entityManager->persist($message);
             $entityManager->flush();
+
             if ($request->isXmlHttpRequest()) {
-                $messages = $reclamation->getMessages();
+                $searchQuery = $request->query->get('search', '');
+                $messages = $searchQuery 
+                    ? $entityManager->getRepository(Message::class)->createQueryBuilder('m')
+                        ->where('m.reclamation = :reclamation')
+                        ->andWhere('m.contenu LIKE :search')
+                        ->setParameter('reclamation', $reclamation)
+                        ->setParameter('search', '%' . $searchQuery . '%')
+                        ->getQuery()
+                        ->getResult()
+                    : $reclamation->getMessages();
+
                 $users = [];
                 foreach ($messages as $message) {
-                $users[$message->getId()] = $entityManager->getRepository(User::class)->find($message->getUser());
+                    $users[$message->getId()] = $entityManager->getRepository(User::class)->find($message->getUser());
                 }
-                
+
                 return $this->render('reclamation/_details.html.twig', [
                     'reclamation' => $reclamation,
                     'messages' => $messages,
-                    'form' => $this->createForm(MessageType::class, new Message())->createView(),
+                    'form' => $this->createForm(MessageType::class, new Message(), [
+                        'reclamation' => $reclamation
+                    ])->createView(),
                     'users' => $users,
-                    'edit_message_id' => $editMessageId
-
+                    'edit_message_id' => $editMessageId,
+                    'search_query' => $searchQuery
                 ]);
             }
-          
         }
-    
-        $messages = $reclamation->getMessages();
+
+        $searchQuery = $request->query->get('search', '');
+        $messages = $searchQuery 
+            ? $entityManager->getRepository(Message::class)->createQueryBuilder('m')
+                ->where('m.reclamation = :reclamation')
+                ->andWhere('m.contenu LIKE :search')
+                ->setParameter('reclamation', $reclamation)
+                ->setParameter('search', '%' . $searchQuery . '%')
+                ->getQuery()
+                ->getResult()
+            : $reclamation->getMessages();
+
         $users = [];
         foreach ($messages as $message) {
-        $users[$message->getId()] = $entityManager->getRepository(User::class)->find($message->getUser());
+            $users[$message->getId()] = $entityManager->getRepository(User::class)->find($message->getUser());
         }
 
-
-        return $this->render('reclamation/_details.html.twig', [
+        $response = $this->render('reclamation/_details.html.twig', [
             'reclamation' => $reclamation,
             'messages' => $messages,
             'form' => $form->createView(),
             'users' => $users,
-            'edit_message_id' => $editMessageId
+            'edit_message_id' => $editMessageId,
+            'search_query' => $searchQuery
         ]);
+
+        if ($request->isXmlHttpRequest()) {
+            return $response;
+        }
+
+        return $response;
     }
 
     #[Route('/{id}', name: 'app_message_delete', methods: ['POST'])]

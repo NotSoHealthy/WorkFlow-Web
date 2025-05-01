@@ -7,3 +7,15 @@ controllers:
     path: /2fa
     defaults:
         _controller: scheb_two_factor.form_controller::form
+
+google_drive_auth:
+    path: /google-drive/auth
+    controller: App\Controller\GoogleDriveController::auth
+
+google_drive_callback:
+    path: /google-drive/callback
+    controller: App\Controller\GoogleDriveController::callback
+
+google_drive_upload:
+    path: /google-drive/upload/{reclamation_id}
+    controller: App\Controller\GoogleDriveController::upload
