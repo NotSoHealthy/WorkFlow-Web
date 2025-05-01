@@ -6,9 +6,9 @@
     {{ parent() }}
     <style>
         :root {
-            --primary-color: #1a73e8; /* Blue for Modifier */
-            --secondary-color: #f44336; /* Red for Supprimer */
-            --accent-color: #4caf50; /* Green for Voir candidatures */
+            --primary-color: #1a73e8;
+            --secondary-color: #f44336;
+            --accent-color: #4caf50;
             --background-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-color: #333;
@@ -84,6 +84,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             padding: 20px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
         }
 
         .job-offer-card:hover {
@@ -112,7 +113,6 @@
             margin-top: 20px;
         }
 
-        /* Modern Hover-Underline Button Style */
         .cta {
             border: none;
             background: none;
@@ -150,7 +150,6 @@
             transform-origin: bottom left;
         }
 
-        /* Button Variants */
         .btn-edit {
             color: var(--primary-color);
         }
@@ -161,7 +160,6 @@
             color: var(--accent-color);
         }
 
-        /* Optional: When card border changes based on status */
         .job-offer-card.status-open {
             border-left-color: var(--accent-color);
         }
@@ -175,6 +173,14 @@
         .text-center {
             text-align: center;
         }
+
+        .error-message {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
     </style>
 {% endblock %}
 
@@ -186,34 +192,12 @@
         <div class="filter-sort-container">
             <input type="text" id="search-input" placeholder="Rechercher par Offre d'emploi">
             <select id="sort-select">
-                <option value="newest">Plus anciennes d'abord</option>
-                <option value="oldest">Plus récentes d'abord</option>
+                <option value="newest">Plus récentes d'abord</option>
+                <option value="oldest">Plus anciennes d'abord</option>
             </select>
         </div>
-        <div class="job-offer-list">
-            {% for offer in jobOffers %}
-                <div class="job-offer-card" id="job-offer-{{ offer.id }}" data-publication-date="{{ offer.publicationDate|date('Y-m-d') }}">
-                    <h3>{{ offer.title }}</h3>
-                    <p><strong>Description:</strong> {{ offer.description|length > 50 ? offer.description|slice(0, 50) ~ '...' : offer.description }}</p>
-                    <p><strong>Date de publication:</strong> {{ offer.publicationDate|date('Y-m-d') }}</p>
-                    <p><strong>Date d'expiration:</strong> {{ offer.expirationDate ? offer.expirationDate|date('Y-m-d') : 'N/A' }}</p>
-                    <p><strong>Contrat:</strong> {{ offer.contractType }}</p>
-                    <p><strong>Salaire:</strong> {{ offer.salary }}</p>
-                    <div class="actions">
-                        <a href="{{ path('job_offer_wizard', {'id': offer.id}) }}" class="cta btn-edit">
-                            <span class="hover-underline-animation">Modifier</span>
-                        </a>
-                        <button class="cta btn-delete" onclick="deleteOffer('{{ offer.id }}')">
-                            <span class="hover-underline-animation">Supprimer</span>
-                        </button>
-                        <a href="{{ path('app_application_list', {'id': offer.id}) }}" class="cta btn-view">
-                            <span class="hover-underline-animation">Voir candidatures</span>
-                        </a>
-                    </div>
-                </div>
-            {% else %}
-                <p class="text-center">Aucune offre d'emploi disponible pour le moment.</p>
-            {% endfor %}
+        <div class="job-offer-list" id="job-offer-list">
+            {% include 'job_offer/_list.html.twig' with {'jobOffers': jobOffers} %}
         </div>
     </div>
 </main>
@@ -222,55 +206,65 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        function deleteOffer(id) {
-            fetch(`{{ path('job_offer_delete', {'id': 'ID_PLACEHOLDER'}) }}`.replace('ID_PLACEHOLDER', id), {
-                method: 'DELETE',
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById("job-offer-" + id).remove();
-                } else {
-                    alert("Erreur de suppression");
-                }
-            })
-            .catch(error => console.error('Erreur:', error));
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search-input');
             const sortSelect = document.getElementById('sort-select');
-            const cards = document.querySelectorAll('.job-offer-card');
-            const container = document.querySelector('.job-offer-list');
+            const jobOfferList = document.getElementById('job-offer-list');
 
-            // Filtering by job title
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = this.value.toLowerCase();
-                cards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    card.style.display = title.includes(searchTerm) ? 'block' : 'none';
+            function updateJobOffers() {
+                const search = searchInput.value;
+                const sort = sortSelect.value;
+                fetch(`{{ path('job_offer_index') }}?search=${encodeURIComponent(search)}&sort=${sort}`, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    jobOfferList.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    jobOfferList.innerHTML = '<p class="text-center error-message" style="display: block;">Erreur lors du chargement des offres.</p>';
                 });
-            });
+            }
 
-            // Sorting by publication date
-            sortSelect.addEventListener('change', function() {
-                const sortBy = this.value;
-                const cardsArray = Array.from(cards);
-                cardsArray.sort((a, b) => {
-                    const dateA = new Date(a.dataset.publicationDate);
-                    const dateB = new Date(b.dataset.publicationDate);
-                    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+            searchInput.addEventListener('input', updateJobOffers);
+            sortSelect.addEventListener('change', updateJobOffers);
+
+            function deleteOffer(id) {
+                const card = document.getElementById('job-offer-' + id);
+                const errorDiv = card.querySelector('.error-message') || document.createElement('div');
+                errorDiv.className = 'error-message';
+                if (!card.contains(errorDiv)) {
+                    card.appendChild(errorDiv);
+                }
+
+                fetch(`{{ path('job_offer_delete', {'id': 'ID_PLACEHOLDER'}) }}`.replace('ID_PLACEHOLDER', id), {
+                    method: 'DELETE',
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        card.remove();
+                        errorDiv.style.display = 'none';
+                    } else {
+                        errorDiv.textContent = data.message || "Erreur lors de la suppression de l'offre.";
+                        errorDiv.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    errorDiv.textContent = "Erreur lors de la suppression de l'offre.";
+                    errorDiv.style.display = 'block';
                 });
-                container.innerHTML = '';
-                cardsArray.forEach(card => container.appendChild(card));
-            });
+            }
 
-            // Set default sort to newest on page load
-            sortSelect.value = 'newest';
-            sortSelect.dispatchEvent(new Event('change'));
+            // Attach deleteOffer to global scope for onclick
+            window.deleteOffer = deleteOffer;
         });
     </script>
 {% endblock %}
