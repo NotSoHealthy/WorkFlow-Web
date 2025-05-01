@@ -1,0 +1,31 @@
+{% for inscription in pagination %}
+    {% if is_granted('ROLE_RESPONSABLE') or inscription.user.id == user.id %}
+      <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
+        <div class="card-body">
+          <h5 class="card-title mb-2">{{ inscription.user.firstName }} {{ inscription.user.lastName }}</h5>
+          <p class="card-text mb-1">
+            <strong>Formation : </strong> {{ inscription.formation.title }}<br>
+            <strong>Date : </strong> {{ inscription.dateRegistration|date('Y-m-d') }}
+          </p>
+          <div class="d-flex justify-content-end gap-2">
+            {% if is_granted('ROLE_RESPONSABLE') %}
+              <form action="{{ path('app_inscription_edit', { id: inscription.id }) }}" method="POST" class="mb-0">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                  <option value="en attente" {{ inscription.status == 'en attente' ? 'selected' : '' }} disabled hidden>en attente</option>
+                  <option value="approuver" {{ inscription.status == 'approuver' ? 'selected' : '' }}>approuver</option>
+                  <option value="refuser" {{ inscription.status == 'refuser' ? 'selected' : '' }}>refuser</option>
+                </select>
+              </form>
+            {% endif %}
+            {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
+              <span class="badge {% if inscription.status == 'approuver' %}bg-success {% else %}bg-warning text-dark {% endif %}">
+                {{ inscription.status|capitalize }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% else %}
+      <div class="alert alert-info">No registrations found.</div>
+    {% endfor %}
