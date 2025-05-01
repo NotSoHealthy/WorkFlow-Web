@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c3c41192098bbebc9ec2c19455c82244",
+    "content-hash": "65c8f055338d447057b435a1ef67ab9d",
     "packages": [
         {
             "name": "anhskohbo/no-captcha",
@@ -2245,6 +2245,53 @@
                 }
             ],
             "time": "2025-03-27T12:30:47+00:00"
+        },
+        {
+            "name": "iamcal/php-emoji",
+            "version": "v1.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iamcal/php-emoji.git",
+                "reference": "f44c18b8cdec173c6eab618cbdcfcca260eadabe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iamcal/php-emoji/zipball/f44c18b8cdec173c6eab618cbdcfcca260eadabe",
+                "reference": "f44c18b8cdec173c6eab618cbdcfcca260eadabe",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/emoji.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cal Henderson",
+                    "email": "cal@iamcal.com",
+                    "homepage": "http://www.iamcal.com/"
+                }
+            ],
+            "description": "This is a PHP library for dealing with Emoji, allowing you to convert between various native formats and displaying them using HTML.",
+            "homepage": "https://github.com/iamcal/php-emoji",
+            "keywords": [
+                "convert",
+                "converter",
+                "emoji"
+            ],
+            "support": {
+                "issues": "https://github.com/iamcal/php-emoji/issues",
+                "source": "https://github.com/iamcal/php-emoji/tree/v1.4.2"
+            },
+            "time": "2017-03-04T06:59:20+00:00"
         },
         {
             "name": "illuminate/collections",
@@ -9064,6 +9111,85 @@
             "time": "2024-09-25T14:18:03+00:00"
         },
         {
+            "name": "symfony/ux-dropzone",
+            "version": "v2.24.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ux-dropzone.git",
+                "reference": "a0cbf415da3c555acd05839835500cc6e50f974c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ux-dropzone/zipball/a0cbf415da3c555acd05839835500cc6e50f974c",
+                "reference": "a0cbf415da3c555acd05839835500cc6e50f974c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/config": "^5.4|^6.0|^7.0",
+                "symfony/dependency-injection": "^5.4|^6.0|^7.0",
+                "symfony/form": "^5.4|^6.0|^7.0",
+                "symfony/http-kernel": "^5.4|^6.0|^7.0",
+                "symfony/options-resolver": "^5.4|^6.0|^7.0"
+            },
+            "require-dev": {
+                "symfony/framework-bundle": "^5.4|^6.0|^7.0",
+                "symfony/phpunit-bridge": "^5.4|^6.0|^7.0",
+                "symfony/twig-bundle": "^5.4|^6.0|^7.0",
+                "symfony/var-dumper": "^5.4|^6.0|^7.0",
+                "twig/twig": "^2.14.7|^3.0.4"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ux",
+                    "name": "symfony/ux"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\UX\\Dropzone\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Titouan Galopin",
+                    "email": "galopintitouan@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "File input dropzones for Symfony Forms",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "symfony-ux"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ux-dropzone/tree/v2.24.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-03-09T21:10:04+00:00"
+        },
+        {
             "name": "symfony/ux-turbo",
             "version": "v2.24.0",
             "source": {
@@ -12342,7 +12468,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -12350,6 +12476,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

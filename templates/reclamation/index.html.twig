@@ -141,7 +141,7 @@
         <div class="container">
             <h1>Réclamations</h1>
             <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mb-4">Créer une nouvelle réclamation</a>
-            {# Replace the form with direct filter inputs #}
+       
 <div class="filter-sort-container">
     <div class="d-flex gap-3 w-100">
         <input type="text" id="search-input" class="form-control" placeholder="Rechercher par titre ou description" value="{{ searchTerm }}">
@@ -232,477 +232,526 @@
 
 {% block javascripts %}
     {{ parent() }}
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+          
+            let typeChart = null;
+            let categoryChart = null;
+            let currentReclamationId = null;
+            
+            
+            const elements = {
+                searchInput: document.getElementById('search-input'),
+                sortSelect: document.getElementById('sort-select'),
+                statusSelect: document.getElementById('status-select'),
+                grid: document.querySelector('.reclamation-grid'),
+                statModal: document.getElementById('statModal'),
+                manageModal: new bootstrap.Modal(document.getElementById('manageModal'))
+            };
 
+           
+            initFilters();
+            initCharts({{ types|json_encode|raw }}, {{ categories|json_encode|raw }});
+            attachEventListeners();
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Filter handling
-    const searchInput = document.getElementById('search-input');
-    const sortSelect = document.getElementById('sort-select');
-    const statusSelect = document.getElementById('status-select');
-    
-    // Initialize global variables to store current filters
-    window.currentFilters = {
-        search: searchInput.value,
-        sort: sortSelect.value,
-        status: statusSelect.value
-    };
-    
-    // Add event listeners for input changes
-    searchInput.addEventListener('input', debounce(updateReclamations, 300));
-    searchInput.addEventListener('keyup', debounce(updateReclamations, 300));
-    searchInput.addEventListener('search', updateReclamations); // Triggers when search field is cleared
-    sortSelect.addEventListener('change', updateReclamations);
-    statusSelect.addEventListener('change', updateReclamations);
-    
-    // Debounce function to prevent too many requests
-    function debounce(func, wait) {
-        let timeout;
-        return function() {
-            const context = this, args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
+            function initFilters() {
+                window.currentFilters = {
+                    search: elements.searchInput.value,
+                    sort: elements.sortSelect.value,
+                    status: elements.statusSelect.value
+                };
+            }
+
+            function attachEventListeners() {
+                
+                elements.searchInput.addEventListener('input', debounce(updateReclamations, 300));
+                elements.searchInput.addEventListener('search', updateReclamations);
+                elements.sortSelect.addEventListener('change', updateReclamations);
+                elements.statusSelect.addEventListener('change', updateReclamations);
+                
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.view-btn')) {
+                        showReclamationDetails(e.target.closest('.view-btn').dataset.id);
+                        attachFormSubmitHandler()
+                    }
+                    if (e.target.closest('.manage-btn')) {
+                        handleManageButton(e.target.closest('.manage-btn'), e);
+                    }
+                    if (e.target.closest('.status-btn')) {
+                        updateStatus(e.target.closest('.status-btn').dataset.status);
+                    }
+                    if (e.target.closest('.resign-btn')) {
+                        resignReclamation();
+                    }
+                });
+            }
+
+            async function updateReclamations() {
+               
+                window.currentFilters = {
+                    search: elements.searchInput.value,
+                    sort: elements.sortSelect.value,
+                    status: elements.statusSelect.value
+                };
+
+                
+                elements.grid.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+                const url = new URL(window.location);
+                Object.entries(window.currentFilters).forEach(([key, value]) => {
+                    url.searchParams.set(key, value);
+                });
+                url.searchParams.set('ajax', '1');
+
+                try {
+                    const response = await fetch(url.toString());
+                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                    
+                    const data = await response.json();
+                    if (!data.reclamationsHtml) throw new Error('Invalid response data');
+
+                   
+                    elements.grid.innerHTML = data.reclamationsHtml;
+                    updateCharts(data.types, data.categories);
+                    
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    elements.grid.innerHTML = `
+                        <div class="alert alert-danger text-center">
+                            Error: ${error.message}
+                        </div>`;
+                }
+            }
+
+            
+            function initCharts(types, categories) {
+                createChart('typeChart', types, 'Types de réclamations');
+                createChart('categoryChart', categories, 'Catégories de réclamations');
+            }
+
+            function updateCharts(types, categories) {
+                updateChart('typeChart', types);
+                updateChart('categoryChart', categories);
+            }
+
+            function createChart(chartId, data, title) {
+                const ctx = document.getElementById(chartId)?.getContext('2d');
+                if (!ctx) return;
+
+                if (chartId === 'typeChart' && typeChart) typeChart.destroy();
+                if (chartId === 'categoryChart' && categoryChart) categoryChart.destroy();
+
+                const chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: formatChartData(data),
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: { display: true, text: title },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percent = Math.round((context.raw / total) * 100);
+                                        return `${context.label}: ${context.raw} (${percent}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                if (chartId === 'typeChart') typeChart = chart;
+                if (chartId === 'categoryChart') categoryChart = chart;
+            }
+
+            function updateChart(chartId, data) {
+                const chart = chartId === 'typeChart' ? typeChart : categoryChart;
+                if (chart) {
+                    chart.data = formatChartData(data);
+                    chart.update();
+                }
+            }
+
+            function formatChartData(data) {
+                return {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#8AC24A', '#EA5F89', '#00ACC1', '#FF7043'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+            }
+
+            
+function showReclamationDetails(id) {
+    fetch(`/message/${id}/details`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        document.querySelector('#reclamationModal .modal-body').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('reclamationModal')).show();
+     
+        attachFormSubmitHandler();
+    })
+    .catch(error => {
+        console.error('Details error:', error);
+        alert('Erreur lors du chargement des détails.');
+    });
+}
+
+            function handleManageButton(button, event) {
+                currentReclamationId = button.dataset.id;
+                if (button.querySelector('span')?.textContent.trim() === 'Prendre') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    takeOwnership();
+                }
+            }
+
+            async function takeOwnership() {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/take-ownership`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Ownership error:', error);
+                }
+            }
+
+            async function updateStatus(status) {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/update-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Status error:', error);
+                }
+            }
+
+            async function resignReclamation() {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/resign`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Resign error:', error);
+                }
+            }
+
+           
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+
+      function attachFormSubmitHandler() {
+    const modal = document.getElementById('reclamationModal');
+    if (!modal) return;
+
+   
+    let isProcessing = false;
+
+    // Handle message form submission
+    const messageForm = modal.querySelector('form[id="message-textarea"]');
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(event) {
+            if (isProcessing) return;
+            isProcessing = true;
+            event.preventDefault();
+            const formData = new FormData(messageForm);
+            
+            const match = messageForm.action.match(/\/message\/(\d+)\/details/);
+            const reclamationId = match ? match[1] : null;
+            
+            if (!reclamationId) {
+                console.error('Could not extract reclamation ID from URL:', messageForm.action);
+                alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
+                isProcessing = false;
+                return;
+            }
+            
+            const searchInput = document.querySelector('#search-form input[name="search"]');
+            const searchQuery = searchInput ? searchInput.value : '';
+            if (searchQuery) {
+                formData.append('search', searchQuery);
+            }
+            
+            fetch(messageForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const modalBody = document.querySelector('#reclamationModal .modal-body');
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+                const searchInput = document.querySelector('#search-form input[name="search"]');
+                if (searchInput) searchInput.focus();
+            })
+            .catch(error => {
+                console.error('Error submitting message form:', error);
+                alert('Une erreur est survenue lors de la soumission du commentaire.');
+            })
+            .finally(() => {
+                isProcessing = false;
+            });
+        });
     }
-    
-function attachReclamationEventListeners() {
-    // View buttons
-    document.querySelectorAll('.view-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.dataset.id;
-            fetch(`/message/${id}/details`)
-                .then(response => response.text())
-                .then(html => {
-                    document.querySelector('#reclamationModal .modal-body').innerHTML = html;
-                    const modal = new bootstrap.Modal(document.getElementById('reclamationModal'));
-                    modal.show();
-                    document.getElementById('reclamationModal').addEventListener('shown.bs.modal', function() {
+
+    // Handle search form submission
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(event) {
+            if (isProcessing) return;
+            isProcessing = true;
+            event.preventDefault();
+            const formData = new FormData(searchForm);
+            const searchParams = new URLSearchParams(formData).toString();
+            const match = searchForm.action.match(/\/message\/(\d+)\/details/);
+            const reclamationId = match ? match[1] : null;
+
+            if (!reclamationId) {
+                console.error('Could not extract reclamation ID from URL:', searchForm.action);
+                alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
+                isProcessing = false;
+                return;
+            }
+
+            fetch(`${searchForm.action}?${searchParams}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const modalBody = document.querySelector('#reclamationModal .modal-body');
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+                const searchInput = document.querySelector('#search-form input[name="search"]');
+                if (searchInput) searchInput.focus();
+            })
+            .catch(error => {
+                console.error('Error submitting search form:', error);
+                alert('Une erreur est survenue lors de la recherche.');
+            })
+            .finally(() => {
+                isProcessing = false;
+            });
+        });
+    }
+
+    // Handle edit and delete buttons
+    modal.addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-message-btn')) {
+            e.preventDefault();
+            const messageContent = e.target.getAttribute('data-contenu');
+            const messageId = e.target.closest('.message-item').getAttribute('data-message-id');
+            const editAlert = document.getElementById('edit-mode-alert');
+            const editButton = document.getElementById('edit-btn-toggle');
+            const textarea = modal.querySelector('#message_contenu');
+            const hiddenInput = modal.querySelector('#edit-message-id');
+
+            if (editAlert) editAlert.style.display = 'block';
+            if (editButton) editButton.style.display = 'block';
+            if (textarea) {
+                textarea.value = messageContent;
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                textarea.focus();
+            }
+            if (hiddenInput) {
+                hiddenInput.value = messageId;
+                hiddenInput.dispatchEvent(new Event('change'));
+            }
+            updateSubmitButton();
+        }
+
+        if (e.target.classList.contains('delete-message-btn')) {
+            if (isProcessing) return;
+            isProcessing = true;
+            e.preventDefault();
+            const formId = e.target.getAttribute('data-form-id');
+            const form = document.getElementById(formId);
+            if (form) {
+                e.target.classList.add('disabled');
+                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                form.dispatchEvent(submitEvent);
+                setTimeout(() => e.target.classList.remove('disabled'), 1000);
+            } else {
+                isProcessing = false;
+            }
+        }
+    });
+
+    // Handle delete form submission
+    modal.addEventListener('submit', function(e) {
+        if (e.target.matches('form[id^="delete-form-"]')) {
+            if (isProcessing) return;
+            isProcessing = true;
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const searchInput = document.querySelector('#search-form input[name="search"]');
+            const searchQuery = searchInput ? searchInput.value : '';
+            const modalBody = document.querySelector('#reclamationModal .modal-body');
+
+            if (searchQuery) {
+                formData.append('search', searchQuery);
+            }
+
+            modalBody.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || `Network response was not ok: ${response.status}`);
+                    }).catch(() => {
+                        throw new Error(`Network response was not ok: ${response.status}`);
+                    });
+                }
+                return response.text();
+            })
+            .then(html => {
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+               
+                if (searchInput) searchInput.focus();
+            })
+            .catch(error => {
+                console.error('Error deleting message:', error);
+                const searchForm = document.getElementById('search-form');
+                const reclamationId = searchForm?.action.match(/\/message\/(\d+)\/details/)?.[1];
+                if (reclamationId) {
+                    fetch(`/message/${reclamationId}/details`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to reload modal: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
                         attachFormSubmitHandler();
-                    }, { once: true });
-                })
-                .catch(error => console.error('Error:', error));
-        });
+                       
+                        if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                            alert(`Erreur lors de la suppression du message : ${error.message}`);
+                        }
+                        if (searchInput) searchInput.focus();
+                    })
+                    .catch(() => {
+                        modalBody.innerHTML = '<div class="alert alert-danger">Erreur lors du rechargement du contenu. Veuillez rafraîchir la page.</div>';
+                        if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                            alert(`Erreur lors de la suppression du message : ${error.message}`);
+                        }
+                    });
+                } else {
+                    modalBody.innerHTML = '<div class="alert alert-danger">Erreur : ID de réclamation introuvable. Veuillez rafraîchir la page.</div>';
+                    if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                        alert(`Erreur lors de la suppression du message : ${error.message}`);
+                    }
+                }
+            })
+            .finally(() => {
+                isProcessing = false;
+            });
+        }
     });
 
-    // Manage buttons
-    document.querySelectorAll('.manage-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            currentReclamationId = this.dataset.id;
-            if (this.querySelector('span').textContent.trim() === 'Prendre') {
-                e.preventDefault();
-                e.stopPropagation();
-                takeReclamationOwnership(currentReclamationId);
-            }
+    // Handle edit toggle button
+    const editToggleButton = document.getElementById('edit-btn-toggle');
+    if (editToggleButton) {
+        editToggleButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('edit-message-id').value = '';
+            document.getElementById('message_contenu').value = '';
+            const editAlert = document.getElementById('edit-mode-alert');
+            const editButton = document.getElementById('edit-btn-toggle');
+            if (editAlert) editAlert.style.display = 'none';
+            if (editButton) editButton.style.display = 'none';
+            updateSubmitButton();
+            const textarea = document.querySelector('#message_contenu');
+            if (textarea) textarea.focus();
         });
-    });
-}
+    }
 
-    // Function to update reclamations via AJAX
-    function updateReclamations() {
-    const searchValue = searchInput.value;
-    const sortValue = sortSelect.value;
-    const statusValue = statusSelect.value;
-    
-    // Update current filters
-    window.currentFilters.search = searchValue;
-    window.currentFilters.sort = sortValue;
-    window.currentFilters.status = statusValue;
-    
-    // Show a loading indicator
-    const grid = document.querySelector('.reclamation-grid');
-    const loadingHtml = '<div class="text-center w-100 py-5"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
-    grid.innerHTML = loadingHtml;
-    
-    // Build URL with query parameters
-    const url = new URL(window.location);
-    url.searchParams.set('search', searchValue);
-    url.searchParams.set('sort', sortValue);
-    url.searchParams.set('status', statusValue);
-    url.searchParams.set('ajax', '1');
-    
-    console.log('Making request to:', url.toString()); // Debug log
-    
-    // Fetch filtered data
-    fetch(url.toString())
-        .then(response => {
-            console.log('Response status:', response.status); // Debug log
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Received data:', data); // Debug log
-            if (!data.reclamationsHtml) {
-                throw new Error('Missing reclamationsHtml in response');
-            }
-            
-            // Update reclamations grid
-            grid.innerHTML = data.reclamationsHtml;
-            
-            // Update charts if stat modal is open
-            if (document.getElementById('statModal').classList.contains('show')) {
-                updateCharts(data.types, data.categories);
-            }
-            
-            // Reattach event listeners
-            attachReclamationEventListeners();
-        })
-        .catch(error => {
-            console.error('Error fetching reclamations:', error);
-            grid.innerHTML = `
-                <div class="alert alert-danger w-100 text-center">
-                    Une erreur est survenue lors de la mise à jour des données.<br>
-                    <small>${error.message}</small>
-                </div>`;
-        });
-}
+    function updateSubmitButton() {
+        const editMessageId = document.getElementById('edit-message-id').value;
+        const submitBtn = document.getElementById('submit-btn');
+        if (submitBtn) {
+            submitBtn.textContent = editMessageId ? 'Mettre à jour' : 'Soumettre';
+        }
+    }
+
+document.getElementById('google-drive-upload-btn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const uploadBtn = this;
+    const statusSpan = document.getElementById('upload-status');
+
+    uploadBtn.disabled = true;
+    statusSpan.textContent = "Redirection vers Google pour authentification...";
+    statusSpan.className = "ms-2 text-info";
+
+  
+    window.location.href = this.href;
+
+ 
 });
 
-        // STATUS
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentReclamationId = null;
-            const manageModal = new bootstrap.Modal(document.getElementById('manageModal'));
+}
 
-            document.querySelectorAll('.manage-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    currentReclamationId = this.dataset.id;
-                    if (this.querySelector('span').textContent.trim() === 'Prendre') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        takeReclamationOwnership(currentReclamationId);
-                    }
-                });
-            });
-
-            function takeReclamationOwnership(id) {
-                fetch(`/reclamation/${id}/take-ownership`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Erreur lors de la prise en charge');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Une erreur est survenue');
-                });
-            }
-
-            document.querySelectorAll('.status-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const newStatus = this.dataset.status;
-                    updateReclamationStatus(currentReclamationId, newStatus);
-                    manageModal.hide();
-                });
-            });
-
-            document.querySelector('.resign-btn').addEventListener('click', function() {
-                resignReclamation(currentReclamationId);
-                manageModal.hide();
-            });
-
-            function updateReclamationStatus(id, status) {
-                fetch(`/reclamation/${id}/update-status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ status: status })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-
-            function resignReclamation(id) {
-                fetch(`/reclamation/${id}/resign`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-        });
-
-        // STATS
-        document.addEventListener("DOMContentLoaded", function () {
-            const types = {{ types|json_encode|raw }};
-            const categories = {{ categories|json_encode|raw }};
-
-            const typeLabels = Object.keys(types);
-            const typeValues = Object.values(types);
-
-            const categoryLabels = Object.keys(categories);
-            const categoryValues = Object.values(categories);
-
-            const typeCtx = document.getElementById('typeChart').getContext('2d');
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-
-            new Chart(typeCtx, {
-                type: 'pie',
-                data: {
-                    labels: typeLabels,
-                    datasets: [{
-                        data: typeValues,
-                        backgroundColor: ['#f94144', '#f3722c', '#f8961e', '#f9844a', '#f9c74f'],
-                    }]
-                }
-            });
-
-            new Chart(categoryCtx, {
-                type: 'pie',
-                data: {
-                    labels: categoryLabels,
-                    datasets: [{
-                        data: categoryValues,
-                        backgroundColor: ['#90be6d', '#43aa8b', '#577590', '#277da1', '#4d908e'],
-                    }]
-                }
-            });
-        });
-
-        // Modal and form handling
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.view-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    fetch(`/message/${id}/details`)
-                        .then(response => response.text())
-                        .then(html => {
-                            document.querySelector('#reclamationModal .modal-body').innerHTML = html;
-                            const modal = new bootstrap.Modal(document.getElementById('reclamationModal'));
-                            modal.show();
-                            document.getElementById('reclamationModal').addEventListener('shown.bs.modal', function() {
-                                attachFormSubmitHandler();
-                            }, { once: true });
-                        })
-                        .catch(error => console.error('Error:', error));
-                });
-            });
-
-            function attachFormSubmitHandler() {
-                const modal = document.getElementById('reclamationModal');
-
-                // Handle message form submission
-                const messageForm = document.getElementById('message-textarea');
-                if (messageForm) {
-                    messageForm.addEventListener('submit', function(event) {
-                        event.preventDefault();
-                        const formData = new FormData(messageForm);
-                        const match = messageForm.action.match(/\/message\/(\d+)\/details/);
-                        const reclamationId = match ? match[1] : null;
-
-                        if (!reclamationId) {
-                            console.error('Could not extract reclamation ID from URL:', messageForm.action);
-                            alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
-                            return;
-                        }
-
-                        // Append search query to maintain state
-                        const searchInput = document.querySelector('#search-form input[name="search"]');
-                        const searchQuery = searchInput ? searchInput.value : '';
-                        if (searchQuery) {
-                            formData.append('search', searchQuery);
-                        }
-
-                        fetch(messageForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Network response was not ok: ${response.status}`);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            const modalBody = document.querySelector('#reclamationModal .modal-body');
-                            modalBody.innerHTML = html;
-                            attachFormSubmitHandler();
-                            const searchInput = document.querySelector('#search-form input[name="search"]');
-                            if (searchInput) searchInput.focus();
-                        })
-                        .catch(error => {
-                            console.error('Error submitting message form:', error);
-                            alert('Une erreur est survenue lors de la soumission du commentaire.');
-                        });
-                    });
-                }
-
-                // Handle search form submission
-                const searchForm = document.getElementById('search-form');
-                if (searchForm) {
-                    searchForm.addEventListener('submit', function(event) {
-                        event.preventDefault();
-                        const formData = new FormData(searchForm);
-                        const searchParams = new URLSearchParams(formData).toString();
-                        const match = searchForm.action.match(/\/message\/(\d+)\/details/);
-                        const reclamationId = match ? match[1] : null;
-
-                        if (!reclamationId) {
-                            console.error('Could not extract reclamation ID from URL:', searchForm.action);
-                            alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
-                            return;
-                        }
-
-                        fetch(`${searchForm.action}?${searchParams}`, {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Network response was not ok: ${response.status}`);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            const modalBody = document.querySelector('#reclamationModal .modal-body');
-                            modalBody.innerHTML = html;
-                            attachFormSubmitHandler();
-                            const searchInput = document.querySelector('#search-form input[name="search"]');
-                            if (searchInput) searchInput.focus();
-                        })
-                        .catch(error => {
-                            console.error('Error submitting search form:', error);
-                            alert('Une erreur est survenue lors de la recherche.');
-                        });
-                    });
-                }
-
-                // Handle edit message button
-                modal.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('edit-message-btn')) {
-                        e.preventDefault();
-                        const messageContent = e.target.getAttribute('data-contenu');
-                        const messageId = e.target.closest('.message-item').getAttribute('data-message-id');
-                        const editAlert = document.getElementById('edit-mode-alert');
-                        const editButton = document.getElementById('edit-btn-toggle');
-                        const textarea = modal.querySelector('#message_contenu');
-                        const hiddenInput = modal.querySelector('#edit-message-id');
-
-                        if (editAlert) editAlert.style.display = 'block';
-                        if (editButton) editButton.style.display = 'block';
-                        if (textarea) {
-                            textarea.value = messageContent;
-                            textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                            textarea.focus();
-                        }
-                        if (hiddenInput) {
-                            hiddenInput.value = messageId;
-                            hiddenInput.dispatchEvent(new Event('change'));
-                        }
-                        updateSubmitButton();
-                    }
-                });
-
-                // Handle delete message form submission
-                modal.addEventListener('submit', function(e) {
-                    if (e.target.matches('form[id^="delete-form-"]')) {
-                        e.preventDefault();
-                        const form = e.target;
-                        const formData = new FormData(form);
-                        const match = form.action.match(/\/message\/(\d+)/);
-                        const reclamationId = match ? match[1] : null;
-                        const searchInput = document.querySelector('#search-form input[name="search"]');
-                        const searchQuery = searchInput ? searchInput.value : '';
-
-                        if (!reclamationId) {
-                            console.error('Could not extract reclamation ID from URL:', form.action);
-                            alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
-                            return;
-                        }
-
-                        if (searchQuery) {
-                            formData.append('search', searchQuery);
-                        }
-
-                        fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Network response was not ok: ${response.status}`);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            const modalBody = document.querySelector('#reclamationModal .modal-body');
-                            modalBody.innerHTML = html;
-                            attachFormSubmitHandler();
-                            const searchInput = document.querySelector('#search-form input[name="search"]');
-                            if (searchInput) searchInput.focus();
-                        })
-                        .catch(error => {
-                            console.error('Error deleting message:', error);
-                            alert('Une erreur est survenue lors de la suppression du message.');
-                        });
-                    }
-                });
-
-                // Handle edit toggle button
-                const editToggleButton = document.getElementById('edit-btn-toggle');
-                if (editToggleButton) {
-                    editToggleButton.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        document.getElementById('edit-message-id').value = '';
-                        document.getElementById('message_contenu').value = '';
-                        const editAlert = document.getElementById('edit-mode-alert');
-                        const editButton = document.getElementById('edit-btn-toggle');
-                        if (editAlert) editAlert.style.display = 'none';
-                        if (editButton) editButton.style.display = 'none';
-                        updateSubmitButton();
-                        const textarea = document.querySelector('#message_contenu');
-                        if (textarea) textarea.focus();
-                    });
-                }
-
-                function updateSubmitButton() {
-                    const editMessageId = document.getElementById('edit-message-id').value;
-                    const submitBtn = document.getElementById('submit-btn');
-                    if (submitBtn) {
-                        submitBtn.textContent = editMessageId ? 'Mettre à jour' : 'Soumettre';
-                    }
-                }
-            }
+            
         });
     </script>
 {% endblock %}

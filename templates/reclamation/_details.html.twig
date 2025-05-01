@@ -51,9 +51,12 @@
 {% if reclamation.attachedfile %}
     <p><strong>Fichier joint :</strong> 
         <a href="{{ asset('Uploads/applications/' ~ reclamation.attachedfile) }}" target="_blank">Voir le fichier</a>
-        <a href="{{ path('google_drive_auth', {'reclamation_id': reclamation.id}) }}" class="btn btn-sm btn-success ms-2">
+        <a href="{{ path('google_drive_auth', {'reclamation_id': reclamation.id}) }}" 
+           class="btn btn-sm btn-success ms-2" 
+           id="google-drive-upload-btn">
             Uploader vers Google Drive
         </a>
+        <span id="upload-status" class="ms-2"></span>
     </p>
 {% endif %}
 
@@ -103,7 +106,7 @@
     </form>
 </div>
 
-<div class="form-scroll-wrapper">
+<div class="form-scroll-wrapper" id="messages-container">
     <ul class="message-list" style="list-style-type: none; padding-left: 0;">
         {% for message in messages %}
             <li class="message-item" data-message-id="{{ message.id }}" style="position: relative; padding: 1rem; border-bottom: 1px solid #eee;">
@@ -118,26 +121,32 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                     <p class="message-content" style="margin: 0;">{{ message.contenu }}</p>
-                    <div class="dropdown ms-auto">
-                        <button class="btn p-0 borderme-auto">
-                            <i class="bi bi-three-dots-vertical"></i>
-                        </button>
-                        <ul class="dropdown-menu" style="bottom: .5rem; right:1rem;">
-                            <li>
-                                <a class="dropdown-item edit-message-btn" href="#" data-contenu="{{ message.contenu }}">
-                                    Modifier
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ message.id }}').submit();">
-                                    Supprimer
-                                </a>
-                            </li>
-                        </ul>
-                        <form id="delete-form-{{ message.id }}" action="{{ path('app_message_delete', { 'id': message.id }) }}" method="POST" style="display: none;">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
-                        </form>
-                    </div>
+                    {% if reclamation.etat not in ['Ouvert', 'Ferme', 'Rejete'] and (app.user == reclamation.responsable or app.user == reclamation.user) %}
+                  <div class="dropdown ms-auto">
+    <button class="btn p-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu" style="bottom: .5rem; right:1rem;">
+        <li>
+            <a class="dropdown-item edit-message-btn" href="#" data-contenu="{{ message.contenu }}">
+                Modifier
+            </a>
+        </li>
+        <li>
+      <a class="dropdown-item text-danger delete-message-btn" href="#" 
+   data-form-id="delete-form-{{ message.id }}"
+   onclick="event.preventDefault();">
+    Supprimer
+</a>
+        </li>
+    </ul>
+<form id="delete-form-{{ message.id }}" action="{{ path('app_message_delete', { 'id': message.id }) }}" method="POST" style="display: none;">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
+    <!-- Debug: Log the URL -->
+    <script>console.log('Delete URL for message {{ message.id }}: {{ path('app_message_delete', { 'id': message.id }) }}');</script>
+</form>
+</div>
+{% endif %}
                 </div>
             </li>
         {% else %}

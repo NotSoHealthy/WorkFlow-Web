@@ -1,0 +1,737 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Apr 28, 2025 at 05:52 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.1.17
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `workflow_web`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `application`
+--
+
+CREATE TABLE `application` (
+  `id` int(11) NOT NULL,
+  `job` int(11) NOT NULL,
+  `CV` text NOT NULL,
+  `Cover_Letter` text DEFAULT NULL,
+  `Submission_Date` date NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `user` int(11) DEFAULT NULL,
+  `First_Name` varchar(255) DEFAULT NULL,
+  `Last_Name` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `already_applied` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `application`
+--
+
+INSERT INTO `application` (`id`, `job`, `CV`, `Cover_Letter`, `Submission_Date`, `status`, `user`, `First_Name`, `Last_Name`, `mail`, `ip_address`, `already_applied`) VALUES
+(1, 6, '/uploads/applications/680d43e10657b.jpg', '/uploads/applications/680d43e119446.jpg', '2025-04-26', 'open', 1, 'hello', 'ascasd', 'sdaqdca@gmail.com', '', 0),
+(2, 6, '/uploads/applications/680d44cc7ece6.jpg', '/uploads/applications/680d44cc7f362.jpg', '2025-04-26', 'open', 1, 'man', 'manny', 'das@gmail.com', '', 0),
+(3, 6, '/uploads/applications/680d44db8d6f9.jpg', '/uploads/applications/680d44db8db78.jpg', '2025-04-26', 'open', 1, 'dsads', 'dsads', 'dasds@gmail.com', '', 0),
+(4, 6, '/uploads/applications/680d450db3ce2.jpg', '/uploads/applications/680d450db4114.jpg', '2025-04-26', 'open', 1, 'girtl', 'goirl;y', 'dsadas@gmail.com', '', 0),
+(5, 6, '/uploads/applications/680d458369100.jpg', '/uploads/applications/680d45836963f.jpg', '2025-04-26', 'open', 1, 'aaa', 'sdasdd', 'asdds@gmail.com', '', 0),
+(6, 6, '/uploads/applications/680d459456beb.jpg', '/uploads/applications/680d459457082.jpg', '2025-04-26', 'open', 1, 'dsads', 'asdasd', 'dsasad@fsda.com', '', 0),
+(7, 6, '/uploads/applications/680d495f34bf3.jpg', '/uploads/applications/680d495f35109.jpg', '2025-04-26', 'open', 1, 'dsads', 'dasasd', 'dasasd@gmaol.co', '', 0),
+(8, 6, '/uploads/applications/680d49771a41d.jpg', '/uploads/applications/680d49771a8a6.jpg', '2025-04-26', 'open', 1, 'asdfasdf', 'asdfdfas', 'sdfaasdf@gmil.com', '', 0),
+(9, 6, '/uploads/applications/680d49f38a598.jpg', '/uploads/applications/680d49f38aa1b.jpg', '2025-04-26', 'open', 1, 'ccc', 'sdaasd', 'dssad@gm.c', '', 0),
+(10, 6, '/uploads/applications/680d4d5abc674.jpg', '/uploads/applications/680d4d5abcb1b.jpg', '2025-04-26', 'open', 1, 'dasdssda', 'dsadas', 'asdasd@gmail.c', '', 0),
+(11, 6, '/uploads/applications/680d4deed1f89.jpg', '/uploads/applications/680d4deed251f.jpg', '2025-04-26', 'open', 1, 'sdaasd', 'sdaasd', 'sdaasd@gmail.co', '', 0),
+(12, 6, '/uploads/applications/680d4e9ada7a3.jpg', '/uploads/applications/680d4e9adac36.jpg', '2025-04-26', 'open', 1, 'asddas', 'dsaasd', 'asdasd@gmi.co', '', 0),
+(13, 6, '/uploads/applications/680d5460c711a.jpg', '/uploads/applications/680d5460c7622.jpg', '2025-04-26', 'open', 1, 'dfsdf', 'sdfsdf', 'fdsdf@gmi.co', '127.0.0.1', 1),
+(14, 8, '/uploads/applications/680d549f95de5.jpg', '/uploads/applications/680d549f962d0.jpg', '2025-04-26', 'open', 1, 'dsasd', 'dsaasd', 'sdads@gmail.com', '127.0.0.1', 1),
+(15, 12, '/uploads/applications/680e44cc2bbed_12.jpg', '/uploads/applications/680e44cc2c2e3_12.jpg', '2025-04-27', 'open', 1, 'xxxxxxxxxx', 'xxxxx', 'xxxxxxx@gmail.com', '127.0.0.1', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `attendance`
+--
+
+CREATE TABLE `attendance` (
+  `id` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `entry_time` time NOT NULL,
+  `exit_time` time NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `attendance`
+--
+
+INSERT INTO `attendance` (`id`, `user`, `date`, `entry_time`, `exit_time`) VALUES
+(1, 1, '2025-03-25', '08:30:59', '17:40:59'),
+(2, 1, '2025-03-26', '08:30:59', '13:40:59');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `conge`
+--
+
+CREATE TABLE `conge` (
+  `id` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
+  `request_date` date DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `conge`
+--
+
+INSERT INTO `conge` (`id`, `user`, `request_date`, `start_date`, `end_date`, `reason`, `status`) VALUES
+(1, 1, '2025-03-23', '2025-03-25', '2025-03-30', 'reason', 'approved'),
+(11, 1, '2025-03-24', '2025-03-25', '2025-03-26', 'azda', 'pending'),
+(12, 4, '2025-04-16', '2025-04-16', '2025-04-23', 'Hallo', 'rejected');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `department`
+--
+
+CREATE TABLE `department` (
+  `id` int(11) NOT NULL,
+  `Name` varchar(20) NOT NULL,
+  `Year_Budget` float NOT NULL,
+  `manager` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `department`
+--
+
+INSERT INTO `department` (`id`, `Name`, `Year_Budget`, `manager`) VALUES
+(1, 'RH', 5000, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `event`
+--
+
+CREATE TABLE `event` (
+  `id` int(11) NOT NULL,
+  `Title` varchar(60) NOT NULL,
+  `Description` varchar(300) NOT NULL,
+  `DateAndTime` datetime NOT NULL,
+  `Location` varchar(100) NOT NULL,
+  `Type` varchar(50) NOT NULL,
+  `NumberOfPlaces` int(11) NOT NULL,
+  `isOnline` tinyint(1) NOT NULL,
+  `user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `event`
+--
+
+INSERT INTO `event` (`id`, `Title`, `Description`, `DateAndTime`, `Location`, `Type`, `NumberOfPlaces`, `isOnline`, `user`) VALUES
+(1, 'Eventp', 'Description', '2025-04-24 10:30:00', 'Dar', 'conference', 8, 0, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `formation`
+--
+
+CREATE TABLE `formation` (
+  `id` int(11) NOT NULL,
+  `title` varchar(20) NOT NULL,
+  `description` varchar(50) NOT NULL,
+  `date_begin` date NOT NULL,
+  `date_end` date NOT NULL,
+  `Participants_Max` int(11) NOT NULL,
+  `responsable` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inscription`
+--
+
+CREATE TABLE `inscription` (
+  `id` int(11) NOT NULL,
+  `date_registration` date NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `formation` int(11) NOT NULL,
+  `user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interview`
+--
+
+CREATE TABLE `interview` (
+  `id` int(11) NOT NULL,
+  `application` int(11) NOT NULL,
+  `Interview_Date` datetime NOT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `Feedback` text DEFAULT NULL,
+  `Status` varchar(255) DEFAULT 'Scheduled',
+  `user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `interview`
+--
+
+INSERT INTO `interview` (`id`, `application`, `Interview_Date`, `Location`, `Feedback`, `Status`, `user`) VALUES
+(1, 15, '2025-04-17 16:05:00', 'dsf', 'sdffsd', 'Completed', 1),
+(2, 14, '2025-05-03 16:02:00', 'sdads', 'sdaasd', 'Cancelled', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_offer`
+--
+
+CREATE TABLE `job_offer` (
+  `id` int(11) NOT NULL,
+  `Title` varchar(255) NOT NULL,
+  `Description` text DEFAULT NULL,
+  `Publication_Date` date NOT NULL,
+  `Expiration_Date` date DEFAULT NULL,
+  `Contract_Type` varchar(100) DEFAULT NULL,
+  `Salary` decimal(10,2) DEFAULT NULL,
+  `user` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `job_offer`
+--
+
+INSERT INTO `job_offer` (`id`, `Title`, `Description`, `Publication_Date`, `Expiration_Date`, `Contract_Type`, `Salary`, `user`) VALUES
+(1, 'testetst', 'testetst', '2025-04-19', '2025-04-30', 'sdads', 2000.00, 1),
+(2, 'nega chan', 'sdadsa', '2025-04-19', '2025-05-03', 'dsads', 1231.00, 1),
+(3, 'sdadsad', 'dsasda', '2025-04-18', '2025-05-02', 'sdads', 100.00, 1),
+(4, 'sdadsad', 'dsadsa', '2025-04-10', '2025-04-19', 'dasdsds', 231321.00, 1),
+(5, 'sdasdaasd', 'dsadsdsa', '2025-04-19', '2025-04-30', 'dsads', 122.00, 1),
+(6, 'sdads', 'dsads', '2025-05-03', '2025-04-25', 'dsads', 12312.00, 1),
+(8, 'aaaaaaaaaasadasd', '<p>sassaas</p>', '2025-05-03', '2025-04-25', 'dasda', 3212.00, 1),
+(10, 'asdasdasd', '<p><strong>sdadsad</strong></p>', '2025-05-03', '2025-05-01', 'dsads', 321.00, 1),
+(11, 'dsfafsd', '<p>dsfasfdasdf<s>fdsadf<u>dfasfds</u></s></p>', '2025-04-19', '2025-04-30', 'fasfds', 3.00, 1),
+(12, 'dsadas', '<p>asdasd<u>dasdas<s>dasda</s></u></p>', '2025-05-01', '2025-04-29', 'dsads', 12332.00, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `message`
+--
+
+CREATE TABLE `message` (
+  `id` int(11) NOT NULL,
+  `contenu` varchar(200) NOT NULL,
+  `date` date NOT NULL,
+  `heure` time NOT NULL,
+  `reclamation` int(11) NOT NULL,
+  `user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messenger_messages`
+--
+
+CREATE TABLE `messenger_messages` (
+  `id` bigint(20) NOT NULL,
+  `body` longtext NOT NULL,
+  `headers` longtext NOT NULL,
+  `queue_name` varchar(190) NOT NULL,
+  `created_at` datetime NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+  `available_at` datetime NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+  `delivered_at` datetime DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project`
+--
+
+CREATE TABLE `project` (
+  `id` int(11) NOT NULL,
+  `Name` varchar(20) NOT NULL,
+  `Description` varchar(60) NOT NULL,
+  `Start_Date` date NOT NULL,
+  `End_Date` date DEFAULT NULL,
+  `State` varchar(20) DEFAULT NULL,
+  `Budget` float NOT NULL,
+  `Manager` int(11) NOT NULL,
+  `Department` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project`
+--
+
+INSERT INTO `project` (`id`, `Name`, `Description`, `Start_Date`, `End_Date`, `State`, `Budget`, `Manager`, `Department`) VALUES
+(1, 'Project1', 'Desc', '2025-03-25', NULL, NULL, 5000, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reclamation`
+--
+
+CREATE TABLE `reclamation` (
+  `id` int(11) NOT NULL,
+  `titre` varchar(50) NOT NULL,
+  `description` varchar(200) NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `attachedfile` varchar(255) DEFAULT NULL,
+  `date` date NOT NULL,
+  `heure` time NOT NULL,
+  `etat` varchar(255) NOT NULL,
+  `date_resolution` date DEFAULT NULL,
+  `responsable` int(11) DEFAULT NULL,
+  `user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reservation`
+--
+
+CREATE TABLE `reservation` (
+  `id` int(11) NOT NULL,
+  `Price` float NOT NULL,
+  `Type` varchar(50) NOT NULL,
+  `NombreDePlaces` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
+  `event` int(11) NOT NULL,
+  `qr_url` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reservation`
+--
+
+INSERT INTO `reservation` (`id`, `Price`, `Type`, `NombreDePlaces`, `user`, `event`, `qr_url`) VALUES
+(3, 40, 'Accès-Normal', 1, 1, 1, 'https://i.ibb.co/xqSx4K4g/ddbe8ed4b00a.png'),
+(4, 40, 'Accès-Normal', 1, 1, 1, 'https://i.ibb.co/xqSx4K4g/ddbe8ed4b00a.png');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task`
+--
+
+CREATE TABLE `task` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'To Do',
+  `priority` varchar(255) NOT NULL DEFAULT 'Medium',
+  `start_date` date NOT NULL,
+  `due_date` date NOT NULL,
+  `completion_date` date DEFAULT NULL,
+  `assigned_to` int(11) DEFAULT NULL,
+  `project` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `task`
+--
+
+INSERT INTO `task` (`id`, `title`, `description`, `status`, `priority`, `start_date`, `due_date`, `completion_date`, `assigned_to`, `project`, `created_at`, `updated_at`) VALUES
+(1, 'Title', 'Desc', 'To Do', 'Medium', '2025-03-25', '2025-03-28', NULL, 1, 1, '2025-03-25 01:31:07', '2025-03-25 01:31:18');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `roles` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`roles`)),
+  `password` varchar(255) NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `number` varchar(255) NOT NULL,
+  `image_url` varchar(255) NOT NULL DEFAULT 'https://i.ibb.co/S5rbLng/default-profile.jpg',
+  `is_verified` tinyint(1) NOT NULL,
+  `department` int(11) DEFAULT NULL,
+  `google_authenticator_secret` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `gouvernorat` varchar(255) DEFAULT NULL,
+  `status` enum('pending','approved','denied') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `email`, `roles`, `password`, `first_name`, `last_name`, `number`, `image_url`, `is_verified`, `department`, `google_authenticator_secret`, `address`, `gouvernorat`, `status`) VALUES
+(1, 'aminbenhamouda16@gmail.com', '[\"ROLE_RESPONSABLE\"]', '$2y$13$d/b3lV4.5N3cij.JkoQcK.ezXpImcEUH2.vmgUCMjPQ93k6Xe8pr2', 'Mohamed Amine', 'Ben Hamouda', '53267314', 'https://i.ibb.co/9Hj6DmS5/f38860968d7f.jpg', 1, 1, NULL, 'Menzah 8', 'Ariana Ville', 'approved'),
+(3, 'email@gmail.com', '[\"ROLE_USER\"]', '$2y$13$f9OGxQ3djW1onGKeLcOf4ejt23ivom/EQSIvaW4VaFGl7fNGMoYL.', 'prenom', 'nom', '11111111', 'https://i.ibb.co/S5rbLng/default-profile.jpg', 1, 1, NULL, NULL, NULL, 'pending'),
+(4, 'test@gmail.com', '[]', '$2y$13$iWhCPxHIl4h6CZUmzoBxG.F2UGdQuaPBg79XcPPhOw6MHmSl3s1uy', 'test', 'test-', '12121212', 'https://i.ibb.co/S5rbLng/default-profile.jpg', 1, 1, NULL, 'address', 'El Menzah', 'approved');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `application`
+--
+ALTER TABLE `application`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `applications_ibfk_1` (`job`),
+  ADD KEY `fk_application_user` (`user`);
+
+--
+-- Indexes for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_attendance_employee_idx` (`user`);
+
+--
+-- Indexes for table `conge`
+--
+ALTER TABLE `conge`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_conge_employee_idx` (`user`);
+
+--
+-- Indexes for table `department`
+--
+ALTER TABLE `department`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_manager_idx` (`manager`);
+
+--
+-- Indexes for table `event`
+--
+ALTER TABLE `event`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_UID_Events` (`user`);
+
+--
+-- Indexes for table `formation`
+--
+ALTER TABLE `formation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_formation_employee_idx` (`responsable`);
+
+--
+-- Indexes for table `inscription`
+--
+ALTER TABLE `inscription`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `inscription_ibfk_1` (`formation`),
+  ADD KEY `inscription_ibfk_2` (`user`);
+
+--
+-- Indexes for table `interview`
+--
+ALTER TABLE `interview`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `Interview_Emplo_fk` (`user`),
+  ADD KEY `interviews_ibfk_1` (`application`);
+
+--
+-- Indexes for table `job_offer`
+--
+ALTER TABLE `job_offer`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_job_offer_responsable` (`user`);
+
+--
+-- Indexes for table `message`
+--
+ALTER TABLE `message`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fkey_sender` (`user`),
+  ADD KEY `fkey_reclamation` (`reclamation`);
+
+--
+-- Indexes for table `messenger_messages`
+--
+ALTER TABLE `messenger_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `IDX_75EA56E0FB7336F0` (`queue_name`),
+  ADD KEY `IDX_75EA56E0E3BD61CE` (`available_at`),
+  ADD KEY `IDX_75EA56E016BA31DB` (`delivered_at`);
+
+--
+-- Indexes for table `project`
+--
+ALTER TABLE `project`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_department` (`Department`);
+
+--
+-- Indexes for table `reclamation`
+--
+ALTER TABLE `reclamation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fkey_employee` (`user`),
+  ADD KEY `fkey_responsable` (`responsable`);
+
+--
+-- Indexes for table `reservation`
+--
+ALTER TABLE `reservation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_ID_Evenement` (`event`),
+  ADD KEY `fk_UID_Event` (`user`);
+
+--
+-- Indexes for table `task`
+--
+ALTER TABLE `task`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_assigned_to` (`assigned_to`),
+  ADD KEY `fk_project_id` (`project`);
+
+--
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UNIQ_IDENTIFIER_EMAIL` (`email`),
+  ADD UNIQUE KEY `UNIQ_8D93D64996901F54` (`number`),
+  ADD KEY `fk_dep_idx` (`department`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `application`
+--
+ALTER TABLE `application`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `attendance`
+--
+ALTER TABLE `attendance`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `conge`
+--
+ALTER TABLE `conge`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `department`
+--
+ALTER TABLE `department`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `event`
+--
+ALTER TABLE `event`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `formation`
+--
+ALTER TABLE `formation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `inscription`
+--
+ALTER TABLE `inscription`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `interview`
+--
+ALTER TABLE `interview`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `job_offer`
+--
+ALTER TABLE `job_offer`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `message`
+--
+ALTER TABLE `message`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `messenger_messages`
+--
+ALTER TABLE `messenger_messages`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `project`
+--
+ALTER TABLE `project`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `reclamation`
+--
+ALTER TABLE `reclamation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reservation`
+--
+ALTER TABLE `reservation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `task`
+--
+ALTER TABLE `task`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `application`
+--
+ALTER TABLE `application`
+  ADD CONSTRAINT `application_ibfk_1` FOREIGN KEY (`job`) REFERENCES `job_offer` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_application_user` FOREIGN KEY (`user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD CONSTRAINT `fk_attendance_employee` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `conge`
+--
+ALTER TABLE `conge`
+  ADD CONSTRAINT `fk_conge_employee` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `department`
+--
+ALTER TABLE `department`
+  ADD CONSTRAINT `fk_manager` FOREIGN KEY (`manager`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `event`
+--
+ALTER TABLE `event`
+  ADD CONSTRAINT `fk_UID_Events` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `formation`
+--
+ALTER TABLE `formation`
+  ADD CONSTRAINT `fk_formation_employee` FOREIGN KEY (`responsable`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `inscription`
+--
+ALTER TABLE `inscription`
+  ADD CONSTRAINT `inscription_ibfk_1` FOREIGN KEY (`formation`) REFERENCES `formation` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `inscription_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interview`
+--
+ALTER TABLE `interview`
+  ADD CONSTRAINT `Interview_Emplo_fk` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interview_application` FOREIGN KEY (`application`) REFERENCES `application` (`id`),
+  ADD CONSTRAINT `interview_ibfk_1` FOREIGN KEY (`application`) REFERENCES `application` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `job_offer`
+--
+ALTER TABLE `job_offer`
+  ADD CONSTRAINT `fk_job_offer_responsable` FOREIGN KEY (`user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `message`
+--
+ALTER TABLE `message`
+  ADD CONSTRAINT `fkey_reclamation` FOREIGN KEY (`reclamation`) REFERENCES `reclamation` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `project`
+--
+ALTER TABLE `project`
+  ADD CONSTRAINT `fk_department` FOREIGN KEY (`Department`) REFERENCES `department` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `reclamation`
+--
+ALTER TABLE `reclamation`
+  ADD CONSTRAINT `fkey_employee` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fkey_responsable` FOREIGN KEY (`responsable`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reservation`
+--
+ALTER TABLE `reservation`
+  ADD CONSTRAINT `fk_ID_Evenement` FOREIGN KEY (`event`) REFERENCES `event` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_UID_Event` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `task`
+--
+ALTER TABLE `task`
+  ADD CONSTRAINT `fk_assigned_to` FOREIGN KEY (`assigned_to`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_project_id` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `fk_dep` FOREIGN KEY (`department`) REFERENCES `department` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
