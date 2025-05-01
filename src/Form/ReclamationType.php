@@ -14,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Security\Core\Security;
 
+use Symfony\UX\Dropzone\Form\DropzoneType;
+
 class ReclamationType extends AbstractType
 {
     private $security;
@@ -49,10 +51,13 @@ class ReclamationType extends AbstractType
                     'Feedback' => 'feedback',
                 ],
             ])
-            ->add('attachedfile', FileType::class, [
+            ->add('attachedfile', DropzoneType::class, [
                 'label' => 'Fichier joint',
                 'required' => false,
-                'mapped' => false,
+                'mapped' => false, // Temporarily unmap to handle manually
+                'attr' => [
+                    'data-controller' => 'symfony--ux-dropzone--dropzone',
+                ],
             ]);
 
        

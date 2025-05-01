@@ -1,12 +1,27 @@
 {
     "controllers": {
+        "@symfony/ux-dropzone": {
+            "dropzone": {
+                "enabled": true,
+                "fetch": "eager",
+                "autoimport": {
+                    "@symfony/ux-dropzone/dist/style.min.css": true
+                }
+            }
+        },
         "@symfony/ux-turbo": {
             "turbo-core": {
-                "enabled": true,
+                "enabled": false,
                 "fetch": "eager"
             },
             "mercure-turbo-stream": {
                 "enabled": false,
+                "fetch": "eager"
+            }
+        },
+        "@symfony/ux-typed": {
+            "typed": {
+                "enabled": true,
                 "fetch": "eager"
             }
         }

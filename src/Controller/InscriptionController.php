@@ -11,21 +11,45 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Service\SmsSender;
 
 #[Route('/inscription')]
 class InscriptionController extends AbstractController
 {
     #[Route(name: 'app_inscription_list')]
-    public function list(Request $request,EntityManagerInterface $em,PaginatorInterface $paginator): Response
+    public function list(Request $request,EntityManagerInterface $em,InscriptionRepository $inscriptionRepository,PaginatorInterface $paginator): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $stats = $inscriptionRepository->getInscriptionsCountPerFormation();
         $inscription = $em->getRepository(Inscription::class)->findAll();
+        $sort = $request->query->get('filter_sort', 'all');
+
+        if($sort=="all")
+        {
+            $inscription = $em->getRepository(Inscription::class)->findAll();
+        }
+        else
+        {
+            $inscription = $inscriptionRepository->sortInscriptions($sort);
+        }
+        
         $pagination = $paginator->paginate(
             $inscription,
             $request->query->getInt('page', 1),
             3
         );
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('inscription/_list.html.twig', [
+                'pagination' => $pagination,
+                'user' => $user
+            ]);
+        }
         return $this->render('inscription/list.html.twig', [
             'pagination' => $pagination,
+            'user' => $user,
+            'stats' => $stats,
+            'filter_sort' => $sort
         ]);
     }
 
@@ -52,19 +76,36 @@ class InscriptionController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('app_formation_list');
     }
-    #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])]
-    public function updateStatus(Request $request, Inscription $inscription, EntityManagerInterface $em): Response
+    #[Route('/{id}/edit', name: 'app_inscription_edit', methods: ['POST'])] 
+    public function updateStatus(Request $request,SmsSender $smsSender, Inscription $inscription, EntityManagerInterface $em): Response
     {
         $status = $request->request->get('status');
-    
-        if (!in_array($status, ['en attente', 'validé', 'refusé'])) {
-            return new Response('Invalid status', 400);
+        $formation= $inscription->getFormation();
+        $titre=$formation->getTitle();
+        $employee = $inscription->getUser();
+        $fullName = $employee->getFirst_name() . ' ' . $employee->getLast_name();
+
+        
+        if ($status === 'refuser' && $inscription->getStatus() === 'approuver') {
+            $formation->setParticipantsMax($formation->getParticipantsMax() + 1);
         }
-        if ($status === 'refusé') {
+        if ($status === 'refuser') {
+
+            $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été refusée.";
+            $smsSender->sendSms("+21698264250", $message);
             $em->remove($inscription);
             $em->flush();
+
         } else {
             $inscription->setStatus($status);
+            if ($status === 'approuver') {
+                $message = "Bonjour $fullName, nous vous informons que votre inscription à la formation, $titre, a été acceptée.";
+                $smsSender->sendSms("+21698264250", $message);
+                if ($formation->getParticipantsMax() > 0) {
+
+                    $formation->setParticipantsMax($formation->getParticipantsMax() - 1);
+                }
+            }
             $em->flush();
         }
         return $this->redirectToRoute('app_inscription_list');

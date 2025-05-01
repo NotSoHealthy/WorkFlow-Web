@@ -1,0 +1,56 @@
+package net.KSTheSecond.IronWater.entity.WaterBlob;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.KSTheSecond.IronWater.IronWater;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.Vec3;
+
+public class BlobEntityRenderer extends LivingEntityRenderer<BlobEntity,BlobModel<BlobEntity>> {
+
+    public static final ModelLayerLocation MODEL_LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(IronWater.MOD_ID, "waterblob"), "main");
+    private static final ResourceLocation BASE_TEXTURE = IronWater.id("textures/entity/waterblob.png");
+
+
+
+
+    public BlobEntityRenderer(EntityRendererProvider.Context pContext) {
+        super(pContext, new BlobModel<>(pContext.bakeLayer(MODEL_LAYER_LOCATION)), 0f);
+    }
+
+
+
+
+    @Override
+    public void render(BlobEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+
+        poseStack.pushPose();
+        //-1 -0.5 -0
+        model.tick(entity,partialTicks);
+        float hitboxWidth = entity.getDimensions(entity.getPose()).width;
+        poseStack.translate(0.0F, -1.5+hitboxWidth*0.5, 0.0F);
+
+        super.render(entity, yaw, partialTicks, poseStack, bufferSource, light);
+        poseStack.popPose();
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(BlobEntity blobEntity) {
+        return BASE_TEXTURE;
+    }
+
+}

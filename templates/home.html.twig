@@ -45,7 +45,23 @@
         </div>
         <div class="hero-content">
             <h1 data-aos="zoom-in">Workflow</h1>
-            <p class="typing-animation" data-aos="fade-up" data-aos-delay="200"></p>
+            {# <p class="typing-animation" data-aos="fade-up" data-aos-delay="200"></p> #}
+            <div class="p-5" style="font-size: 1.3em;">
+                {% set strings = [
+                    'Simplifiez la gestion de vos ressources humaines',
+                    'Optimisez vos processus RH',
+                    'Gagnez du temps avec Workflow',
+                    'Une solution intuitive pour les pros RH'
+                ] %}
+                <span
+                    data-controller="symfony--ux-typed"
+                    data-symfony--ux-typed-loop-value="true"
+                    data-symfony--ux-typed-show-cursor-value="true"
+                    data-symfony--ux-typed-cursor-char-value="|"
+                    data-symfony--ux-typed-strings-value="{{ strings|json_encode|e('html_attr') }}"
+                ></span>
+            </div>
+            
             <p data-aos="fade-up" data-aos-delay="400">Une solution moderne et intuitive pour les pros RH</p>
             <div class="mt-5">
                 <a href="{{ path('app_login') }}" class="btn btn-hero btn-signin" data-aos="fade-up" data-aos-delay="600">Se connecter</a>
@@ -212,52 +228,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
         AOS.init({ duration: 1200, once: true });
-
-        // Typing Animation with Deleting Effect
-        const typingElement = document.querySelector('.typing-animation');
-        const phrases = [
-            "Simplifiez la gestion de vos ressources humaines",
-            "Optimisez vos processus RH",
-            "Gagnez du temps avec Workflow",
-            "Une solution intuitive pour les pros RH"
-        ];
-        let currentPhraseIndex = 0;
-        let currentCharIndex = 0;
-        let isTyping = true;
-
-        function updateText() {
-            const phrase = phrases[currentPhraseIndex];
-            if (isTyping) {
-                typingElement.textContent = phrase.substring(0, currentCharIndex + 1);
-                currentCharIndex++;
-                if (currentCharIndex === phrase.length) {
-                    isTyping = false;
-                    setTimeout(updateText, 1000); // Pause avant de supprimer
-                } else {
-                    setTimeout(updateText, 50); // Vitesse de frappe
-                }
-            } else {
-                typingElement.textContent = phrase.substring(0, currentCharIndex);
-                currentCharIndex--;
-                if (currentCharIndex < 0) {
-                    isTyping = true;
-                    currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
-                    currentCharIndex = 0;
-                    setTimeout(updateText, 50); // Pause avant la prochaine phrase
-                } else {
-                    setTimeout(updateText, 50); // Vitesse de suppression
-                }
-            }
-        }
-
-        updateText();
-
-        // Lightbox Functionality
-        function openLightbox(src) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            lightbox.style.display = 'block';
-            lightboxImg.src = src;
-        }
     </script>
 {% endblock %}

@@ -1,0 +1,43 @@
+{% for reclamation in reclamations %}
+    <div class="reclamation-card {{ reclamation.etat|replace({' ': '-'})|lower }}"
+         data-date="{{ reclamation.date|date('Y-m-d') }}"
+         data-status="{{ reclamation.etat }}"
+         data-title="{{ reclamation.titre|lower }}"
+         data-description="{{ reclamation.description|lower }}">
+        <h3>{{ reclamation.titre }}</h3>
+        <p><strong>Catégorie :</strong> {{ reclamation.category }}</p>
+        <p><strong>État :</strong> {{ reclamation.etat }}</p>
+        <p><strong>Date :</strong> {{ reclamation.date|date('Y-m-d') }}</p>
+        <p><strong>Messages :</strong> {{ reclamation.messages|length }}</p>
+        <p><strong>Fichier :</strong> {{ reclamation.attachedfile ? 'Oui' : 'Non' }}</p>
+        <div class="actions">
+            <button class="cta btn-view view-btn" data-id="{{ reclamation.id }}">
+                <span class="hover-underline-animation">Voir</span>
+            </button>
+            {% if reclamation.responsable %}
+                {% if is_granted('ROLE_RESPONSABLE') and (app.user == reclamation.responsable) and reclamation.etat not in ['Ferme', 'Rejete'] %}
+                    <button class="cta manage-btn" data-id="{{ reclamation.id }}" data-bs-toggle="modal" data-bs-target="#manageModal">
+                        <span class="hover-underline-animation">Gérer</span>
+                    </button>
+                {% endif %}
+            {% else %}
+                {% if is_granted('ROLE_RESPONSABLE') and reclamation.etat not in ['Ferme', 'Rejete'] %}
+                    <button class="cta manage-btn" data-id="{{ reclamation.id }}">
+                        <span class="hover-underline-animation">Prendre</span>
+                    </button>
+                {% endif %}
+            {% endif %}
+            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="cta btn-edit">
+                <span class="hover-underline-animation">Modifier</span>
+            </a>
+            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                <button class="cta btn-delete" type="submit">
+                    <span class="hover-underline-animation">Supprimer</span>
+                </button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <p>Aucune réclamation trouvée.</p>
+{% endfor %}

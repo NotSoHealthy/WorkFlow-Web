@@ -1,0 +1,107 @@
+{% if events|length > 0 %}
+    <div class="events-container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for event in events %}
+                <div class="col">
+                    <div class="event-wrapper">
+                        <div class="project" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#projectModal{{ event.id }}">
+                            <div class="project-header">
+                                <h3 align="center">{{ event.Title }}</h3>
+                            </div>
+                            <div class="project-body">
+                                <table>
+                                    <tr class="project-info">
+                                        <td><i class="fas fa-calendar-alt"></i></td>
+                                        <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
+                                    </tr>
+                                    <tr class="project-info">
+                                        <td><i class="fa-solid fa-map-location-dot"></i></td>
+                                        <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
+                                    </tr>
+                                    <tr class="project-info">
+                                        <td><i class="fa-solid fa-list"></i></td>
+                                        <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Reservation button outside the card -->
+                        <form method="post" action="{{ path('app_add_reservation', {'id': event.id}) }}" style="display:inline;">
+                            <button type="submit" class="btn-reserve-icon" title="Réserver">
+                                <i class="fas fa-ticket-alt"></i>
+                            </button>
+                        </form>
+                        
+                        {% if is_granted('ROLE_RESPONSABLE') %}
+                        <!-- Moved action buttons outside the project container -->
+                        <div class="project-actions">
+                            <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
+                                <button type="submit" class="action-btn btn-edit-icon" title="Modifier">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </form>
+                            <div style="display:inline;">
+                                <button type="submit" class="action-btn btn-delete-icon" data-id="{{ event.id }}" title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="modal fade" id="projectModal{{ event.id }}" tabindex="-1" aria-labelledby="projectModalLabel{{ event.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="projectModalLabel{{ event.id }}" align="center">{{ event.Title }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table>
+                                        <tr class="project-info">
+                                            <td><i class="fas fa-calendar-alt"></i></td>
+                                            <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td><i class="fa-solid fa-map-location-dot"></i></td>
+                                            <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td><i class="fa-solid fa-list"></i></td>
+                                            <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td><i class="fa-solid fa-couch"></i></td>
+                                            <td><strong>Nombre de Place:</strong>&nbsp;&nbsp;{{ event.NumberOfPlaces }}</td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td><i class="fa-brands fa-google"></i></td>
+                                            <td><strong>En Ligne:</strong>&nbsp;&nbsp;{{ event.isOnline ? 'Oui' : 'Non' }}</td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td><i class="fa-solid fa-info" style="margin-left:8px;"></i></td>
+                                            <td><strong>Description:</strong></td>
+                                        </tr>
+                                        <tr class="project-info">
+                                            <td></td>
+                                            <td>{{ event.Description }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="mt-4 d-flex justify-content-center">
+        {{ knp_pagination_render(events,'pagination/custom_pagination.html.twig') }}
+    </div>
+{% else %}
+    <div class="alert alert-info text-center">
+        Aucun événement trouvé
+    </div>
+{% endif %}

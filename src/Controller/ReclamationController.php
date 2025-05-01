@@ -15,30 +15,50 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ReclamationController extends AbstractController
 {
     #[Route(name: 'app_reclamation_index', methods: ['GET'])]
-    public function index(ReclamationRepository $reclamationRepository): Response
-    {
+    public function index(Request $request, ReclamationRepository $reclamationRepository): Response
+  {
+        // Get query parameters
+        $searchTerm = $request->query->get('search', '');
+        $sort = $request->query->get('sort', 'newest');
+        $status = $request->query->get('status', '');
 
-        $reclamations = $reclamationRepository->findAll();
+        // Validate sort parameter
+        $sort = in_array($sort, ['newest', 'oldest']) ? $sort : 'newest';
 
+        // Fetch filtered and sorted reclamations
+        $reclamations = $reclamationRepository->findFilteredAndSorted($searchTerm, $sort, $status);
+
+        // Calculate types and categories for stats
         $types = [];
         $categories = [];
-    
         foreach ($reclamations as $rec) {
             $type = $rec->getType();
             $category = $rec->getCategory();
-    
             $types[$type] = ($types[$type] ?? 0) + 1;
             $categories[$category] = ($categories[$category] ?? 0) + 1;
         }
-    
+
+        // Check if the request is AJAX
+        if ($request->query->get('ajax') === '1') {
+            // Render only the reclamation grid partial
+            $reclamationsHtml = $this->renderView('reclamation/_grid.html.twig', [
+                'reclamations' => $reclamations,
+            ]);
+
+            return $this->json([
+                'reclamationsHtml' => $reclamationsHtml,
+                'types' => $types,
+                'categories' => $categories,
+            ]);
+        }
+
         return $this->render('reclamation/index.html.twig', [
             'reclamations' => $reclamations,
             'types' => $types,
             'categories' => $categories,
-        ]);
-
-        return $this->render('reclamation/index.html.twig', [
-            'reclamations' => $reclamations,
+            'searchTerm' => $searchTerm,
+            'sort' => $sort,
+            'status' => $status,
         ]);
     }
 

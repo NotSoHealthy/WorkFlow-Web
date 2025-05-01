@@ -18,7 +18,7 @@
           }
   
           .custom-btn:hover {
-            background-color: #0f2d3b;
+            background-color:rgba(40, 166, 208, 0.21);
             box-shadow: 0 4px 10px rgba(20, 60, 78, 0.4);
             color: #fff;
             text-decoration: none;
@@ -26,6 +26,23 @@
           }
           .custom-btn .material-symbols-outlined {
             font-size: 18px;
+          }
+          .stats-btn {
+            background-color: transparent;
+            padding: 4px 8px;
+            width:2.5rem;
+            transition: all 0.2s ease;
+          }
+          
+          .stats-btn:hover {
+              background-color: #0f2d3b;
+              box-shadow: 0 4px 10px rgba(19, 132, 150, 0.4);
+              color: #fff;
+              text-decoration: none;
+              transform: translateY(-1px);
+          }
+          .sorting-container{
+            margin-top: 1.5rem;
           }
     </style>        
 {% endblock %}
@@ -35,48 +52,127 @@
 <main class="main-content">
 <h1>Liste des Inscriptions</h1>
 
-<a href="{{ path('app_formation_list') }}" class="custom-btn"><<</a>
-
-<div class="container mt-4">
-    {% for inscription in pagination %}
-      <div class="card mb-3 shadow-sm border-0 mx-auto" style="max-width: 700px;">
-        <div class="card-body">
-          <h5 class="card-title mb-2">{{ inscription.user.firstName }} {{ inscription.user.lastName }}</h5>
-          <p class="card-text mb-1">
-            <strong>Formation : </strong> {{ inscription.formation.title }}<br>
-            <strong>Date : </strong> {{ inscription.dateRegistration|date('Y-m-d') }}
-          </p>
-  
-          <div class="d-flex justify-content-end gap-2">
-            {% if is_granted('ROLE_RESPONSABLE') %}
-              <form action="{{ path('app_inscription_edit', { id: inscription.id }) }}" method="POST" class="mb-0">
-                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                  <option value="en attente" {{ inscription.status == 'en attente' ? 'selected' : '' }} disabled hidden>en attente</option>
-                  <option value="validé" {{ inscription.status == 'validé' ? 'selected' : '' }}>validé</option>
-                  <option value="refusé" {{ inscription.status == 'refusé' ? 'selected' : '' }}>refusé</option>
-                </select>
-              </form>
-            {% endif %}
-  
-            {% if is_granted('ROLE_USER') and not is_granted('ROLE_RESPONSABLE') %}
-              <span class="badge 
-                {% if inscription.status == 'validé' %}bg-success
-                {% else %}bg-warning text-dark
-                {% endif %}">
-                {{ inscription.status|capitalize }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    {% else %}
-      <div class="alert alert-info">No registrations found.</div>
-    {% endfor %}
+<a href="{{ path('app_formation_list') }}" class="custom-btn"><span class="material-symbols-outlined">arrow_back</span></a>
+{% if is_granted('ROLE_RESPONSABLE') %}
+<div class="text-center my-3">
+  <button type="button" class="custom-btn stats-btn" data-toggle="modal" data-target="#statsModal">
+    📊
+  </button>
+</div>
+{% endif %}
+<div class="sorting-container mb-4">
+      <select id="sort-select" name="filter_sort" class="form-control">
+        <option value="all" {{ filter_sort == 'all' ? 'selected' : '' }}>tous</option>
+        <option value="en attente" {{ filter_sort == 'en attente' ? 'selected' : '' }}>en attente</option>
+        <option value="approuver" {{ filter_sort == 'approuver' ? 'selected' : '' }}>approuver</option>
+      </select>
+</div>
+<div class="container mt-4" id="inscription-container">
+  {% include 'inscription/_list.html.twig' with {'pagination': pagination} %}
   </div>
   
 <div class="d-flex justify-content-center mt-4">
     {{ knp_pagination_render(pagination, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
 </div>
+<div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-body">
+              <div class="card">
+                  <div class="card-header">
+                      <h5>Formations Par Année</h5>
+                  </div>
+                  <div class="card-body">
+                      <canvas id="inscriptionChart" width="400" height="400"></canvas>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+          </div>
+      </div>
+  </div>
+</div>
 </main>
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script> 
+document.addEventListener('DOMContentLoaded', function () {
+
+  const sortSelect = document.getElementById('sort-select');
+
+  sortSelect.addEventListener('change', function () {
+    const sortValue = sortSelect.value;
+
+    fetch(`{{ path('app_inscription_list') }}?filter_sort=${encodeURIComponent(sortValue)}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('inscription-container').innerHTML = html;
+    })
+    .catch(error => {
+      console.error('Erreur AJAX:', error);
+    });
+  });
+
+
+  $('#statsModal').on('shown.bs.modal', function() {
+    const ctx = document.getElementById('inscriptionChart').getContext('2d');
+  
+    const labels = [{% for title, count in stats %}"{{ title }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+    const counts = [{% for title, count in stats %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}];
+  
+    const backgroundColors = [];
+    const borderColors = [];
+  
+    for (let i = 0; i < labels.length; i++) {
+        const hue = (i * 137) % 360;
+        backgroundColors.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+        borderColors.push(`hsla(${hue}, 70%, 50%, 1)`);
+    }
+  
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return labels[tooltipItem[0].dataIndex];
+                        },
+                        label: function(tooltipItem) {
+                            const value = counts[tooltipItem.dataIndex];
+                            const total = counts.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `Inscriptions: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+  });  
+});
+</script> 
+{% endblock %}
 {% endblock %}
 

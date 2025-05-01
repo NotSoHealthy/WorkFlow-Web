@@ -1,3 +1,4 @@
+{# templates/job_offer/wizard.html.twig #}
 {% extends 'layout.html.twig' %}
 
 {% block title %}Création / Édition Offre d'emploi{% endblock %}
@@ -6,12 +7,12 @@
     {{ parent() }}
     <style>
         :root {
-            --primary-color: #1a73e8; /* Blue for active steps and buttons */
-            --accent-color: #4caf50; /* Green for completed steps and submit */
-            --background-color: #f5f7fa; /* Light gray background */
-            --card-bg: #ffffff; /* White container background */
-            --text-color: #333; /* Dark text */
-            --border-color: #e0e0e0; /* Subtle borders */
+            --primary-color: #1a73e8;
+            --accent-color: #4caf50;
+            --background-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
             --font-family: 'Inter', sans-serif;
         }
 
@@ -101,11 +102,15 @@
         }
 
         .form-step {
-            display: none;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
         }
 
         .form-step.active {
-            display: block;
+            visibility: visible;
+            height: auto;
+            overflow: visible;
         }
 
         .form-group {
@@ -115,7 +120,7 @@
         .form-label {
             display: block;
             margin-bottom: 5px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .form-input {
@@ -134,7 +139,6 @@
             outline: none;
         }
 
-        /* Error message styling */
         .error-message {
             color: red;
             font-size: 0.85rem;
@@ -193,7 +197,6 @@
 <main>
     <div class="wizard-container">
         <h2>Création / Édition Offre d'emploi</h2>
-        {# Global error summary (if any) #}
         {{ form_errors(form) }}
         <div class="progress-container">
             <div class="progress-step active" data-step="1">1</div>
@@ -205,8 +208,13 @@
             <div class="progress-label">Dates</div>
             <div class="progress-label">Détails</div>
         </div>
-        <form id="job-offer-wizard-form" method="POST" data-edit-id="{{ jobOffer.id|default('') }}">
-            {{ form_widget(form._token) }}
+
+        {{ form_start(form, {
+            attr: {
+                id: 'job-offer-wizard-form',
+                'data-edit-id': jobOffer.id|default('')
+            }
+        }) }}
 
             <!-- Step 1: Basic Info -->
             <div class="form-step active" data-step="1">
@@ -266,7 +274,8 @@
                     <button type="submit" class="btn btn-submit">Enregistrer</button>
                 </div>
             </div>
-        </form>
+
+        {{ form_end(form) }}
     </div>
 </main>
 {% endblock %}
@@ -287,7 +296,7 @@
                     }
                 });
                 progressSteps.forEach(ps => {
-                    let psStep = parseInt(ps.getAttribute('data-step'));
+                    const psStep = parseInt(ps.getAttribute('data-step'));
                     if (psStep < step) {
                         ps.classList.add('completed');
                         ps.classList.remove('active');
@@ -303,18 +312,19 @@
             function validateStep1() {
                 let isValid = true;
                 const titleInput = document.querySelector('input[name="job_offer[title]"]');
-                const descriptionInput = document.querySelector('textarea[name="job_offer[description]"]');
+                const titleValue = titleInput.value.trim();
+                const descriptionData = CKEDITOR.instances['job_offer_description'].getData().replace(/<[^>]*>/g, '').trim();
                 const titleError = document.getElementById('client-error-title');
                 const descriptionError = document.getElementById('client-error-description');
-                
+
                 titleError.textContent = '';
                 descriptionError.textContent = '';
 
-                if (titleInput.value.trim().length < 5) {
+                if (titleValue.length < 5) {
                     titleError.textContent = "Le titre doit contenir au moins 5 caractères.";
                     isValid = false;
                 }
-                if (descriptionInput.value.trim().length < 5) {
+                if (descriptionData.length < 5) {
                     descriptionError.textContent = "La description doit contenir au moins 5 caractères.";
                     isValid = false;
                 }
@@ -327,7 +337,7 @@
                 const expInput = document.querySelector('input[name="job_offer[expirationDate]"]');
                 const pubError = document.getElementById('client-error-publicationDate');
                 const expError = document.getElementById('client-error-expirationDate');
-                
+
                 pubError.textContent = '';
                 expError.textContent = '';
 
@@ -348,7 +358,7 @@
                 const salaryInput = document.querySelector('input[name="job_offer[salary]"]');
                 const contractError = document.getElementById('client-error-contractType');
                 const salaryError = document.getElementById('client-error-salary');
-                
+
                 contractError.textContent = '';
                 salaryError.textContent = '';
 
@@ -389,15 +399,21 @@
 
             document.getElementById('job-offer-wizard-form').addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // Sync CKEditor data back to the textarea
+                CKEDITOR.instances['job_offer_description'].updateElement();
+
                 if (!validateStep3()) {
                     return;
                 }
+
                 const form = e.target;
                 const formData = new FormData(form);
                 const editId = form.getAttribute('data-edit-id');
-                let url = editId
+                const url = editId
                     ? `{{ path('job_offer_update', {'id': 'ID_PLACEHOLDER'}) }}`.replace('ID_PLACEHOLDER', editId)
                     : `{{ path('job_offer_create') }}`;
+
                 fetch(url, {
                     method: 'POST',
                     body: formData,

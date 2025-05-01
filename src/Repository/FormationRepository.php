@@ -15,30 +15,24 @@ class FormationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Formation::class);
     }
-    public function searchFormations(string $search): array
+    public function searchAndSortFormations(string $search, string $sort): array
     {
-        return $this->createQueryBuilder('f')
-            ->where('f.title LIKE :search')
-            ->setParameter('search', '%' . $search . '%')
-            ->orderBy('f.date_begin', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-    public function sortFormations(string $sortBy): array
-    {
-        $queryBuilder = $this->createQueryBuilder('f');
+        $qb = $this->createQueryBuilder('f');
 
-        if ($sortBy === 'titre') {
-            $queryBuilder->orderBy('f.title', "ASC");
-        } 
-        elseif ($sortBy === 'period') {
-       
-            $queryBuilder->orderBy('f.date_begin', "ASC"); 
-            $queryBuilder->addOrderBy('f.date_end', "ASC"); 
-    
+        if ($search) {
+            $qb->where('f.title LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        if ($sort === 'titre') {
+            $qb->orderBy('f.title', 'ASC');
+        } 
+        elseif ($sort === 'period') {
+            $qb->orderBy('f.date_begin', 'ASC')
+                ->addOrderBy('f.date_end', 'ASC');
+        }
+
+        return $qb->getQuery()->getResult();
     }
     public function getFormationsCountPerYear(): array
     {
