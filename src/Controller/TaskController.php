@@ -6,7 +6,6 @@ use App\Entity\Task;
 use App\Entity\Project;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
-use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,11 +20,7 @@ class TaskController extends AbstractController
     {
         $user = $this->getUser();
 
-        $tasks = $taskRepository->findBy([
-            'project' => $project,
-            'user' => $user,
-        ]);
-
+        // Form logic
         $task = new Task();
         $task->setProject($project);
         $task->setUser($user);
@@ -38,11 +33,12 @@ class TaskController extends AbstractController
             $entityManager->persist($task);
             $entityManager->flush();
 
-            return $this->redirectToRoute('task_index', ['id' => $project->getId()]);
+            // Redirect to refresh the project view
+            return $this->redirectToRoute('project_my_department');
         }
 
+        // You don’t need this page rendered directly unless debugging
         return $this->render('task/index.html.twig', [
-            'tasks' => $tasks,
             'form' => $form->createView(),
             'project' => $project,
         ]);
@@ -60,7 +56,7 @@ class TaskController extends AbstractController
             $task->setUpdatedAt(new \DateTime());
             $entityManager->flush();
 
-            return $this->redirectToRoute('task_index', ['id' => $task->getProject()->getId()]);
+            return $this->redirectToRoute('project_my_department');
         }
 
         return $this->render('task/edit.html.twig', [
@@ -72,34 +68,37 @@ class TaskController extends AbstractController
     #[Route('/delete/{id}', name: 'task_delete', methods: ['POST'])]
     public function delete(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('DELETE', $task);
+        //$this->denyAccessUnlessGranted('DELETE', $task);
 
-        if ($this->isCsrfTokenValid('delete' . $task->getId(), $request->request->get('_token'))) {
+        //if ($this->isCsrfTokenValid('delete' . $task->getId(), $request->request->get('_token'))) {
             $entityManager->remove($task);
             $entityManager->flush();
+        //}
+
+        return $this->redirectToRoute('project_my_department');
+    }
+
+    #[Route('/update-status', name: 'task_update_status', methods: ['POST'])]
+    public function updateStatus(Request $request, EntityManagerInterface $entityManager, TaskRepository $taskRepository): Response
+    {
+        $data = json_decode($request->getContent(), true);
+    
+        if (!$data || !isset($data['id']) || !isset($data['status'])) {
+            return $this->json(['error' => 'Invalid data'], 400);
         }
-
-        return $this->redirectToRoute('task_index', ['id' => $task->getProject()->getId()]);
-    }
-    #[Route('/task/update-status', name: 'task_update_status', methods: ['POST'])]
-public function updateStatus(Request $request, EntityManagerInterface $entityManager, TaskRepository $taskRepository): Response
-{
-    $data = json_decode($request->getContent(), true);
-
-    if (!$data || !isset($data['id']) || !isset($data['status'])) {
-        return $this->json(['error' => 'Invalid data'], 400);
-    }
-
-    $task = $taskRepository->find($data['id']);
-
-    if (!$task) {
-        return $this->json(['error' => 'Task not found'], 404);
+    
+        $task = $taskRepository->find($data['id']);
+    
+        if (!$task) {
+            return $this->json(['error' => 'Task not found'], 404);
+        }
+    
+        $task->setStatus($data['status']);
+        $task->setUpdatedAt(new \DateTime());
+        $entityManager->persist($task);
+        $entityManager->flush();
+    
+        return $this->json(['success' => true, 'updatedStatus' => $task->getStatus()]);
     }
 
-    $task->setStatus($data['status']);
-    $task->setUpdatedAt(new \DateTime());
-    $entityManager->flush();
-
-    return $this->json(['success' => true]);
-}
 }

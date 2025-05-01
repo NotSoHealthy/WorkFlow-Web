@@ -1,0 +1,18 @@
+{{ form_start(form, {
+    action: path('task_index', { id: project.id }),
+    method: 'POST',
+    attr: { class: 'needs-validation', novalidate: true }
+}) }}
+    <div class="mb-3">
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.status) }}
+        {{ form_row(form.priority) }}
+        {{ form_row(form.start_date) }}
+        {{ form_row(form.due_date) }}
+        {{ form_row(form.completion_date) }}
+    </div>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-primary">💾 Créer</button>
+    </div>
+{{ form_end(form) }}
