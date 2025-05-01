@@ -141,7 +141,7 @@ final class DepartmentController extends AbstractController
         $prompt = "Donne-moi une liste de 5 outils modernes utilisés dans un département de $type Réponds en français, en utilisant ce format :
 * **NomDeLoutil:** Courte description de son utilité. Ajoute un émoji pertinent pour chaque outil.";
         $apiKey = $this->getParameter('gemini_api_key');
-        $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
+        $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
             'json' => [
                 'contents' => [[
                     'parts' => [[ 'text' => $prompt ]]

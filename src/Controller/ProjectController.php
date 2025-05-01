@@ -209,7 +209,7 @@ public function geminiChat(Request $request): JsonResponse
 
     // 2. If yes, send to Gemini
     $apiKey = $this->getParameter('gemini_api_key');
-    $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
+    $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
         'json' => [
             'contents' => [[
                 'parts' => [[ 'text' => $message ]]
