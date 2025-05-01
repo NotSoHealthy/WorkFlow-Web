@@ -1,6 +1,14 @@
 monolog:
-    channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+    channels: ['event']  # Add this to your existing channels
+    handlers:
+        # Your existing handlers remain unchanged
+        
+        # Add a new handler specifically for event logs
+        event:
+            type: stream
+            path: "%kernel.logs_dir%/Events.log"
+            level: info
+            channels: ['event']
 
 when@dev:
     monolog:
