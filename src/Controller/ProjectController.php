@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\TaskType;
 
 #[Route('/project')]
