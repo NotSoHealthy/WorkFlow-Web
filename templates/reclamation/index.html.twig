@@ -15,7 +15,7 @@
             gap: 15px;
             margin-bottom: 25px;
         }
-        #search-input, #sort-select {
+        #search-input, #sort-select, #status-select {
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -23,13 +23,11 @@
         }
         .reclamation-grid {
             display: grid;
-  
-            margin-top:50px;
-            grid-template-columns: repeat(auto-fit,490px);
+            margin-top: 50px;
+            grid-template-columns: repeat(auto-fit, 490px);
             gap: 50px;
             margin-left: 50px;
         }
-
         .reclamation-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -38,48 +36,39 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             transition: transform 0.3s, box-shadow 0.3s;
         }
-
         .reclamation-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-
         .reclamation-card.ouvert { border-left: 6px solid var(--bs-success); }
         .reclamation-card.en-cours { border-left: 6px solid var(--bs-primary); }
         .reclamation-card.en-attente { border-left: 6px solid var(--bs-warning); }
-         .reclamation-card.ferme { border-left: 6px solid var(--bs-danger); }
-          .reclamation-card.rejete { border-left: 6px solid var(--bs-secondary); }
-
-
+        .reclamation-card.ferme { border-left: 6px solid var(--bs-danger); }
+        .reclamation-card.rejete { border-left: 6px solid var(--bs-secondary); }
         .reclamation-card h3 {
             color: var(--primary-color);
             margin: 0 0 15px 0;
             font-size: 1.3rem;
         }
-
         .reclamation-card p {
             margin: 8px 0;
             font-size: 0.95rem;
         }
-
         .actions {
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             gap: 10px;
             margin-top: 15px;
-            align-items: flex-start; 
+            align-items: flex-start;
         }
-
-       
         .cta {
             border: none;
             background: none;
             cursor: pointer;
             padding: 0;
             width: 100%;
-            text-align: left; 
+            text-align: left;
         }
-
         .cta span {
             padding-bottom: 7px;
             letter-spacing: 2px;
@@ -89,13 +78,10 @@
             transition: color 0.3s ease;
             display: inline-block;
         }
-
         .hover-underline-animation {
             position: relative;
             padding-bottom: 5px;
         }
-
-
         .hover-underline-animation:after {
             content: "";
             position: absolute;
@@ -108,30 +94,22 @@
             transform-origin: bottom right;
             transition: transform 0.25s ease-out;
         }
-
         .cta:hover .hover-underline-animation:after {
             transform: scaleX(1);
             transform-origin: bottom left;
         }
-
         .cta:active {
             transform: scale(0.95);
         }
-      
-
-     
-        .btn-view { color:rgb(13, 180, 206); }
-         .manage-btn { color:rgb(24, 190, 113); }
+        .btn-view { color: rgb(13, 180, 206); }
+        .manage-btn { color: rgb(24, 190, 113); }
         .btn-edit { color: #ffc107; }
         .btn-delete { color: #dc3545; }
-
         .cta:hover.btn-view { color: #138496; }
         .cta:hover.btn-edit { color: #e0a800; }
         .cta:hover.btn-delete { color: #c82333; }
-
         .modal-body h3 { color: var(--primary-color); }
         .modal-body p { margin: 12px 0; }
- 
         .badge {
             padding: 6px 12px;
             border-radius: 14px;
@@ -139,29 +117,22 @@
             font-size: 0.85rem;
         }
         #sort-select {
-            width: 250px; 
-            height: 40px; 
-            padding: 8px; 
-            font-size: 14px; 
-            border-radius: 6px; 
-            border: 1px solid var(--border-color); 
-         }
-
-        .statbutton 
-        {
-            width:200px;
+            width: 250px;
+            height: 40px;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        .statbutton {
+            width: 200px;
         }
         .badge-ouvert { background: var(--bs-success); }
         .badge-en-cours { background: var(--bs-primary); }
         .badge-en-attente { background: var(--bs-warning); }
         .badge-ferme { background: var(--bs-danger); }
         .badge-rejete { background: var(--bs-secondary); }
-
-
-        .select-stat{width:300px;}
-
-
-
+        .select-stat { width: 300px; }
     </style>
 {% endblock %}
 
@@ -170,72 +141,30 @@
         <div class="container">
             <h1>Réclamations</h1>
             <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mb-4">Créer une nouvelle réclamation</a>
-            <div class="filter-sort-container">
-                <input type="text" id="search-input" class="form-control" placeholder="Rechercher par titre ou description">
-                <select id="sort-select" class="form-control ">
-                    <option value="newest">Les plus récentes d'abord</option>
-                    <option value="oldest">Les plus anciennes d'abord</option>
-                  
-                </select>
-              <select id="status-select" class="form-control select-stat">
-    <option value="">Tous les états</option>
-    <option value="ouvert">Ouvert</option>
-    <option value="en cours">En cours</option>
-    <option value="en attente">En attente</option>
-    <option value="ferme">Fermé</option>
-    <option value="rejete">Rejeté</option>
-</select>
-<button class="btn btn-outline-secondary d-flex align-items-center statbutton" data-bs-toggle="modal" data-bs-target="#statModal">
-    <i class="bi bi-bar-chart-fill me-2"></i> Statistique
-</button>
-                
-            </div>
+       
+<div class="filter-sort-container">
+    <div class="d-flex gap-3 w-100">
+        <input type="text" id="search-input" class="form-control" placeholder="Rechercher par titre ou description" value="{{ searchTerm }}">
+        <select id="sort-select" class="form-control">
+            <option value="newest" {{ sort == 'newest' ? 'selected' : '' }}>Les plus récentes d'abord</option>
+            <option value="oldest" {{ sort == 'oldest' ? 'selected' : '' }}>Les plus anciennes d'abord</option>
+        </select>
+        <select id="status-select" class="form-control select-stat">
+            <option value="" {{ status == '' ? 'selected' : '' }}>Tous les états</option>
+            <option value="Ouvert" {{ status == 'Ouvert' ? 'selected' : '' }}>Ouvert</option>
+            <option value="En cours" {{ status == 'En cours' ? 'selected' : '' }}>En cours</option>
+            <option value="En attente" {{ status == 'En attente' ? 'selected' : '' }}>En attente</option>
+            <option value="Ferme" {{ status == 'Ferme' ? 'selected' : '' }}>Fermé</option>
+            <option value="Rejete" {{ status == 'Rejete' ? 'selected' : '' }}>Rejeté</option>
+        </select>
+    </div>
+    <button class="btn btn-outline-secondary d-flex align-items-center statbutton" data-bs-toggle="modal" data-bs-target="#statModal">
+        <i class="bi bi-bar-chart-fill me-2"></i> Statistique
+    </button>
+</div>
             <hr>
-            <div class="reclamation-grid">
-                {% for reclamation in reclamations %}
-                    <div class="reclamation-card {{ reclamation.etat|replace({' ': '-'})|lower }}"
-                         data-date="{{ reclamation.date|date('Y-m-d') }}"
-                         data-status="{{ reclamation.etat }}"
-                         data-title="{{ reclamation.titre|lower }}"
-                         data-description="{{ reclamation.description|lower }}">
-                        <h3>{{ reclamation.titre }}</h3>
-                        <p><strong>Catégorie :</strong> {{ reclamation.category }}</p>
-                        <p><strong>État :</strong> {{ reclamation.etat }}</p>
-                        <p><strong>Date :</strong> {{ reclamation.date|date('Y-m-d') }}</p>
-                        <p><strong>Messages :</strong> {{ reclamation.messages|length }}</p>
-                        <p><strong>Fichier :</strong> {{ reclamation.attachedfile ? 'Oui' : 'Non' }}</p>
-                        <div class="actions">
-                            <button class="cta btn-view view-btn" data-id="{{ reclamation.id }}">
-                                <span class="hover-underline-animation">Voir</span>
-                            </button>
-                              {% if reclamation.responsable %}
-                              {% if is_granted('ROLE_RESPONSABLE') and (app.user == reclamation.responsable) and reclamation.etat not in ['Ferme', 'Rejete'] %}
-                            
-    <button class="cta manage-btn" data-id="{{ reclamation.id }}" data-bs-toggle="modal" data-bs-target="#manageModal">
-        <span class="hover-underline-animation">Gérer</span>
-    </button>
-    {% endif %}
-{% else %}
-{% if is_granted('ROLE_RESPONSABLE') and reclamation.etat not in ['Ferme', 'Rejete'] %}
-    <button class="cta manage-btn" data-id="{{ reclamation.id }}">
-        <span class="hover-underline-animation">Prendre</span>
-    </button>
-{% endif %}
-{% endif %}
-                            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="cta btn-edit">
-                                <span class="hover-underline-animation">Modifier</span>
-                            </a>
-                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
-                                <button class="cta btn-delete" type="submit">
-                                    <span class="hover-underline-animation">Supprimer</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                {% else %}
-                    <p>Aucune réclamation trouvée.</p>
-                {% endfor %}
+            <div class="reclamation-grid" id="reclamations-container">
+                {% include 'reclamation/_grid.html.twig' with {'reclamations': reclamations} %}
             </div>
         </div>
 
@@ -252,441 +181,469 @@
             </div>
         </div>
 
-
-<div class="modal fade" id="statModal" tabindex="-1" aria-labelledby="statModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content p-4">
-      <div class="modal-header">
-        <h5 class="modal-title w-100 text-center" id="statModalLabel">Statistiques</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row text-center">
-          <div class="col-md-6">
-            <h6>Types de réclamations</h6>
-            <canvas id="typeChart"></canvas>
-          </div>
-          <div class="col-md-6">
-            <h6>Catégories de réclamations</h6>
-            <canvas id="categoryChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-<div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="manageModalLabel">Gérer la réclamation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-success status-btn" data-status="ouvert">Marquer comme Ouvert</button>
-                    <button type="button" class="btn btn-outline-primary status-btn" data-status="enc_cours">Marquer comme En cours</button>
-                    <button type="button" class="btn btn-outline-warning status-btn" data-status="en_attente">Marquer comme En attente</button>
-                    <button type="button" class="btn btn-outline-danger status-btn" data-status="ferme">Marquer comme Fermé</button>
-                    <button type="button" class="btn btn-outline-secondary status-btn" data-status="rejete">Marquer comme Rejeté</button>
-                    <button type="button" class="btn btn-outline-dark resign-btn">Démissionner</button>
+        <div class="modal fade" id="statModal" tabindex="-1" aria-labelledby="statModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content p-4">
+                    <div class="modal-header">
+                        <h5 class="modal-title w-100 text-center" id="statModalLabel">Statistiques</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row text-center">
+                            <div class="col-md-6">
+                                <h6>Types de réclamations</h6>
+                                <canvas id="typeChart"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Catégories de réclamations</h6>
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        </div>
+
+        <div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="manageModalLabel">Gérer la réclamation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-success status-btn" data-status="ouvert">Marquer comme Ouvert</button>
+                            <button type="button" class="btn btn-outline-primary status-btn" data-status="enc_cours">Marquer comme En cours</button>
+                            <button type="button" class="btn btn-outline-warning status-btn" data-status="en_attente">Marquer comme En attente</button>
+                            <button type="button" class="btn btn-outline-danger status-btn" data-status="ferme">Marquer comme Fermé</button>
+                            <button type="button" class="btn btn-outline-secondary status-btn" data-status="rejete">Marquer comme Rejeté</button>
+                            <button type="button" class="btn btn-outline-dark resign-btn">Démissionner</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-
-
-
     </main>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
-    //STATUS
-    document.addEventListener('DOMContentLoaded', function() {
-    let currentReclamationId = null;
-    const manageModal = new bootstrap.Modal(document.getElementById('manageModal'));
-    
+        document.addEventListener('DOMContentLoaded', function() {
+            
+          
+            let typeChart = null;
+            let categoryChart = null;
+            let currentReclamationId = null;
+            
+            
+            const elements = {
+                searchInput: document.getElementById('search-input'),
+                sortSelect: document.getElementById('sort-select'),
+                statusSelect: document.getElementById('status-select'),
+                grid: document.querySelector('.reclamation-grid'),
+                statModal: document.getElementById('statModal'),
+                manageModal: new bootstrap.Modal(document.getElementById('manageModal'))
+            };
 
+           
+            initFilters();
+            initCharts({{ types|json_encode|raw }}, {{ categories|json_encode|raw }});
+            attachEventListeners();
 
+            function initFilters() {
+                window.currentFilters = {
+                    search: elements.searchInput.value,
+                    sort: elements.sortSelect.value,
+                    status: elements.statusSelect.value
+                };
+            }
 
-    
-  
-   document.querySelectorAll('.manage-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        currentReclamationId = this.dataset.id;
-        
-       
-        if (this.querySelector('span').textContent.trim() === 'Prendre') {
-             e.preventDefault();
-            e.stopPropagation();
-            takeReclamationOwnership(currentReclamationId);
-        }
-    });
-});
-      function takeReclamationOwnership(id) {
-    
-    fetch(`/reclamation/${id}/take-ownership`, {
-        method: 'POST',
+            function attachEventListeners() {
+                
+                elements.searchInput.addEventListener('input', debounce(updateReclamations, 300));
+                elements.searchInput.addEventListener('search', updateReclamations);
+                elements.sortSelect.addEventListener('change', updateReclamations);
+                elements.statusSelect.addEventListener('change', updateReclamations);
+                
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.view-btn')) {
+                        showReclamationDetails(e.target.closest('.view-btn').dataset.id);
+                        attachFormSubmitHandler()
+                    }
+                    if (e.target.closest('.manage-btn')) {
+                        handleManageButton(e.target.closest('.manage-btn'), e);
+                    }
+                    if (e.target.closest('.status-btn')) {
+                        updateStatus(e.target.closest('.status-btn').dataset.status);
+                    }
+                    if (e.target.closest('.resign-btn')) {
+                        resignReclamation();
+                    }
+                });
+            }
+
+            async function updateReclamations() {
+               
+                window.currentFilters = {
+                    search: elements.searchInput.value,
+                    sort: elements.sortSelect.value,
+                    status: elements.statusSelect.value
+                };
+
+                
+                elements.grid.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+                const url = new URL(window.location);
+                Object.entries(window.currentFilters).forEach(([key, value]) => {
+                    url.searchParams.set(key, value);
+                });
+                url.searchParams.set('ajax', '1');
+
+                try {
+                    const response = await fetch(url.toString());
+                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                    
+                    const data = await response.json();
+                    if (!data.reclamationsHtml) throw new Error('Invalid response data');
+
+                   
+                    elements.grid.innerHTML = data.reclamationsHtml;
+                    updateCharts(data.types, data.categories);
+                    
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    elements.grid.innerHTML = `
+                        <div class="alert alert-danger text-center">
+                            Error: ${error.message}
+                        </div>`;
+                }
+            }
+
+            
+            function initCharts(types, categories) {
+                createChart('typeChart', types, 'Types de réclamations');
+                createChart('categoryChart', categories, 'Catégories de réclamations');
+            }
+
+            function updateCharts(types, categories) {
+                updateChart('typeChart', types);
+                updateChart('categoryChart', categories);
+            }
+
+            function createChart(chartId, data, title) {
+                const ctx = document.getElementById(chartId)?.getContext('2d');
+                if (!ctx) return;
+
+                if (chartId === 'typeChart' && typeChart) typeChart.destroy();
+                if (chartId === 'categoryChart' && categoryChart) categoryChart.destroy();
+
+                const chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: formatChartData(data),
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: { display: true, text: title },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percent = Math.round((context.raw / total) * 100);
+                                        return `${context.label}: ${context.raw} (${percent}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                if (chartId === 'typeChart') typeChart = chart;
+                if (chartId === 'categoryChart') categoryChart = chart;
+            }
+
+            function updateChart(chartId, data) {
+                const chart = chartId === 'typeChart' ? typeChart : categoryChart;
+                if (chart) {
+                    chart.data = formatChartData(data);
+                    chart.update();
+                }
+            }
+
+            function formatChartData(data) {
+                return {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#8AC24A', '#EA5F89', '#00ACC1', '#FF7043'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+            }
+
+            
+function showReclamationDetails(id) {
+    fetch(`/message/${id}/details`, {
         headers: {
-            'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error(`HTTP error: ${response.status}`);
         }
-        return response.json();
+        return response.text();
     })
-    .then(data => {
-        if (data.success) {
-            location.reload(); 
-        } else {
-            alert(data.message || 'Erreur lors de la prise en charge');
-        }
+    .then(html => {
+        document.querySelector('#reclamationModal .modal-body').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('reclamationModal')).show();
+     
+        attachFormSubmitHandler();
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Une erreur est survenue');
+        console.error('Details error:', error);
+        alert('Erreur lors du chargement des détails.');
     });
 }
-    
- 
 
-
-    
-  
-    document.querySelectorAll('.status-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const newStatus = this.dataset.status;
-            updateReclamationStatus(currentReclamationId, newStatus);
-            manageModal.hide();
-        });
-    });
-    
-   
-    document.querySelector('.resign-btn').addEventListener('click', function() {
-        resignReclamation(currentReclamationId);
-        manageModal.hide();
-    });
-    
-    function updateReclamationStatus(id, status) {
-        fetch(`/reclamation/${id}/update-status`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ status: status })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload(); 
+            function handleManageButton(button, event) {
+                currentReclamationId = button.dataset.id;
+                if (button.querySelector('span')?.textContent.trim() === 'Prendre') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    takeOwnership();
+                }
             }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-    
-    function resignReclamation(id) {
-        fetch(`/reclamation/${id}/resign`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+
+            async function takeOwnership() {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/take-ownership`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Ownership error:', error);
+                }
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
+
+            async function updateStatus(status) {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/update-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Status error:', error);
+                }
             }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-});
 
-
-
-
-
-
-    //STATS
-    document.addEventListener("DOMContentLoaded", function () {
-   
-    const types = {{ types|json_encode|raw }};
-    const categories = {{ categories|json_encode|raw }};
-
-    const typeLabels = Object.keys(types);
-    const typeValues = Object.values(types);
-
-    const categoryLabels = Object.keys(categories);
-    const categoryValues = Object.values(categories);
-
-    const typeCtx = document.getElementById('typeChart').getContext('2d');
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-
-   new Chart(typeCtx, {
-    type: 'pie',
-    data: {
-        labels: typeLabels,
-        datasets: [{
-            data: typeValues,
-            backgroundColor: ['#f94144', '#f3722c', '#f8961e', '#f9844a', '#f9c74f'],
-        }]
-    }
-});
-
-new Chart(categoryCtx, {
-    type: 'pie',
-    data: {
-        labels: categoryLabels,
-        datasets: [{
-            data: categoryValues,
-            backgroundColor: ['#90be6d', '#43aa8b', '#577590', '#277da1', '#4d908e'],
-        }]
-    }
-});
-});
-
-
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search-input');
-            const sortSelect = document.getElementById('sort-select');
-            const cardsContainer = document.querySelector('.reclamation-grid');
-            const cards = Array.from(cardsContainer.querySelectorAll('.reclamation-card'));
-
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                cards.forEach(card => {
-                    const title = card.dataset.title;
-                    const description = card.dataset.description;
-                    card.style.display = (title.includes(searchTerm) || description.includes(searchTerm)) ? 'block' : 'none';
-                });
-            });
-
- const statusSelect = document.getElementById('status-select');
-    
-    statusSelect.addEventListener('change', function() {
-        const selectedStatus = this.value.toLowerCase();
-        
-        cards.forEach(card => {
-            const cardStatus = card.dataset.status.toLowerCase();
-            
-            if (selectedStatus === '') {
-               
-                card.style.display = 'block';
-            } else {
-              
-                card.style.display = cardStatus === selectedStatus ? 'block' : 'none';
+            async function resignReclamation() {
+                try {
+                    const response = await fetch(`/reclamation/${currentReclamationId}/resign`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) updateReclamations();
+                } catch (error) {
+                    console.error('Resign error:', error);
+                }
             }
-        });
-    });
 
-
-          const sortFunctions = {
-    newest: (a, b) => new Date(b.dataset.date) - new Date(a.dataset.date),
-    oldest: (a, b) => new Date(a.dataset.date) - new Date(b.dataset.date)
-   
-};
-
-sortSelect.addEventListener('change', function() {
-    const sortBy = this.value;
-    if (sortFunctions[sortBy]) {
-        cards.sort(sortFunctions[sortBy]);
-        cardsContainer.innerHTML = '';
-        cards.forEach(card => cardsContainer.appendChild(card));
-    }
-});
-
-sortSelect.value = 'newest';
-sortSelect.dispatchEvent(new Event('change'));
-
-            document.querySelectorAll('.view-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    fetch(`/message/${id}/details`)
-                        .then(response => response.text())
-                        .then(html => {
-                            document.querySelector('#reclamationModal .modal-body').innerHTML = html;
-                            const modal = new bootstrap.Modal(document.getElementById('reclamationModal'));
-                            modal.show();
-                         
-                           document.getElementById('reclamationModal').addEventListener('shown.bs.modal', function() {
-                    attachFormSubmitHandler();
-                }, {once: true});
            
-                        })
-                        .catch(error => console.error('Error:', error));
-                });
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+
+      function attachFormSubmitHandler() {
+    const modal = document.getElementById('reclamationModal');
+    if (!modal) return;
+
+   
+    let isProcessing = false;
+
+    // Handle message form submission
+    const messageForm = modal.querySelector('form[id="message-textarea"]');
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(event) {
+            if (isProcessing) return;
+            isProcessing = true;
+            event.preventDefault();
+            const formData = new FormData(messageForm);
+            
+            const match = messageForm.action.match(/\/message\/(\d+)\/details/);
+            const reclamationId = match ? match[1] : null;
+            
+            if (!reclamationId) {
+                console.error('Could not extract reclamation ID from URL:', messageForm.action);
+                alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
+                isProcessing = false;
+                return;
+            }
+            
+            const searchInput = document.querySelector('#search-form input[name="search"]');
+            const searchQuery = searchInput ? searchInput.value : '';
+            if (searchQuery) {
+                formData.append('search', searchQuery);
+            }
+            
+            fetch(messageForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const modalBody = document.querySelector('#reclamationModal .modal-body');
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+                const searchInput = document.querySelector('#search-form input[name="search"]');
+                if (searchInput) searchInput.focus();
+            })
+            .catch(error => {
+                console.error('Error submitting message form:', error);
+                alert('Une erreur est survenue lors de la soumission du commentaire.');
+            })
+            .finally(() => {
+                isProcessing = false;
             });
+        });
+    }
 
-            function attachFormSubmitHandler() {
+    // Handle search form submission
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(event) {
+            if (isProcessing) return;
+            isProcessing = true;
+            event.preventDefault();
+            const formData = new FormData(searchForm);
+            const searchParams = new URLSearchParams(formData).toString();
+            const match = searchForm.action.match(/\/message\/(\d+)\/details/);
+            const reclamationId = match ? match[1] : null;
 
-                const modal = document.getElementById('reclamationModal');
-                console.log('Modal content:', modal.innerHTML);
-                 
-                modal.addEventListener('click', function(e) {
+            if (!reclamationId) {
+                console.error('Could not extract reclamation ID from URL:', searchForm.action);
+                alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
+                isProcessing = false;
+                return;
+            }
+
+            fetch(`${searchForm.action}?${searchParams}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const modalBody = document.querySelector('#reclamationModal .modal-body');
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+                const searchInput = document.querySelector('#search-form input[name="search"]');
+                if (searchInput) searchInput.focus();
+            })
+            .catch(error => {
+                console.error('Error submitting search form:', error);
+                alert('Une erreur est survenue lors de la recherche.');
+            })
+            .finally(() => {
+                isProcessing = false;
+            });
+        });
+    }
+
+    // Handle edit and delete buttons
+    modal.addEventListener('click', function(e) {
         if (e.target.classList.contains('edit-message-btn')) {
             e.preventDefault();
-          
             const messageContent = e.target.getAttribute('data-contenu');
             const messageId = e.target.closest('.message-item').getAttribute('data-message-id');
-              const editAlert = document.getElementById('edit-mode-alert');
-        const editButton = document.getElementById('edit-btn-toggle');
-      
-          
-            const textarea = modal.querySelector('#message_contenu');;
+            const editAlert = document.getElementById('edit-mode-alert');
+            const editButton = document.getElementById('edit-btn-toggle');
+            const textarea = modal.querySelector('#message_contenu');
             const hiddenInput = modal.querySelector('#edit-message-id');
-            
-            console.log('Elements found:', { textarea, hiddenInput });
-            
-              
+
             if (editAlert) editAlert.style.display = 'block';
             if (editButton) editButton.style.display = 'block';
-            
             if (textarea) {
                 textarea.value = messageContent;
-             
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 textarea.focus();
-                
-                console.log('Current textarea value:', textarea.value);
-                console.log('Textarea in DOM:', textarea.outerHTML);
             }
-            
             if (hiddenInput) {
                 hiddenInput.value = messageId;
                 hiddenInput.dispatchEvent(new Event('change'));
             }
-            
-         
-           
-              updateSubmitButton();
+            updateSubmitButton();
+        }
+
+        if (e.target.classList.contains('delete-message-btn')) {
+            if (isProcessing) return;
+            isProcessing = true;
+            e.preventDefault();
+            const formId = e.target.getAttribute('data-form-id');
+            const form = document.getElementById(formId);
+            if (form) {
+                e.target.classList.add('disabled');
+                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                form.dispatchEvent(submitEvent);
+                setTimeout(() => e.target.classList.remove('disabled'), 1000);
+            } else {
+                isProcessing = false;
+            }
         }
     });
 
-        const form = document.getElementById('message-textarea');
-        if (form) {
-            console.log('Form found, attaching submit handler'); // Debug
-            console.log('Form action:', form.action); // Debug form action
-            form.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent default submission
-                console.log('Form submitted'); // Debug
-
-                const formData = new FormData(form);
-              
-              const match = form.action.match(/\/message\/(\d+)\/details/);
-              const reclamationId = match ? match[1] : null;
-
-                if (!reclamationId) {
-                    console.error('Could not extract reclamation ID from URL:', form.action);
-                    alert('Erreur : Impossible d\'extraire l\'ID de la réclamation.');
-                    return;
-                }
-
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Network response was not ok: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(html => {
-                    const modalBody = document.querySelector('#reclamationModal .modal-body');
-                    modalBody.innerHTML = html;
-                    console.log('Modal content updated');
-                    attachFormSubmitHandler();
-                })
-                .catch(error => {
-                    console.error('Error submitting form:', error);
-                    alert('Une erreur est survenue lors de la soumission du commentaire.');
-                });
-            });
-        } else {
-            console.log('Form not found'); 
-        }
-            
-
-
-                  const editToggleButton = document.getElementById('edit-btn-toggle');
-         if (editToggleButton) {
-    console.log('Edit toggle button found, attaching click handler');
-    editToggleButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-
-        document.getElementById('edit-message-id').value = '';
-        document.getElementById('message_contenu').value = '';
-        
-        const editAlert = document.getElementById('edit-mode-alert');
-        const editButton = document.getElementById('edit-btn-toggle');
-        
-        if (editAlert) editAlert.style.display = 'none';
-        if (editButton) editButton.style.display = 'none';
-        updateSubmitButton();
-        
-        console.log('Edit mode cancelled');
-    });
-} else {
-    console.log('Edit toggle button not found');
-}
- 
+    // Handle delete form submission
+    modal.addEventListener('submit', function(e) {
+        if (e.target.matches('form[id^="delete-form-"]')) {
+            if (isProcessing) return;
+            isProcessing = true;
+            e.preventDefault();
+            const form = e.target;
             const formData = new FormData(form);
-const editMessageId = document.getElementById('edit-message-id').value;
-if (editMessageId) {
-    formData.append('edit_message_id', editMessageId);
-}
+            const searchInput = document.querySelector('#search-form input[name="search"]');
+            const searchQuery = searchInput ? searchInput.value : '';
+            const modalBody = document.querySelector('#reclamationModal .modal-body');
 
-function updateSubmitButton() {
-    const editMessageId = document.getElementById('edit-message-id').value;
-    const submitBtn = document.getElementById('submit-btn');
-    if (submitBtn) {
-        submitBtn.textContent = editMessageId ? 'Mettre à jour' : 'Soumettre';
-    }
-}
+            if (searchQuery) {
+                formData.append('search', searchQuery);
+            }
 
+            modalBody.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
 
-
-document.getElementById('edit-btn-toggle').addEventListener('click', function() {
-    updateSubmitButton(); 
-});
-
-const deleteButtons = document.querySelectorAll('.message-delete-btn');
-if (deleteButtons.length > 0) {
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            const form = this.closest('form');
-            const formData = new FormData(form);
-            
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -696,26 +653,105 @@ if (deleteButtons.length > 0) {
             })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || 'Network response was not ok'); });
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || `Network response was not ok: ${response.status}`);
+                    }).catch(() => {
+                        throw new Error(`Network response was not ok: ${response.status}`);
+                    });
                 }
                 return response.text();
             })
             .then(html => {
-                const modalBody = document.querySelector('#reclamationModal .modal-body');
-                if (modalBody) {
-                    modalBody.innerHTML = html;
-                    attachFormSubmitHandler(); 
-                }
+                modalBody.innerHTML = html;
+                attachFormSubmitHandler();
+               
+                if (searchInput) searchInput.focus();
             })
             .catch(error => {
                 console.error('Error deleting message:', error);
-                alert('Error deleting message: ' + error.message);
+                const searchForm = document.getElementById('search-form');
+                const reclamationId = searchForm?.action.match(/\/message\/(\d+)\/details/)?.[1];
+                if (reclamationId) {
+                    fetch(`/message/${reclamationId}/details`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to reload modal: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        attachFormSubmitHandler();
+                       
+                        if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                            alert(`Erreur lors de la suppression du message : ${error.message}`);
+                        }
+                        if (searchInput) searchInput.focus();
+                    })
+                    .catch(() => {
+                        modalBody.innerHTML = '<div class="alert alert-danger">Erreur lors du rechargement du contenu. Veuillez rafraîchir la page.</div>';
+                        if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                            alert(`Erreur lors de la suppression du message : ${error.message}`);
+                        }
+                    });
+                } else {
+                    modalBody.innerHTML = '<div class="alert alert-danger">Erreur : ID de réclamation introuvable. Veuillez rafraîchir la page.</div>';
+                    if (error.message !== 'Message not found' && !error.message.includes('404')) {
+                        alert(`Erreur lors de la suppression du message : ${error.message}`);
+                    }
+                }
+            })
+            .finally(() => {
+                isProcessing = false;
             });
-        });
+        }
     });
+
+    // Handle edit toggle button
+    const editToggleButton = document.getElementById('edit-btn-toggle');
+    if (editToggleButton) {
+        editToggleButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('edit-message-id').value = '';
+            document.getElementById('message_contenu').value = '';
+            const editAlert = document.getElementById('edit-mode-alert');
+            const editButton = document.getElementById('edit-btn-toggle');
+            if (editAlert) editAlert.style.display = 'none';
+            if (editButton) editButton.style.display = 'none';
+            updateSubmitButton();
+            const textarea = document.querySelector('#message_contenu');
+            if (textarea) textarea.focus();
+        });
+    }
+
+    function updateSubmitButton() {
+        const editMessageId = document.getElementById('edit-message-id').value;
+        const submitBtn = document.getElementById('submit-btn');
+        if (submitBtn) {
+            submitBtn.textContent = editMessageId ? 'Mettre à jour' : 'Soumettre';
+        }
+    }
+
+document.getElementById('google-drive-upload-btn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const uploadBtn = this;
+    const statusSpan = document.getElementById('upload-status');
+
+    uploadBtn.disabled = true;
+    statusSpan.textContent = "Redirection vers Google pour authentification...";
+    statusSpan.className = "ms-2 text-info";
+
+  
+    window.location.href = this.href;
+
+ 
+});
+
 }
-     
-        
-        } });
+
+            
+        });
     </script>
 {% endblock %}
