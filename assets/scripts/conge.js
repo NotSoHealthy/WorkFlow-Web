@@ -29,3 +29,30 @@ function cancelRequest(){
     var container = document.querySelector('.request-container');
     container.style.display='none';
 }
+
+$(document).ready(function () {
+    if ($.fn.DataTable.isDataTable('#congeTable')) {
+        $('#congeTable').DataTable().clear().destroy();
+    }
+
+    $('#congeTable').DataTable({
+        language: {
+            emptyTable: "Aucun congé trouvé",
+            search: "Rechercher:",
+            lengthMenu: "Afficher _MENU_ entrées",
+            info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+            infoEmpty: "Affichage de 0 à 0 sur 0 entrées",
+            zeroRecords: "Aucun congé trouvé",
+            paginate: {
+                first: "Premier",
+                last: "Dernier",
+                next: "Suivant",
+                previous: "Précédent"
+            }
+        },
+        order: [[0, "asc"]],
+        columnDefs: [
+            { width: '25%', targets: 0 }
+        ]
+    });
+});

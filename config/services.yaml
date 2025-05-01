@@ -32,6 +32,6 @@ services:
         $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
         $authToken: '%env(TWILIO_AUTH_TOKEN)%'
         
-    App\Service\DelegationService: ~
+  App\Service\DelegationService: ~
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
