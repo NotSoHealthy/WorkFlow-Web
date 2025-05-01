@@ -4,7 +4,7 @@ const ENZOIC_API_URL = 'https://api.enzoic.com/v1/passwords';
 const ENZOIC_API_KEY = 'ae1d9151ee8d49189f608d229a159441';
 const ENZOIC_API_SECRET = 'P*yF5T+&J-!8m2SWJjR2ZKV3stHqhM+h';
 
-let passwordInput = document.getElementById("registration_form_password_first");
+let passwordInput = document.querySelector("input[type=password]");
 let passwordLevelRow = document.getElementById("passwordLevelRow");
 var typingTimer;
 var doneTypingInterval = 1000;
@@ -81,7 +81,7 @@ async function getPasswordLevel(password) {
 }
 
 async function passwordCheck() {
-    var password = document.getElementById("registration_form_password_first").value;
+    var password = document.querySelector("input[type=password]").value;
     var passwordLevelSpans = document.querySelectorAll(".password-level");
     var passwordLevelText = document.getElementById("passwordLevelText");
     var passwordAlert = document.getElementById("passwordAlert");
@@ -112,6 +112,10 @@ async function passwordCheck() {
     if (passwordCompromised) {
         passwordAlert.style.display = "block";
     }
+    else {
+        passwordAlert.style.display = "none";
+    }
+
 }
 
 async function isPasswordCompromised(password) {
