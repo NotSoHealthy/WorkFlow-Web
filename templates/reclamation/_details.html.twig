@@ -51,7 +51,7 @@
 {% if reclamation.attachedfile %}
     <p><strong>Fichier joint :</strong> 
         <a href="{{ asset('Uploads/applications/' ~ reclamation.attachedfile) }}" target="_blank">Voir le fichier</a>
-        <a href="{{ path('google_drive_auth', {'reclamation_id': reclamation.id}) }}" 
+        <a href="{{ path('google_drive_auth2', {'reclamation_id': reclamation.id}) }}" 
            class="btn btn-sm btn-success ms-2" 
            id="google-drive-upload-btn">
             Uploader vers Google Drive
@@ -142,8 +142,6 @@
     </ul>
 <form id="delete-form-{{ message.id }}" action="{{ path('app_message_delete', { 'id': message.id }) }}" method="POST" style="display: none;">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
-    <!-- Debug: Log the URL -->
-    <script>console.log('Delete URL for message {{ message.id }}: {{ path('app_message_delete', { 'id': message.id }) }}');</script>
 </form>
 </div>
 {% endif %}
