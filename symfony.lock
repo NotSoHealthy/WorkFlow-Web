@@ -65,6 +65,9 @@
             "./config/routes/scheb_2fa.yaml"
         ]
     },
+    "slope-it/breadcrumb-bundle": {
+        "version": "2.1.1"
+    },
     "symfony/asset-mapper": {
         "version": "6.4",
         "recipe": {
@@ -177,6 +180,15 @@
         "files": [
             "./config/packages/mercure.yaml"
         ]
+    },
+    "symfony/mercure-notifier": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "98a27687305d236709390ff01d7a6a9818735b97"
+        }
     },
     "symfony/messenger": {
         "version": "6.4",
@@ -295,6 +307,9 @@
             "./templates/base.html.twig"
         ]
     },
+    "symfony/ux-notify": {
+        "version": "v2.24.0"
+    },
     "symfony/ux-turbo": {
         "version": "2.23",
         "recipe": {
@@ -327,6 +342,22 @@
         "files": [
             "./config/packages/web_profiler.yaml",
             "./config/routes/web_profiler.yaml"
+        ]
+    },
+    "symfony/webpack-encore-bundle": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "9ef5412a4a2a8415aca3a3f2b4edd3866aab9a19"
+        },
+        "files": [
+            "./assets/app.js",
+            "./assets/styles/app.css",
+            "./config/packages/webpack_encore.yaml",
+            "./package.json",
+            "./webpack.config.js"
         ]
     },
     "symfonycasts/sass-bundle": {

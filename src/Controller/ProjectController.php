@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Entity\Task;
+use App\Form\TaskType;
 
 #[Route('/project')]
 final class ProjectController extends AbstractController
@@ -173,6 +175,8 @@ public function index(ProjectRepository $projectRepository): Response
     #[Route('/myprojects', name: 'project_my_department')]
     public function myDepartmentProjects(ProjectRepository $projectRepository): Response
     {
+        $task = new Task();
+        $form = $this->createForm(TaskType::class, $task);
     $user = $this->getUser();
     /** @var User $user */
 
@@ -185,6 +189,8 @@ public function index(ProjectRepository $projectRepository): Response
 
     return $this->render('project/myprojects.html.twig', [
         'projects' => $projects,
+        'add_task_form' => $form->createView(),
+        'current_project' => $projects[0] ?? null,
     ]);
 }
 #[Route('/gemini/chat', name: 'gemini_chat', methods: ['POST'])]
@@ -202,7 +208,8 @@ public function geminiChat(Request $request): JsonResponse
 
     // 2. If yes, send to Gemini
     $apiKey = $this->getParameter('gemini_api_key');
-    $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey, [
+    $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-002:generateContent?key=' . $apiKey
+, [
         'json' => [
             'contents' => [[
                 'parts' => [[ 'text' => $message ]]
@@ -232,24 +239,24 @@ private function isProjectRelated(string $message): bool
     return false;
 }
 #[Route('/{id}/tasks/json', name: 'project_tasks_json', methods: ['GET'])]
-    public function projectTasksJson(Project $project, TaskRepository $taskRepository): JsonResponse
-    {
-        $tasks = $taskRepository->findBy(['project' => $project]);
+public function projectTasksJson(Project $project, TaskRepository $taskRepository): JsonResponse
+{
+    $tasks = $taskRepository->findBy(['project' => $project]);
 
-        $taskData = [];
+    $taskData = [];
 
-        foreach ($tasks as $task) {
-            $taskData[] = [
-                'id' => $task->getId(),
-                'title' => $task->getTitle(),
-                'description' => $task->getDescription(),
-                'status' => $task->getStatus(),
-                'priority' => $task->getPriority(),
-            ];
-        }
-
-        return $this->json($taskData);
+    foreach ($tasks as $task) {
+        $taskData[] = [
+            'id' => $task->getId(),
+            'title' => $task->getTitle(),
+            'description' => $task->getDescription(),
+            'status' => $task->getStatus(),
+            'priority' => $task->getPriority(),
+        ];
     }
+
+    return $this->json($taskData);
+}
 
 
 }
