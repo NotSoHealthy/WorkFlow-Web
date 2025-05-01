@@ -67,4 +67,40 @@ class EventRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function countByType(string $type): int
+    {
+        return $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.Type = :type')
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findMostPopularEvent(): ?array
+    {
+        $entityManager = $this->getEntityManager();
+        
+        return $entityManager->createQuery(
+            'SELECT e.Title,e.id, COUNT(r.id) as reservationCount
+             FROM App\Entity\Event e
+             JOIN e.reservations r
+             GROUP BY e.id
+             ORDER BY reservationCount DESC'
+        )
+        ->setMaxResults(1)
+        ->getOneOrNullResult();
+    }
+
+    public function findClosestUpcomingEvent(): ?Event
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.DateAndTime > :now')
+            ->setParameter('now', new \DateTime())
+            ->orderBy('e.DateAndTime', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

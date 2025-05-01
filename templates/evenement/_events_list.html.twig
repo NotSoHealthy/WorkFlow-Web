@@ -1,4 +1,3 @@
-<script src="{{ asset('scripts/searchsort.js') }}"></script>
 {% if events|length > 0 %}
     <div class="events-container">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -45,6 +44,7 @@
                             <div style="display:inline;">
                                 <button type="submit" class="action-btn btn-delete-icon" data-id="{{ event.id }}" title="Supprimer">
                                     <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </div>
                         {% endif %}
@@ -95,6 +95,10 @@
                 </div>
             {% endfor %}
         </div>
+    </div>
+    
+    <div class="mt-4 d-flex justify-content-center">
+        {{ knp_pagination_render(events,'pagination/custom_pagination.html.twig') }}
     </div>
 {% else %}
     <div class="alert alert-info text-center">
