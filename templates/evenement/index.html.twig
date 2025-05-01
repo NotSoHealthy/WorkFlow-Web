@@ -177,6 +177,18 @@
             transition: all 0.3s ease;
             z-index: 5;
         }
+
+        .btn-reserve-icon-typed {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(98,138,248);
+            background-color: white;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
         
         .btn-reserve-icon i {
             font-size: 1.2rem;
@@ -313,9 +325,126 @@
             position: relative;
             padding-right: 40px;
         }
+        .hidden {
+            display: none !important;
+        }
+        .stats-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease-in-out;
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            font-family: 'Bebas Neue', sans-serif;
+            border: 2px solid rgb(98,138,248);
+        }
+
+        .stats-popup-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed rgb(98,138,248);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stats-popup-header h3 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: rgb(98,138,248);
+            /* Make the text centered */
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .close-stats {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-stats:hover {
+            color: #ff2e63;
+        }
+
+        .typed-text-container {
+            min-height: 150px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .typed-line {
+            margin-bottom: 10px;
+        }
+
+        .stats-chart-container {
+            padding: 10px;
+            background: rgba(98,138,248,0.05);
+            border-radius: 8px;
+            height: 300px;
+        }
+        
+        .stats-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .btn-show-stats {
+            background: rgb(98,138,248);
+            color: #000;
+            border: 2px solid black;
+            transition: transform 0.3s ease-in-out;
+            margin-right: 55px;
+            margin-top: 1rem;
+            padding: 0.4rem 1rem;
+
+        }
+        
+        .btn-show-stats:hover {
+            background: rgb(53,105,248);
+            color: #000;
+            border: 2px solid black;
+            transform: scale(1.05);
+        }
     </style>
 {% endblock %}
-
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ asset('scripts/searchsort.js') }}"></script>
+{% endblock %}
 {% block main %}
 <main>
     <div class="container mt-5">
@@ -329,128 +458,27 @@
             <a href="{{ path('app_showreservation') }}" class="btn btn-goto-reservation">
                 <i class="fa-solid fa-couch"></i>&nbsp;Mes Reservations
             </a>
+            <a id="showStatsBtn" class="btn btn-show-stats">
+                <i class="fas fa-chart-bar me-1"></i>Aidez-moi à choisir un événement
+            </a>
         </div>
         
         <div class="row">
-            <div class="col-md-9">
-                {% if app.request.query.get('q') %}
-                    <div class="alert alert-info text-center d-flex align-items-center justify-content-center">
-                        <a href="{{ path('app_showevent') }}" style="text-decoration:none;">
-                            <i class="fa-solid fa-square-xmark" style="font-size:36px; vertical-align: middle;"></i>
-                        </a>
-                        &nbsp;
-                        Résultats de la recherche pour : <strong>{{ app.request.query.get('q') }}</strong>
-                    </div>
-                {% endif %}
-                {% if events|length > 0 %}
-                    <div class="events-container">
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                            {% for event in events %}
-                                <div class="col">
-                                    <div class="event-wrapper">
-                                        <div class="project" data-bs-toggle="modal" data-bs-target="#projectModal{{ event.id }}">
-                                            <div class="project-header">
-                                                <h3 align="center">{{ event.Title }}</h3>
-                                            </div>
-                                            <div class="project-body">
-                                                <table>
-                                                    <tr class="project-info">
-                                                        <td><i class="fas fa-calendar-alt"></i></td>
-                                                        <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
-                                                    </tr>
-                                                    <tr class="project-info">
-                                                        <td><i class="fa-solid fa-map-location-dot"></i></td>
-                                                        <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
-                                                    </tr>
-                                                    <tr class="project-info">
-                                                        <td><i class="fa-solid fa-list"></i></td>
-                                                        <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Reservation button outside the card -->
-                                        <form method="post" action="{{ path('app_add_reservation', {'id': event.id}) }}" style="display:inline;">
-                                            <button type="submit" class="btn-reserve-icon" title="Réserver">
-                                                <i class="fas fa-ticket-alt"></i>
-                                            </button>
-                                        </form>
-                                        
-                                        {% if is_granted('ROLE_RESPONSABLE') %}
-                                        <!-- Moved action buttons outside the project container -->
-                                        <div class="project-actions">
-                                            <form method="post" action="{{ path('app_edit_event', {'id': event.id}) }}" style="display:inline;">
-                                                <button type="submit" class="action-btn btn-edit-icon" title="Modifier">
-                                                    <i class="fa-solid fa-pen"></i>
-                                                </button>
-                                            </form>
-                                            <form method="post" action="{{ path('app_delete_event', {'id': event.id}) }}" style="display:inline;">
-                                                <button type="submit" class="action-btn btn-delete-icon" title="Supprimer">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="modal fade" id="projectModal{{ event.id }}" tabindex="-1" aria-labelledby="projectModalLabel{{ event.id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="projectModalLabel{{ event.id }}" align="center">{{ event.Title }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <table>
-                                                        <tr class="project-info">
-                                                            <td><i class="fas fa-calendar-alt"></i></td>
-                                                            <td><strong>Date:</strong>&nbsp;&nbsp;{{ event.DateAndTime|date('Y-m-d h:m') }}</td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td><i class="fa-solid fa-map-location-dot"></i></td>
-                                                            <td><strong>Adresse:</strong>&nbsp;&nbsp;{{ event.Location }}</td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td><i class="fa-solid fa-list"></i></td>
-                                                            <td><strong>Type:</strong>&nbsp;&nbsp;{{ event.Type }}</td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td><i class="fa-solid fa-couch"></i></td>
-                                                            <td><strong>Nombre de Place:</strong>&nbsp;&nbsp;{{ event.NumberOfPlaces }}</td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td><i class="fa-brands fa-google"></i></td>
-                                                            <td><strong>En Ligne:</strong>&nbsp;&nbsp;{{ event.isOnline ? 'Oui' : 'Non' }}</td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td><i class="fa-solid fa-info" style="margin-left:8px;"></i></td>
-                                                            <td><strong>Description:</strong></td>
-                                                        </tr>
-                                                        <tr class="project-info">
-                                                            <td></td>
-                                                            <td>{{ event.Description }}</td>
-                                                        </tr>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info text-center">
-                        Aucun événement trouvé
-                    </div>
-                {% endif %}
+                <div class="alert alert-info text-center d-flex align-items-center justify-content-center hidden" id="search-results">
+                    <i class="fa-solid fa-square-xmark" style="font-size:36px; vertical-align: middle;" id="close-search"></i>
+                    &nbsp;
+                    Résultats de la recherche pour : <strong id="query"></strong>
+                </div>
+            <div class="col-md-9" id="events-wrapper">
+                
+                {% include 'evenement/_events_list.html.twig' with {'events': pagination} %}
+                
             </div>
             <!-- Right Column: Filters (Sticky Sidebar) -->
             <div class="col-md-3">
                 <div class="filter-sidebar">
                     <div class="filter-box">
-                        <!-- Search Form -->
+                        <!-- Search Form - REMOVE onsubmit attribute if present -->
                         <form method="GET" action="{{ path('app_event_list') }}" class="mb-3">
                             <input type="hidden" name="event_type" value="{{ app.request.query.get('event_type') }}">
                             <input type="hidden" name="sort_by_date" value="{{ app.request.query.get('sort_by_date') }}">
@@ -460,20 +488,20 @@
                             </div>
                             <button type="submit" class="btn btn-primary w-100"><i class="fa fa-search"></i> Rechercher</button>
                         </form>
-                        <!-- Sorting Checkbox -->
+                        <!-- Sorting Checkbox - REMOVE onchange attribute -->
                         <form method="GET" action="{{ path('app_event_list') }}" class="mb-3 d-flex align-items-center">
                             <input type="hidden" name="q" value="{{ app.request.query.get('q') }}">
                             <input type="hidden" name="event_type" value="{{ app.request.query.get('event_type') }}">
-                            <input type="checkbox" name="sort_by_date" id="filter-sort" onchange="this.form.submit()" {% if app.request.query.get('sort_by_date') %}checked{% endif %}>
+                            <input type="checkbox" name="sort_by_date" id="filter-sort" {% if app.request.query.get('sort_by_date') %}checked{% endif %}>
                             <label for="filter-sort" class="ms-2 mb-0">Trier par date</label>
                         </form>
-                        <!-- Event Type Dropdown -->
+                        <!-- Event Type Dropdown - REMOVE onchange attribute -->
                         <form method="GET" action="{{ path('app_event_list') }}" class="d-flex align-items-center">
                             <input type="hidden" name="q" value="{{ app.request.query.get('q') }}">
                             <input type="hidden" name="sort_by_date" value="{{ app.request.query.get('sort_by_date') }}">
                             <div class="mb-2 w-100">
                                 <label for="filter-type"><strong>Filtrer par type</strong></label>
-                                <select id="filter-type" name="event_type" class="form-control" onchange="this.form.submit()">
+                                <select id="filter-type" name="event_type" class="form-control">
                                     <option value="">Tout</option>
                                     <option value="conference" {% if app.request.query.get('event_type') == 'conference' %}selected{% endif %}>Conference</option>
                                     <option value="workshop" {% if app.request.query.get('event_type') == 'workshop' %}selected{% endif %}>Workshop</option>
@@ -487,6 +515,181 @@
             </div>
         </div>
     </div>
+    <div class="stats-overlay" id="statsOverlay"></div>
+    <div class="stats-popup" id="statsPopup" style="display: none;">
+        <div class="stats-popup-header">
+            <h3>Aidez-moi à choisir un événement</h3>
+            <button class="close-stats" id="closeStats">×</button>
+        </div>
+        <div class="typed-text-container" id="typedTextContainer">
+            <!-- Dynamic text will appear here -->
+        </div>
+        <div class="stats-chart-container">
+            <canvas id="statsChart"></canvas>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const showStatsBtn = document.getElementById('showStatsBtn');
+    const statsPopup = document.getElementById('statsPopup');
+    const statsOverlay = document.getElementById('statsOverlay');
+    const closeStats = document.getElementById('closeStats');
+    const typedTextContainer = document.getElementById('typedTextContainer');
+    let chartInstance = null; // Track chart instance properly
+    
+    // Event type statistics data from controller
+    const eventTypeData = {{ event_stats|json_encode|raw }};
+    
+    // Event recommendations data from controller
+    const eventRecommendations = {{ event_recommendations|json_encode|raw }};
+    
+    // Show stats popup
+    showStatsBtn.addEventListener('click', () => {
+        statsPopup.style.display = 'block';
+        statsOverlay.style.display = 'block';
+        
+        // Clear previous content
+        typedTextContainer.innerHTML = '';
+        
+        // Create elements for each typed message that will persist
+        const typedMessages = [
+            `<div style="display: flex; align-items: center;">
+            <div>
+            "${eventRecommendations.most_popular}" est l'événement le plus réservé avec ${eventRecommendations.most_popular_count} réservations.
+            </div>
+            <div>
+             <form method="post" action="/event/reserver/${eventRecommendations.most_popular_id}" >
+                <button type="submit" class="btn-reserve-icon-typed" title="Réserver">
+                    <i class="fas fa-ticket-alt"></i>
+                </button>
+            </form>
+            </div>
+            </div>
+            `,
+            `Le prochain événement "${eventRecommendations.closest_event}" aura lieu le ${eventRecommendations.closest_event_date}.`,
+            `Le type "${eventRecommendations.most_common_type}" est le plus représenté avec ${eventRecommendations.most_common_type_count} événements.`,
+            "Consultez le graphique ci-dessous pour voir la répartition des événements!"
+        ];
+        
+        // Function to add one message at a time with typing effect
+        function addTypedMessage(index) {
+            if (index >= typedMessages.length) return;
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'typed-line';
+            typedTextContainer.appendChild(messageElement);
+            
+            const typed = new Typed(messageElement, {
+                strings: [typedMessages[index]],
+                typeSpeed: 20,
+                startDelay: 0,
+                showCursor: false, 
+                onComplete: () => {
+                    setTimeout(() => {
+                        addTypedMessage(index + 1);
+                    }, 200);
+                    if (index === typedMessages.length - 1) {
+                        setTimeout(() => {
+                            renderChart();
+                        }, 1000);
+                    }
+                }
+            });
+        }
+        
+        // Start the sequence
+        addTypedMessage(0);
+        
+        // Render chart function
+        function renderChart() {
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(eventTypeData).map(key => key.charAt(0).toUpperCase() + key.slice(1)),
+                    datasets: [{
+                        label: 'Nombre d\'événements',
+                        data: Object.values(eventTypeData),
+                        backgroundColor: [
+                            'rgba(98, 138, 248, 0.7)',
+                            'rgba(57, 255, 20, 0.7)',
+                            'rgba(255, 46, 99, 0.7)',
+                            'rgba(255, 205, 86, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(98, 138, 248)',
+                            'rgb(57, 255, 20)',
+                            'rgb(255, 46, 99)',
+                            'rgb(255, 205, 86)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1500 
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Bebas Neue', sans-serif"
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition des Types d\'Événements',
+                            font: {
+                                family: "'Bebas Neue', sans-serif",
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    // Only show whole numbers
+                                    return Number.isInteger(value) ? value : null;
+                                },
+                                stepSize: 1 // Optional: ensure steps of 1
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Make sure the chart is visible
+            document.querySelector('.stats-chart-container').style.display = 'block';
+        }
+    });
+    
+    // Close popup handlers
+    closeStats.addEventListener('click', () => {
+        statsPopup.style.display = 'none';
+        statsOverlay.style.display = 'none';
+    });
+    
+    // Close popup if clicked outside
+    statsOverlay.addEventListener('click', () => {
+        statsPopup.style.display = 'none';
+        statsOverlay.style.display = 'none';
+    });
+});
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 </main>
 {% endblock %}

@@ -20,13 +20,13 @@ table{
     width: 80%;
 }
 
-.user-pending{
+/* .user-pending{
     background-color: var(--text-warning);
 }
 
 .user-verified{
     background-color: var(--text-success);
-}
+} */
 
 .td-title{
     text-align: center;

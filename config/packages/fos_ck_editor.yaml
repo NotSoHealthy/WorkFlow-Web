@@ -1,0 +1,30 @@
+# config/packages/fos_ck_editor.yaml
+fos_ck_editor:
+  default_config: default
+  autoload: true
+  configs:
+    default:
+      toolbar:
+        - [Bold, Italic, Underline, Strike, -, RemoveFormat]
+        - [Link, Unlink, Image, Table]
+        - [NumberedList, BulletedList, -, Outdent, Indent]
+        - [Source]
+      uiColor: "#7F7F7F"
+      removePlugins: [exportpdf]
+  enable: true
+  async: false
+  auto_inline: true
+  inline: false
+  jquery: false
+  require_js: false
+  input_sync: false
+  base_path: bundles/fosckeditor/
+  js_path: bundles/fosckeditor/ckeditor.js
+  jquery_path: bundles/fosckeditor/adapters/jquery.js
+  plugins: {}
+  styles: {}
+  templates: {}
+  filebrowsers: {}
+  toolbars:
+    configs: {}
+    items: {}
