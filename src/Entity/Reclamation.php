@@ -6,8 +6,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ReclamationRepository;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 #[ORM\Table(name: 'reclamation')]
@@ -17,6 +18,54 @@ class Reclamation
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
+    #[Assert\Length(min: 3, max: 255, minMessage: 'Le titre est trop court')]
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $titre = null;
+
+
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(min: 10, minMessage: 'La description est trop courte')]
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $category = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $type = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $attachedfile = null;
+
+    #[ORM\Column(type: 'date', nullable: false)]
+    private ?\DateTimeInterface $date = null;
+
+    #[ORM\Column(type: 'time', nullable: false)]
+    private ?\DateTimeInterface $heure = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $etat = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $date_resolution = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamationsResponsable')]
+    #[ORM\JoinColumn(name: 'responsable', referencedColumnName: 'id')]
+    private ?User $responsable = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamations')]
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
+    private ?User $user = null;
+
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'reclamation')]
+    private Collection $messages;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -29,36 +78,27 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $titre = null;
-
     public function getTitre(): ?string
     {
         return $this->titre;
     }
 
-    public function setTitre(string $titre): self
+    public function setTitre(?string $titre): self
     {
         $this->titre = $titre;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $description = null;
 
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $category = null;
 
     public function getCategory(): ?string
     {
@@ -71,9 +111,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $type = null;
-
     public function getType(): ?string
     {
         return $this->type;
@@ -84,9 +121,6 @@ class Reclamation
         $this->type = $type;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $attachedfile = null;
 
     public function getAttachedfile(): ?string
     {
@@ -99,9 +133,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: false)]
-    private ?\DateTimeInterface $date = null;
-
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
@@ -113,22 +144,16 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'time', nullable: false)]
-    private ?string $heure = null;
-
-    public function getHeure(): ?string
+    public function getHeure(): ?\DateTimeInterface
     {
         return $this->heure;
     }
 
-    public function setHeure(string $heure): self
+    public function setHeure(\DateTimeInterface $heure): self
     {
         $this->heure = $heure;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $etat = null;
 
     public function getEtat(): ?string
     {
@@ -141,25 +166,18 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $date_resolution = null;
-
-    public function getDate_resolution(): ?\DateTimeInterface
+    public function getDateResolution(): ?\DateTimeInterface
     {
         return $this->date_resolution;
     }
 
-    public function setDate_resolution(?\DateTimeInterface $date_resolution): self
+    public function setDateResolution(?\DateTimeInterface $date_resolution): self
     {
         $this->date_resolution = $date_resolution;
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamationsResponsable')]
-    #[ORM\JoinColumn(name: 'responsable', referencedColumnName: 'id')]
-    private ?User $responsable = null;
-
-    public function getRsponsable(): ?User
+    public function getResponsable(): ?User
     {
         return $this->responsable;
     }
@@ -170,10 +188,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reclamations')]
-    #[ORM\JoinColumn(name: 'user', referencedColumnName: 'id')]
-    private ?User $user = null;
-
     public function getUser(): ?User
     {
         return $this->user;
@@ -183,14 +197,6 @@ class Reclamation
     {
         $this->user = $user;
         return $this;
-    }
-
-    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'reclamation')]
-    private Collection $messages;
-
-    public function __construct()
-    {
-        $this->messages = new ArrayCollection();
     }
 
     /**
@@ -208,6 +214,7 @@ class Reclamation
     {
         if (!$this->getMessages()->contains($message)) {
             $this->getMessages()->add($message);
+            $message->setReclamation($this);
         }
         return $this;
     }
@@ -217,22 +224,4 @@ class Reclamation
         $this->getMessages()->removeElement($message);
         return $this;
     }
-
-    public function getDateResolution(): ?\DateTimeInterface
-    {
-        return $this->date_resolution;
-    }
-
-    public function setDateResolution(?\DateTimeInterface $date_resolution): static
-    {
-        $this->date_resolution = $date_resolution;
-
-        return $this;
-    }
-
-    public function getResponsable(): ?User
-    {
-        return $this->responsable;
-    }
-
 }

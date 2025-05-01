@@ -1,0 +1,550 @@
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+--
+-- Host: localhost    Database: workflow
+-- ------------------------------------------------------
+-- Server version	8.0.41
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `applications`
+--
+
+DROP TABLE IF EXISTS `applications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `applications` (
+  `Application_ID` int NOT NULL AUTO_INCREMENT,
+  `Job_ID` int NOT NULL,
+  `CV` text NOT NULL,
+  `Cover_Letter` text,
+  `Submission_Date` date NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `Employe_ID` int DEFAULT NULL,
+  `First_Name` varchar(255) DEFAULT NULL,
+  `Last_Name` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Application_ID`),
+  KEY `applications_ibfk_1` (`Job_ID`),
+  KEY `fk_application_employee` (`Employe_ID`),
+  CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`Job_ID`) REFERENCES `job_offer` (`Job_ID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_application_employee` FOREIGN KEY (`Employe_ID`) REFERENCES `employees` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `applications`
+--
+
+LOCK TABLES `applications` WRITE;
+/*!40000 ALTER TABLE `applications` DISABLE KEYS */;
+INSERT INTO `applications` VALUES (4,7,'1741130964757_Présentation de l\'option ERP-BI - 2324.pdf','1741130964764_Présentation de l_option ArcTIC - Forum 2024.pdf','2025-03-05','Pending',4,'Kerfai','Amine','aminekerfai222@gmail.com');
+/*!40000 ALTER TABLE `applications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `attendance`
+--
+
+DROP TABLE IF EXISTS `attendance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `attendance` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `date` date NOT NULL,
+  `entry_time` time NOT NULL,
+  `exit_time` time NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_attendance_employee_idx` (`employee_id`),
+  CONSTRAINT `fk_attendance_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `attendance`
+--
+
+LOCK TABLES `attendance` WRITE;
+/*!40000 ALTER TABLE `attendance` DISABLE KEYS */;
+INSERT INTO `attendance` VALUES (3,4,'2025-03-02','08:09:46','13:09:53'),(4,4,'2025-02-28','08:10:11','16:10:15'),(5,4,'2025-02-27','10:10:28','17:10:31');
+/*!40000 ALTER TABLE `attendance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `conges`
+--
+
+DROP TABLE IF EXISTS `conges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `conges` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `request_date` date DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` enum('pending','approved','denied') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`id`),
+  KEY `fk_conge_employee_idx` (`employee_id`),
+  CONSTRAINT `fk_conge_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `conges`
+--
+
+LOCK TABLES `conges` WRITE;
+/*!40000 ALTER TABLE `conges` DISABLE KEYS */;
+INSERT INTO `conges` VALUES (9,15,'2025-02-18','2025-02-19','2025-02-19','Rendez vous medecin','approved'),(10,4,'2025-02-03','2025-02-17','2025-02-23','Vacance','approved'),(13,14,'2025-02-19','2025-02-23','2025-02-26','Vacance','denied');
+/*!40000 ALTER TABLE `conges` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `departments`
+--
+
+DROP TABLE IF EXISTS `departments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `departments` (
+  `Department_ID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(20) NOT NULL,
+  `Year_Budget` float NOT NULL,
+  `Department_Manager` int DEFAULT NULL,
+  PRIMARY KEY (`Department_ID`),
+  KEY `fk_manager_idx` (`Department_Manager`),
+  CONSTRAINT `fk_manager` FOREIGN KEY (`Department_Manager`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `departments`
+--
+
+LOCK TABLES `departments` WRITE;
+/*!40000 ALTER TABLE `departments` DISABLE KEYS */;
+INSERT INTO `departments` VALUES (1,'Développement',10000,14),(2,'RH',5000,4),(3,'Recherche',50000,17);
+/*!40000 ALTER TABLE `departments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `employees`
+--
+
+DROP TABLE IF EXISTS `employees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `employees` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `password` varchar(45) NOT NULL,
+  `department_id` int DEFAULT NULL,
+  `adresse` varchar(255) DEFAULT NULL,
+  `gouvernorat` varchar(255) DEFAULT NULL,
+  `image_url` varchar(255) DEFAULT 'https://i.ibb.co/S5rbLng/default-profile.jpg',
+  `role` enum('Employé','Résponsable') DEFAULT 'Employé',
+  `status` enum('pending','approved','denied') DEFAULT 'pending',
+  `two_factor_secret` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_email` (`email`),
+  UNIQUE KEY `phone_UNIQUE` (`phone`),
+  KEY `fk_department_idx` (`department_id`),
+  CONSTRAINT `fk_dep_emp` FOREIGN KEY (`department_id`) REFERENCES `departments` (`Department_ID`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=24 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `employees`
+--
+
+LOCK TABLES `employees` WRITE;
+/*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` VALUES (4,'Mohamed Amin','Ben Hamouda','aminbenhamouda16@gmail.com','12345678','password.1',2,'Menzah 6','Ariana Ville','https://i.ibb.co/k2TCqxPx/fcaac90b3d65.png','Résponsable','approved',NULL),(14,'Mariem','Dhekri','employe@gmail.com','12345688','password.1',1,'Jardin del Menzah','Mnihla','https://i.ibb.co/S5rbLng/default-profile.jpg','Employé','approved',NULL),(15,'Mohamed','Askri','responsable@gmail.com','11111111','password.1',2,'Boumhal','Ben Arous','https://i.ibb.co/S5rbLng/default-profile.jpg','Résponsable','approved',NULL),(16,'Fares','Guermezi','fares.guermezi@esprit.tn','12345680','password.1',1,'Nasser','Ariana Ville','https://i.ibb.co/S5rbLng/default-profile.jpg','Employé','approved',NULL),(17,'Youssef ','Mlouhia','mlewhia@gmail.com','15412445','password.1',3,'Menzah 1','Ariana Ville','https://i.ibb.co/S5rbLng/default-profile.jpg','Employé','approved',NULL),(19,'Nom','Prenom','aminbenhamouda@gmail.com','12345672','password.1',1,'Ariana','Ariana Ville','https://i.ibb.co/S5rbLng/default-profile.jpg','Résponsable','approved',NULL);
+/*!40000 ALTER TABLE `employees` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `events`
+--
+
+DROP TABLE IF EXISTS `events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `events` (
+  `ID_Event` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(60) NOT NULL,
+  `Description` varchar(300) NOT NULL,
+  `DateAndTime` datetime NOT NULL,
+  `Location` varchar(100) NOT NULL,
+  `Type` varchar(50) NOT NULL,
+  `NumberOfPlaces` int NOT NULL,
+  `isOnline` tinyint(1) NOT NULL,
+  `UID` int NOT NULL,
+  PRIMARY KEY (`ID_Event`),
+  KEY `fk_UID_Events` (`UID`),
+  CONSTRAINT `fk_UID_Events` FOREIGN KEY (`UID`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `events`
+--
+
+LOCK TABLES `events` WRITE;
+/*!40000 ALTER TABLE `events` DISABLE KEYS */;
+INSERT INTO `events` VALUES (6,'Employé du mois','Rejoignez-nous pour reconnaître la performance exceptionnelle de ce mois-ci ! Une petite cérémonie avec rafraîchissements sera organisée pour apprécier ses contributions\n','2025-03-05 10:30:00','Salle de reunion','Reunion',50,0,4),(7,'Atelier leadership','Une session interactive pour développer des compétences en leadership et apprendre à prendre des initiatives en entreprise.','2025-03-13 10:00:00','Google Meet','Workshop',100,1,4),(8,'Hackathon','Un défi de 24 heures en équipe pour développer des solutions créatives et présenter de nouvelles idées à la direction','2025-03-09 15:00:00','Google Meet','Workshop',20,1,4);
+/*!40000 ALTER TABLE `events` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `formation`
+--
+
+DROP TABLE IF EXISTS `formation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `formation` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(20) NOT NULL,
+  `description` varchar(50) NOT NULL,
+  `date_begin` date NOT NULL,
+  `date_end` date NOT NULL,
+  `Participants_Max` int NOT NULL,
+  `responsable_id` int NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `fk_formation_employee_idx` (`responsable_id`),
+  CONSTRAINT `fk_formation_employee` FOREIGN KEY (`responsable_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `formation`
+--
+
+LOCK TABLES `formation` WRITE;
+/*!40000 ALTER TABLE `formation` DISABLE KEYS */;
+INSERT INTO `formation` VALUES (1,'Python','Apprendre a coder en python','2025-03-12','2025-03-19',25,15),(4,'Python','Apprendre a coder en python','2027-02-12','2027-03-28',15,4),(5,'Méthodes Scrum','Formation sur les méthodologies de gestion de proj','2022-02-15','2023-03-17',12,4),(6,'Machine Learning',' Formation sur les modèles d\'apprentissage automat','2020-02-23','2020-03-22',4,4),(7,'Soft skills','Apprenez à être important dans toutes les situatio','2018-03-10','2018-04-02',10,4),(8,'UX/UI Design','Formation sur la conception d’interfaces utilisate','2025-03-05','2025-03-17',8,4);
+/*!40000 ALTER TABLE `formation` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inscription`
+--
+
+DROP TABLE IF EXISTS `inscription`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inscription` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date_registration` date NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `formation_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `inscription_ibfk_1` (`formation_id`),
+  KEY `inscription_ibfk_2` (`user_id`),
+  CONSTRAINT `inscription_ibfk_1` FOREIGN KEY (`formation_id`) REFERENCES `formation` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `inscription_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inscription`
+--
+
+LOCK TABLES `inscription` WRITE;
+/*!40000 ALTER TABLE `inscription` DISABLE KEYS */;
+INSERT INTO `inscription` VALUES (2,'2025-03-05','en attente',8,14),(3,'2025-03-05','en attente',1,14),(4,'2025-03-05','en attente',4,14),(5,'2025-03-12','en attente',7,14);
+/*!40000 ALTER TABLE `inscription` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `interviews`
+--
+
+DROP TABLE IF EXISTS `interviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `interviews` (
+  `Interview_ID` int NOT NULL AUTO_INCREMENT,
+  `Application_ID` int NOT NULL,
+  `Interview_Date` datetime NOT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `Feedback` text,
+  `Status` enum('Scheduled','Completed','Cancelled') DEFAULT 'Scheduled',
+  `Employe_ID` int NOT NULL,
+  PRIMARY KEY (`Interview_ID`),
+  KEY `Interview_Emplo_fk` (`Employe_ID`),
+  KEY `interviews_ibfk_1` (`Application_ID`),
+  CONSTRAINT `fk_interview_application` FOREIGN KEY (`Application_ID`) REFERENCES `applications` (`Application_ID`),
+  CONSTRAINT `Interview_Emplo_fk` FOREIGN KEY (`Employe_ID`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `interviews_ibfk_1` FOREIGN KEY (`Application_ID`) REFERENCES `applications` (`Application_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `interviews`
+--
+
+LOCK TABLES `interviews` WRITE;
+/*!40000 ALTER TABLE `interviews` DISABLE KEYS */;
+/*!40000 ALTER TABLE `interviews` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `job_offer`
+--
+
+DROP TABLE IF EXISTS `job_offer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `job_offer` (
+  `Job_ID` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(255) NOT NULL,
+  `Description` text,
+  `Publication_Date` date NOT NULL,
+  `Expiration_Date` date DEFAULT NULL,
+  `Contract_Type` varchar(100) DEFAULT NULL,
+  `Salary` decimal(10,2) DEFAULT NULL,
+  `Employe_ID` int DEFAULT NULL,
+  PRIMARY KEY (`Job_ID`),
+  KEY `fk_job_offer_responsable` (`Employe_ID`),
+  CONSTRAINT `fk_job_offer_responsable` FOREIGN KEY (`Employe_ID`) REFERENCES `employees` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `job_offer`
+--
+
+LOCK TABLES `job_offer` WRITE;
+/*!40000 ALTER TABLE `job_offer` DISABLE KEYS */;
+INSERT INTO `job_offer` VALUES (6,'Ingenieur dinformatique','Salaire motivant','2025-03-05','2025-03-20','CDI',5000.00,4),(7,'Ingenieur genie civil','Salair pas tros motivant','2025-03-05','2025-03-19','CDD',2000.00,4);
+/*!40000 ALTER TABLE `job_offer` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `logs`
+--
+
+DROP TABLE IF EXISTS `logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `logs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_id` int NOT NULL,
+  `action` varchar(45) NOT NULL,
+  `description` text,
+  `timestamp` timestamp NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_log_employee_idx` (`employee_id`),
+  CONSTRAINT `fk_log_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logs`
+--
+
+LOCK TABLES `logs` WRITE;
+/*!40000 ALTER TABLE `logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `messages`
+--
+
+DROP TABLE IF EXISTS `messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `contenu` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `date` date NOT NULL,
+  `heure` time NOT NULL,
+  `id_reclamation` int NOT NULL,
+  `id_user` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fkey_sender` (`id_user`),
+  KEY `fkey_reclamation` (`id_reclamation`),
+  CONSTRAINT `fkey_reclamation` FOREIGN KEY (`id_reclamation`) REFERENCES `reclamations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `messages`
+--
+
+LOCK TABLES `messages` WRITE;
+/*!40000 ALTER TABLE `messages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `messages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `projects`
+--
+
+DROP TABLE IF EXISTS `projects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projects` (
+  `Project_ID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(20) NOT NULL,
+  `Description` varchar(60) NOT NULL,
+  `Start_Date` date NOT NULL,
+  `End_Date` date DEFAULT NULL,
+  `State` varchar(20) DEFAULT NULL,
+  `Budget` float NOT NULL,
+  `Project_Manager` int NOT NULL,
+  `Department_ID` int NOT NULL,
+  PRIMARY KEY (`Project_ID`),
+  KEY `fk_department` (`Department_ID`),
+  CONSTRAINT `fk_department` FOREIGN KEY (`Department_ID`) REFERENCES `departments` (`Department_ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `projects`
+--
+
+LOCK TABLES `projects` WRITE;
+/*!40000 ALTER TABLE `projects` DISABLE KEYS */;
+INSERT INTO `projects` VALUES (1,'Site web','Developpement d un site web pour esprit','2025-02-24','2025-03-06','Almost Finished',5000,14,1),(4,'Developpement','Projet de developpement','2024-03-03','2025-03-02','Started',5000,4,1);
+/*!40000 ALTER TABLE `projects` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reclamations`
+--
+
+DROP TABLE IF EXISTS `reclamations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reclamations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `titre` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `category` enum('Technical','Facturation','Service','Autre') COLLATE utf8mb4_general_ci NOT NULL,
+  `type` enum('Plainte','Demande','Feedback') COLLATE utf8mb4_general_ci NOT NULL,
+  `attachedfile` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `date` date NOT NULL,
+  `heure` time NOT NULL,
+  `etat` enum('Pending','In Progress','On Hold','Closed','Rejected') COLLATE utf8mb4_general_ci NOT NULL,
+  `date_resolution` date DEFAULT NULL,
+  `id_responsable` int DEFAULT NULL,
+  `id_employee` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fkey_employee` (`id_employee`),
+  KEY `fkey_responsable` (`id_responsable`),
+  CONSTRAINT `fkey_employee` FOREIGN KEY (`id_employee`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fkey_responsable` FOREIGN KEY (`id_responsable`) REFERENCES `employees` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reclamations`
+--
+
+LOCK TABLES `reclamations` WRITE;
+/*!40000 ALTER TABLE `reclamations` DISABLE KEYS */;
+INSERT INTO `reclamations` VALUES (118,'r','thrth','Facturation','Demande','C:/Users/Mega-Pc/Documents/GitHub/WorkFlow-Java/uploads/reclamation/Présentation de l\'option DS - forum des options.pdf','2025-03-04','23:59:42','Pending',NULL,4,4),(119,'ras ','zeb','Technical','Demande',NULL,'2025-03-05','00:12:21','Pending',NULL,4,4),(120,'azraz','r','Facturation','Demande',NULL,'2025-03-05','00:19:59','Pending',NULL,4,4);
+/*!40000 ALTER TABLE `reclamations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reservation`
+--
+
+DROP TABLE IF EXISTS `reservation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reservation` (
+  `ID_Reservation` int NOT NULL AUTO_INCREMENT,
+  `Price` float NOT NULL,
+  `Type` varchar(50) NOT NULL,
+  `NombreDePlaces` int NOT NULL,
+  `UID` int NOT NULL,
+  `ID_Event` int NOT NULL,
+  `qr_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`ID_Reservation`),
+  KEY `fk_ID_Evenement` (`ID_Event`),
+  KEY `fk_UID_Event` (`UID`),
+  CONSTRAINT `fk_ID_Evenement` FOREIGN KEY (`ID_Event`) REFERENCES `events` (`ID_Event`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_UID_Event` FOREIGN KEY (`UID`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reservation`
+--
+
+LOCK TABLES `reservation` WRITE;
+/*!40000 ALTER TABLE `reservation` DISABLE KEYS */;
+INSERT INTO `reservation` VALUES (7,400,'Accès-Normal',10,4,8,'https://i.ibb.co/V0p96BTt/fdd17c960e13.png');
+/*!40000 ALTER TABLE `reservation` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `task`
+--
+
+DROP TABLE IF EXISTS `task`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `task` (
+  `task_id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `status` enum('To Do','In Progress','Completed','Blocked') NOT NULL DEFAULT 'To Do',
+  `priority` enum('Low','Medium','High','Critical') NOT NULL DEFAULT 'Medium',
+  `start_date` date NOT NULL,
+  `due_date` date NOT NULL,
+  `completion_date` date DEFAULT NULL,
+  `assigned_to` int DEFAULT NULL,
+  `project_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`task_id`),
+  KEY `fk_assigned_to` (`assigned_to`),
+  KEY `fk_project_id` (`project_id`),
+  CONSTRAINT `fk_assigned_to` FOREIGN KEY (`assigned_to`) REFERENCES `employees` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`Project_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `task`
+--
+
+LOCK TABLES `task` WRITE;
+/*!40000 ALTER TABLE `task` DISABLE KEYS */;
+INSERT INTO `task` VALUES (3,'Test de developpement du projet','','In Progress','Medium','2025-03-06','2025-03-13',NULL,4,1,'2025-03-04 23:40:56','2025-03-04 23:42:51'),(4,'CRUD','','Completed','Medium','2025-03-06','2025-02-27',NULL,4,1,'2025-03-04 23:41:33','2025-03-04 23:42:51'),(5,'Implementer un chatbot','','Blocked','Medium','2025-02-26','2025-03-13',NULL,4,1,'2025-03-04 23:41:52','2025-03-04 23:42:51');
+/*!40000 ALTER TABLE `task` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-03-05  1:15:17

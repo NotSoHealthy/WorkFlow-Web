@@ -6,7 +6,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use App\Repository\FormationRepository;
 
 #[ORM\Entity(repositoryClass: FormationRepository::class)]
@@ -30,6 +31,7 @@ class Formation
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'Le titre ne doit pas être vide')]
     private ?string $title = null;
 
     public function getTitle(): ?string
@@ -44,6 +46,7 @@ class Formation
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: 'La description ne doit pas être vide')]
     private ?string $description = null;
 
     public function getDescription(): ?string
@@ -86,6 +89,9 @@ class Formation
     }
 
     #[ORM\Column(type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: 'Le nombre de participants ne doit pas être vide')]
+    #[Assert\Type(type: 'integer', message: 'Le nombre de participants doit être un nombre entier')]
+    #[Assert\Positive(message: 'Le nombre de participants doit être supérieur à zéro')]
     private ?int $Participants_Max = null;
 
     public function getParticipants_Max(): ?int
@@ -119,6 +125,8 @@ class Formation
 
     public function __construct()
     {
+        $this->date_begin = new \DateTime();
+        $this->date_end = (new \DateTime())->add(new \DateInterval('P7D'));
         $this->inscriptions = new ArrayCollection();
     }
 
@@ -181,6 +189,15 @@ class Formation
         $this->Participants_Max = $Participants_Max;
 
         return $this;
+    }
+    #[Assert\Callback]
+    public function validateDates(ExecutionContextInterface $context): void
+    {
+        if ($this->date_begin && $this->date_end && $this->date_begin > $this->date_end) {
+            $context->buildViolation('La date de début doit être avant la date de fin.')
+                ->atPath('date_begin')
+                ->addViolation();
+        }
     }
 
 }

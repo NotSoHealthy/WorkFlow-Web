@@ -37,7 +37,6 @@ final class ProfileController extends AbstractController
 
             return $this->redirectToRoute('app_profile_edit_profile');
         } else {
-            // Restore original values to avoid keeping invalid data in memory
             $user->setFirstName($originalUser->getFirstName());
             $user->setLastName($originalUser->getLastName());
             $user->setEmail($originalUser->getEmail());

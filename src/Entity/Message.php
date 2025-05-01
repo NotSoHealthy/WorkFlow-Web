@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\MessageRepository;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
@@ -29,6 +29,8 @@ class Message
         return $this;
     }
 
+  
+    #[Assert\NotBlank(message: "Le contenu ne peut pas être vide.")]
     #[ORM\Column(type: 'string', nullable: false)]
     private ?string $contenu = null;
 
@@ -37,7 +39,7 @@ class Message
         return $this->contenu;
     }
 
-    public function setContenu(string $contenu): self
+    public function setContenu(?string $contenu): self
     {
         $this->contenu = $contenu;
         return $this;
@@ -58,16 +60,17 @@ class Message
     }
 
     #[ORM\Column(type: 'time', nullable: false)]
-    private ?string $heure = null;
+    private ?\DateTimeInterface $heure = null;
 
-    public function getHeure(): ?string
+    public function getHeure(): ?\DateTimeInterface
     {
         return $this->heure;
     }
-
-    public function setHeure(string $heure): self
+ 
+    public function setHeure(?\DateTimeInterface $heure): self
     {
         $this->heure = $heure;
+
         return $this;
     }
 
@@ -99,5 +102,4 @@ class Message
         $this->user = $user;
         return $this;
     }
-
 }
