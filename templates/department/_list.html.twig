@@ -19,6 +19,51 @@
     .ai-btn-wrapper {
       margin-bottom: 12px;
     }
+    .department-footer {
+    background-color: #e3e7f1;
+    border-top: none;
+    padding: 0.75rem 1.25rem;
+    text-align: center;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-action {
+    flex: 1 1 30%; 
+    max-width: 150px; 
+    min-width: 110px; 
+    height: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: normal; 
+    border-radius: 8px;
+}
+.modal-header {
+        border-bottom: none;
+    }
+    .modal-footer {
+        border-top: none;
+    }
+    .modal-content {
+        border-radius: 16px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    .modal-body p, .modal-body li {
+        color: #374151;
+        font-size: 1rem;
+    }
+    .modal-title {
+        font-size: 1.4rem;
+    }
+
   </style>
   
   <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -74,28 +119,33 @@
                           <strong>Budget Annuel:</strong> {{ department.YearBudget }} €
                       </div>
                   </div>
-                  <div class="department-footer">
-                      <button type="button" class="btn btn-sm btn-info btn-action" data-bs-toggle="modal" data-bs-target="#departmentModal{{ department.id }}">
-                          <i class="fas fa-eye"></i> En Savoir Plus
-                      </button>
-                      <a href="{{ path('department_edit', {'id': department.id}) }}" class="btn btn-sm btn-warning btn-action">
-                          <i class="fas fa-edit"></i> Modifier
-                      </a>
-                      <form method="post" action="{{ path('department_delete', {'id': department.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce département ?');">
-                          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ department.id) }}">
-                          <button class="btn btn-sm btn-danger btn-action">
-                              <i class="fas fa-trash-alt"></i> Supprimer
-                          </button>
-                      </form>
-                  </div>
+                  <div class="department-footer px-3 pb-3">
+    <div class="department-footer">
+    <div class="button-group">
+        <button type="button" class="btn btn-info btn-action" data-bs-toggle="modal" data-bs-target="#departmentModal{{ department.id }}">
+            <i class="fas fa-eye me-1"></i> En Savoir Plus
+        </button>
+
+        <a href="{{ path('department_edit', {'id': department.id}) }}" class="btn btn-warning btn-action">
+            <i class="fas fa-edit me-1"></i> Modifier
+        </a>
+
+        <form method="post" action="{{ path('department_delete', {'id': department.id}) }}" onsubmit="return confirm('Êtes-vous sûr ?');" style="margin: 0;">
+            <button type="submit" class="btn btn-danger btn-action">
+                <i class="fas fa-trash-alt me-1"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+
+</div>
               </div>
-  
-              {# Modal #}
               <div class="modal fade" id="departmentModal{{ department.id }}" tabindex="-1" aria-labelledby="departmentModalLabel{{ department.id }}" aria-hidden="true">
                   <div class="modal-dialog">
                       <div class="modal-content">
                           <div class="modal-header">
-                              <h5 class="modal-title" id="departmentModalLabel{{ department.id }}">{{ department.Name }}</h5>
+                              <h5 class="modal-title" id="departmentModalLabel{{ department.id }}">🏢   {{ department.Name }}</h5>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
@@ -118,8 +168,8 @@
                                   {% endfor %}
                               </ul>
                           </div>
-                          <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                          <div class="modal-footer" style="background: #f1f5f9;">
+                              <button type="button" class="btn btn-secondary" style="background:rgb(2, 34, 67);" data-bs-dismiss="modal">Fermer </button>
                           </div>
                       </div>
                   </div>
