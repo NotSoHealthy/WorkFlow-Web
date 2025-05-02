@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6aa70836fe893e370b54a011623bea05",
+    "content-hash": "4dffa683c4c1edf75d4953a35ef846dd",
     "packages": [
         {
             "name": "anhskohbo/no-captcha",
@@ -2876,6 +2876,54 @@
                 }
             ],
             "time": "2021-09-28T19:18:28+00:00"
+        },
+        {
+            "name": "lifo/typeahead-bundle",
+            "version": "2.4.2",
+            "target-dir": "Lifo/TypeaheadBundle",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lifo101/typeahead-bundle.git",
+                "reference": "3fd3529a03779596298436fcd0c7a35f3e8da1d9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lifo101/typeahead-bundle/zipball/3fd3529a03779596298436fcd0c7a35f3e8da1d9",
+                "reference": "3fd3529a03779596298436fcd0c7a35f3e8da1d9",
+                "shasum": ""
+            },
+            "suggest": {
+                "mopa/bootstrap-bundle": "Bundle to automatically enable Bootstrap styles for Symfony",
+                "twbs/bootstrap": "Bootstrap framework"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-0": {
+                    "Lifo\\TypeaheadBundle": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jason Morriss",
+                    "email": "lifo2013@gmail.com"
+                }
+            ],
+            "description": "A Symfony bundle that provides an autocomplete Typeahead form type compatible with Bootstrap v2|v3",
+            "keywords": [
+                "autocomplete",
+                "bootstrap",
+                "symfony",
+                "typeahead"
+            ],
+            "support": {
+                "issues": "https://github.com/lifo101/typeahead-bundle/issues",
+                "source": "https://github.com/lifo101/typeahead-bundle/tree/2.4.2"
+            },
+            "time": "2018-12-13T14:04:03+00:00"
         },
         {
             "name": "monolog/monolog",
