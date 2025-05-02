@@ -8,6 +8,7 @@
 .project-wrapper {
     padding: 3rem;
 }
+
 .project-box {
     background: white;
     border-radius: 1.2rem;
@@ -18,18 +19,21 @@
     margin-bottom: 2rem;
     cursor: pointer;
 }
+
 .project-box .header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1rem;
 }
+
 .project-box h2 {
     font-size: 1.6rem;
     font-weight: 700;
     margin: 0;
     color: #1e293b;
 }
+
 .state-badge {
     padding: 6px 16px;
     border-radius: 12px;
@@ -39,6 +43,7 @@
     text-transform: uppercase;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
 .state-en-cours { background: #facc15; color: black; }
 .state-termine { background: #22c55e; }
 .state-annule { background: #ef4444; }
@@ -71,60 +76,33 @@
     color: #1e293b;
 }
 
-/* Task Modal */
 .task-card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     padding: 1rem;
     margin-bottom: 1rem;
-    transition: 0.2s ease-in-out;
-}
-.task-card:hover {
-    transform: translateY(-2px);
 }
 .task-title {
-    font-weight: 600;
+    font-weight: bold;
     font-size: 1.1rem;
-    color: #1e293b;
 }
 .task-description {
-    font-size: 0.95rem;
-    color: #475569;
-    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
 }
 
-.task-card-actions {
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.task-btn {
-    border: none;
-    padding: 6px 10px;
-    font-size: 0.85rem;
-    border-radius: 8px;
-    color: white;
-}
-.task-btn.delete {
-    background-color: #ef4444;
-}
-.task-btn.edit {
-    background-color: #facc15;
-    color: #1f2937;
-}
-
-/* Columns */
-.task-column {
-    min-height: 300px;
-    padding: 10px;
-    background: #f1f5f9;
+/* Style for Add Task Form */
+#add-task-form {
+    display: none;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
     border-radius: 10px;
 }
-.card-header {
-    border-radius: 10px 10px 0 0;
+#add-task-form input, #add-task-form textarea, #add-task-form select {
+    margin-bottom: 10px;
 }
 </style>
 {% endblock %}
@@ -142,13 +120,23 @@
                         {% if project.State == 'en cours' %}state-en-cours
                         {% elseif project.State == 'terminé' %}state-termine
                         {% elseif project.State == 'annulé' %}state-annule
-                        {% endif %}">{{ project.State|upper }}</div>
+                        {% endif %}">
+                        {{ project.State|upper }}
+                    </div>
                 </div>
 
-                <div class="meta-item"><strong>👔 Manager :</strong>&nbsp;{{ project.manager.first_name }}</div>
-                <div class="meta-item"><strong>📅 Début :</strong>&nbsp;{{ project.StartDate|date('Y-m-d') }}</div>
-                <div class="meta-item"><strong>📅 Fin :</strong>&nbsp;{{ project.EndDate|date('Y-m-d') }}</div>
-                <div class="meta-item"><strong>💶 Budget :</strong>&nbsp;{{ project.Budget }} €</div>
+                <div class="meta-item">
+                    <strong>👔 Manager :</strong>&nbsp;{{ project.manager.first_name }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Début :</strong>&nbsp;{{ project.StartDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>📅 Fin :</strong>&nbsp;{{ project.EndDate|date('Y-m-d') }}
+                </div>
+                <div class="meta-item">
+                    <strong>💶 Budget :</strong>&nbsp;{{ project.Budget }} €
+                </div>
 
                 <div class="description-box">
                     <i class="fas fa-align-left"></i> {{ project.Description }}
@@ -159,163 +147,145 @@
         {% endfor %}
     </div>
 
-    <!-- Task Modal -->
+    <!-- Modal background -->
+    <div id="modal-background" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; backdrop-filter: blur(5px); background: rgba(0,0,0,0.2); z-index: 1040;"></div>
+
+    <!-- Modal -->
     <div id="task-modal" style="display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); background:white; padding:2rem; border-radius:10px; width:90%; max-width:1100px; height:90%; overflow:auto; z-index:1050; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
         <div class="d-flex justify-content-between mb-4">
             <h2 id="modal-project-title"></h2>
             <div>
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">➕ Ajouter</button>
+                <button class="btn btn-success btn-sm" onclick="toggleAddTaskForm()">➕ Ajouter</button>
                 <button onclick="closeTaskModal()" class="btn btn-danger btn-sm">Fermer ✖️</button>
             </div>
         </div>
-        <div id="task-board" class="row gy-4"></div>
-    </div>
 
-    <!-- Add Task Modal -->
-    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">➕ Nouvelle Tâche</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            {% include 'task/_form.html.twig' with {form: add_task_form, project: current_project} %}
-          </div>
+        <div id="add-task-form">
+            <input type="text" id="task-title" class="form-control" placeholder="Titre de la tâche">
+            <textarea id="task-description" class="form-control" placeholder="Description"></textarea>
+            <select id="task-status" class="form-control">
+                <option value="To Do">À faire</option>
+                <option value="In Progress">En cours</option>
+                <option value="Completed">Terminé</option>
+                <option value="Blocked">Bloqué</option>
+            </select>
+            <select id="task-priority" class="form-control">
+                <option>Haute</option>
+                <option>Moyenne</option>
+                <option>Basse</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="submitTask()">Créer</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleAddTaskForm()">Annuler</button>
         </div>
-      </div>
+
+        <div id="task-board" class="row"></div>
     </div>
 </main>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
-
-<script>
-    // Cette variable doit être accessible globalement AVANT le DOMContentLoaded
-    const updateTaskStatusUrl = '{{ path("task_update_status") }}';
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+function toggleAddTaskForm() {
+    const form = document.getElementById('add-task-form');
+    form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+}
 
-    window.openTaskModal = function(projectId, projectName) {
-        const modal = document.getElementById('task-modal');
-        if (modal.style.display === 'block') return;
+function submitTask() {
+    alert('Formulaire prêt à être envoyé ✅');
+}
 
-        document.querySelector('#addTaskModal form').setAttribute('action', '/task/' + projectId);
-        modal.setAttribute('data-project-id', projectId);
-        modal.style.display = 'block';
-        document.getElementById('modal-project-title').textContent = "📋 " + projectName;
+function openTaskModal(projectId, projectName) {
+    document.getElementById('modal-background').style.display = 'block';
+    document.getElementById('task-modal').style.display = 'block';
+    document.getElementById('modal-project-title').textContent = "📋 " + projectName;
 
-        fetch('/project/' + projectId + '/tasks/json')
-            .then(response => response.json())
-            .then(data => {
-                const board = document.getElementById('task-board');
-                board.innerHTML = '';
-                const statuses = {
-                    'To Do': 'À faire',
-                    'In Progress': 'En cours',
-                    'Completed': 'Terminé',
-                    'Blocked': 'Bloqué'
-                };
-                for (const [key, label] of Object.entries(statuses)) {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-3';
-                    col.innerHTML = `
-                        <div class="card">
-                            <div class="card-header text-center bg-primary text-white font-weight-bold">${label}</div>
-                            <div class="card-body task-column" id="column-${key.replace(' ', '-')}"></div>
-                        </div>
-                    `;
-                    board.appendChild(col);
-                }
+    fetch('/project/' + projectId + '/tasks/json')
+        .then(response => response.json())
+        .then(data => {
+            const board = document.getElementById('task-board');
+            board.innerHTML = '';
 
-                data.forEach(task => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.className = 'task-card';
-                    taskDiv.setAttribute('data-id', task.id);
-                    const shortDesc = task.description ? task.description.slice(0, 50) : '';
-                    taskDiv.innerHTML = `
-                        <div class="task-title">${task.title}</div>
-                        <div class="task-description">${shortDesc}${task.description.length > 50 ? '...' : ''}</div>
-                        <div class="task-card-actions">
-                            <button class="task-btn delete" onclick="deleteTask(${task.id}, ${projectId})">🗑️</button>
-                            <button class="task-btn edit" onclick="editTask(${task.id})">✏️</button>
-                        </div>
-                    `;
-                    const colBody = document.getElementById('column-' + task.status.replace(' ', '-'));
-                    if (colBody) colBody.appendChild(taskDiv);
-                });
+            const statuses = {
+                'To Do': 'À faire',
+                'In Progress': 'En cours',
+                'Completed': 'Terminé',
+                'Blocked': 'Bloqué'
+            };
 
-                document.querySelectorAll('.task-column').forEach(function (column) {
-                    new Sortable(column, {
-                        group: 'tasks',
-                        animation: 150,
-                        onEnd: function (evt) {
-                            const taskId = evt.item.getAttribute('data-id');
-                            const newColumn = evt.to.id.replace('column-', '');
-                            const statusMapping = {
-                                'To-Do': 'To Do',
-                                'In-Progress': 'In Progress',
-                                'Completed': 'Completed',
-                                'Blocked': 'Blocked'
-                            };
-                            const statusEnglish = statusMapping[newColumn] ?? newColumn.replace('-', ' ');
-
-                            fetch(updateTaskStatusUrl, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: JSON.stringify({ id: taskId, status: statusEnglish })
-                            })
-                            .then(res => {
-                                if (!res.ok) throw new Error("Erreur HTTP");
-                                return res.json();
-                            })
-                            .then(data => {
-                                console.log('✅ Statut mis à jour:', data);
-                            })
-                            .catch(error => {
-                                console.error('Erreur:', error);
-                            });
-                        }
-                    });
-                });
-            })
-            .catch(error => {
-                console.error('Erreur chargement tâches:', error);
-            });
-    };
-
-    window.closeTaskModal = () => {
-        document.getElementById('task-modal').style.display = 'none';
-    };
-
-    window.deleteTask = (taskId, projectId) => {
-        if (!confirm('Es-tu sûr de vouloir supprimer cette tâche ?')) return;
-
-        fetch(`/task/delete/${taskId}`, {
-            method: 'POST'
-        })
-        .then(res => {
-            if (res.ok) {
-                document.querySelector(`[data-id="${taskId}"]`).remove();
-                console.log('✅ Tâche supprimée');
-            } else {
-                console.error('❌ Échec de suppression');
+            for (const [key, label] of Object.entries(statuses)) {
+                const col = document.createElement('div');
+                col.className = 'col-md-3';
+                col.innerHTML = `
+                    <div class="card">
+                        <div class="card-header text-center bg-primary text-white font-weight-bold">${label}</div>
+                        <div class="card-body task-column" id="column-${key.replace(' ', '-')}"></div>
+                    </div>
+                `;
+                board.appendChild(col);
             }
+
+            data.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-card';
+                taskDiv.setAttribute('data-id', task.id);
+                taskDiv.innerHTML = `
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-description">${task.description ? task.description.slice(0,50) : ''}${task.description && task.description.length > 50 ? '...' : ''}</div>
+                `;
+                const colBody = document.getElementById('column-' + task.status.replace(' ', '-'));
+                if (colBody) {
+                    colBody.appendChild(taskDiv);
+                }
+            });
+
+            document.querySelectorAll('.task-column').forEach(function (column) {
+                new Sortable(column, {
+                    group: 'tasks',
+                    animation: 150,
+                    onEnd: function (evt) {
+                        const taskId = evt.item.getAttribute('data-id');
+                        const newColumn = evt.to.id.replace('column-', '');
+                        const statusMapping = {
+                            'To-Do': 'To Do',
+                            'In-Progress': 'In Progress',
+                            'Completed': 'Completed',
+                            'Blocked': 'Blocked'
+                        };
+                        const statusEnglish = statusMapping[newColumn] ?? newColumn.replace('-', ' ');
+
+                        fetch('/task/update/status', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                id: taskId,
+                                status: statusEnglish
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('✅ Statut mis à jour');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                        });
+                    }
+                });
+            });
+
         })
-        .catch(err => {
-            console.error('Erreur réseau:', err);
+        .catch(error => {
+            console.error('Erreur chargement tâches:', error);
         });
-    };
-});
+}
+
+function closeTaskModal() {
+    document.getElementById('modal-background').style.display = 'none';
+    document.getElementById('task-modal').style.display = 'none';
+}
 </script>
 {% endblock %}
-
-
