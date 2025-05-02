@@ -80,7 +80,6 @@ final class InterviewController extends AbstractController
                 $entityManager->persist($interview);
                 $entityManager->flush();
 
-                // Generate QR code and save it in the public/images directory
                 $qrCodeTempFile = null;
                 try {
                     $filesystem = new Filesystem();
@@ -89,23 +88,20 @@ final class InterviewController extends AbstractController
                         $filesystem->mkdir($publicDir);
                     }
 
-                    // Create a unique filename for the QR code
                     $qrCodeFileName = 'qr_' . uniqid() . '.svg';
                     $qrCodePath = $publicDir . '/' . $qrCodeFileName;
 
-                    // Build a message that contains the interview date, location, and a custom message
                     $interviewDate = $interview->getInterviewDate()->format('Y-m-d H:i');
                     $interviewLocation = $interview->getLocation();
                     $message = "Date: {$interviewDate}\nLocation: {$interviewLocation}\nMessage: Interview Scheduled";
 
-                    // Generate QR code as SVG
+                    // savi l qr fi file
                     $result = Builder::create()
                         ->writer(new SvgWriter())
                         ->data($message)
                         ->encoding(new Encoding('UTF-8'))
                         ->build();
 
-                    // Save the SVG content to the file
                     file_put_contents($qrCodePath, $result->getString());
                     $qrCodeTempFile = $qrCodePath;
                 } catch (\Exception $e) {
@@ -113,11 +109,9 @@ final class InterviewController extends AbstractController
                     $this->addFlash('warning', 'Interview created, but QR code could not be generated.');
                 }
 
-                // Generate a meeting link via Jitsi Meet (optional)
                 $meetingRoom = 'Interview-' . uniqid();
                 $meetingLink = 'https://meet.jit.si/' . $meetingRoom;
 
-                // Send email with QR code attachment and meeting link
                 $application = $interview->getApplication();
                 if ($application && $application->getMail()) {
                     $emailBody = $this->renderView('emails/interview_scheduled.html.twig', [
@@ -132,7 +126,6 @@ final class InterviewController extends AbstractController
                         ->subject('Interview Scheduled')
                         ->html($emailBody);
 
-                    // Attach the QR code file if available using embedFromPath
                     if ($qrCodeTempFile && file_exists($qrCodeTempFile)) {
                         $email->attachFromPath($qrCodeTempFile);
                     }

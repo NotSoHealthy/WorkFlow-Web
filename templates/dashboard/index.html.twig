@@ -87,7 +87,7 @@
                     <p class="card-title-text">Réclamations</p>
                 </div>
                 <p>Ouvertes</p>
-                <button class="btn btn-primary">Créer une réclamation</button>
+                <button class="btn btn-primary" onclick="window.location.href='{{ path('app_reclamation_index') }}'">Créer une réclamation</button>
             </div>
             <div class="card" style="flex-basis: 100%;">
                 <div class="card-title">
@@ -96,7 +96,7 @@
                     <p class="card-title-text">Evénements</p>
                 </div>
                 <p>Réservés</p>
-                <button class="btn btn-primary">Réservér une place</button>
+                <button class="btn btn-primary" onclick="window.location.href='{{ path('app_showevent') }}'">Réservér une place</button>
             </div>
             <div class="card">
                 <div class="card-title">
@@ -105,7 +105,7 @@
                     <p class="card-title-text">Formations</p>
                 </div>
                 <p>Inscrits</p>
-                <button class="btn btn-primary">S'inscrire à une formation</button>
+                <button class="btn btn-primary" onclick="window.location.href='{{ path('app_formation_list') }}'">S'inscrire à une formation</button>
             </div>
         </div>
         <h4 style="font-weight: 700;" id="month"></h4>

@@ -93,7 +93,6 @@ class JobOfferController extends AbstractController
                     $jobOffer->getPublicationDate()->format('Y-m-d')
                 );
 
-                // Ensure toot length is within 500 characters
                 if (strlen($text) > 500) {
                     $text = substr($text, 0, 497) . '...';
                 }
@@ -135,7 +134,7 @@ class JobOfferController extends AbstractController
 
             return new JsonResponse([
                 'success' => true,
-                'twitter' => $socialResult, // Keep 'twitter' key for compatibility
+                'twitter' => $socialResult, 
                 'job'     => [
                     'id'              => $jobOffer->getId(),
                     'title'           => $jobOffer->getTitle(),
