@@ -11,11 +11,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+
+
 class GoogleDriveController extends AbstractController
 {
-    #[Route('/google-drive-auth/{reclamation_id}', name: 'google_drive_auth')]
-    public function auth(Request $request, EntityManagerInterface $entityManager, $reclamation_id): Response
+    public $ID;
+
+    #[Route('/google-drive-auth/callback', name: 'google_drive_auth')]
+    public function auth(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $reclamation_id = $request->getSession()->get('reclamation_id');
         $reclamation = $entityManager->getRepository(Reclamation::class)->find($reclamation_id);
     
         if (!$reclamation || !$reclamation->getAttachedfile()) {
@@ -31,8 +36,9 @@ class GoogleDriveController extends AbstractController
         $client->setAuthConfig($credentialsPath);
         $client->addScope(Drive::DRIVE_FILE);
         
-       
-        $redirectUri = $this->generateUrl('google_drive_auth', ['reclamation_id' => $reclamation_id], UrlGeneratorInterface::ABSOLUTE_URL);
+        $redirectUri = $this->generateUrl('google_drive_auth', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+      
         $client->setRedirectUri($redirectUri);
         
       
@@ -63,5 +69,12 @@ class GoogleDriveController extends AbstractController
             $authUrl = $client->createAuthUrl();
             return $this->redirect($authUrl);
         }
+    }
+    #[Route('/google-drive-auth/{reclamation_id}', name: 'google_drive_auth2')]
+    public function auth2(Request $request, EntityManagerInterface $entityManager, $reclamation_id): Response
+    {
+        $session = $request->getSession();
+        $session->set('reclamation_id', $reclamation_id);
+        return $this->auth($request,$entityManager);
     }
 }
