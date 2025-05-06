@@ -1,6 +1,6 @@
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.md)
+# WorkFlow — Un site de gestion des ressources humaines développé avec Symfony 6.4
 
-# WorkFlow An HR managment website built with Symfony6.4
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.md)
 
 ## Table of Contents
 
