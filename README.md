@@ -1,3 +1,6 @@
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.md)
+[![fr](https://img.shields.io/badge/lang-fr-blue.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.fr.md)
+
 # WorkFlow An HR managment website built with Symfony6.4
 
 ## Table of Contents
