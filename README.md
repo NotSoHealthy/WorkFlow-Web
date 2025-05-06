@@ -1,4 +1,4 @@
-# WorkFlow — An HR managment website built with Symfony 6.4
+# <img title="WorkFlow" alt="Logo" src="https://i.imgur.com/KQGAJb0.png" width=50> WorkFlow — An HR managment website built with Symfony 6.4
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.md)
 [![fr](https://img.shields.io/badge/lang-fr-blue.svg)](https://github.com/NotSoHealthy/WorkFlow-Web/blob/master/README.fr.md)
@@ -10,10 +10,20 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Contributions](#contributions)
+- [License](#license)
 
 ## Introduction
 
 WorkFlow is a modern, lightweight, and flexible team management system designed to help teams streamline their operations, track progress, and boost productivity.
+This project was developed as part of the coursework for PIDEV 3A at [Esprit School of Engineering](https://esprit.tn/)
+
+### Built with
+
+* [![Symfony](https://img.shields.io/badge/Symfony-black?logo=symfony)](https://symfony.com/)
+* [![PHP](https://img.shields.io/badge/PHP-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+* [![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)]()
+* [![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
 
 ## Features
 
@@ -76,7 +86,31 @@ WorkFlow is a modern, lightweight, and flexible team management system designed 
     ```
 
 ## Usage
+* In the project directory
   ```sh
   symfony server:start --port=443
   ```
   Access the website through `https://127.0.0.1/`
+
+## Contributions
+
+We thank all those who contributed to this project !
+
+### Contributors
+
+The following people have contributed to this project by adding features, fixing bugs, or improving the documentation :
+
+- [Mohamed Amin Ben Hamouda](https://github.com/NotSoHealthy) - Development of user management 
+- [Fares Guermazi](https://github.com/FaresGuer) - Addition of the training management
+- [Youssef Mlewhia](https://github.com/yssfmlha) - Implementation of events 
+- [Amine Kerfai](https://github.com/AmineKerfai) - Development of job and internship offers 
+- [Zakaria Bouchaddakh](https://github.com/zakariabouchaddakh) - Creation of the department and project management feature
+- [Mahdi Hattab](https://github.com/MehdiHattab) - Addition of the employee complaints management feature
+
+Please feel free to contribute by [submitting an issue](https://github.com/NotSoHealthy/WorkFlow-Web/issues). Each contribution helps us grow and improve.
+
+We appreciate your support and look forward to making our product even better with your help!
+
+## Licence
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
