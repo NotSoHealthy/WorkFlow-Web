@@ -62,7 +62,8 @@
             <p>Pas encore de compte? <a href="{{ path('app_register') }}">S'inscrire maintenant</a></p>
         </div>
     </main>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {# <script src="https://www.google.com/recaptcha/api.js" async defer></script> #}
+    <script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('form');
